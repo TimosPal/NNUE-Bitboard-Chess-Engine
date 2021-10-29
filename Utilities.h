@@ -33,7 +33,12 @@ namespace ChessEngine {
 
     using PieceInfo = std::tuple<PieceType, Team>;
 
-    bool AlgebraicNotationToCoord(const std::string &str, BoardTile::Coordinates &coords);
+    bool CharToPieceInfo(char token, PieceInfo &piece_info);
+    char PieceInfoToChar(const PieceInfo& piece_info);
+
+    bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords);
+    bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str);
+
 
 }
 
