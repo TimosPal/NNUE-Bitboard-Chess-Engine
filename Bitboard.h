@@ -2,6 +2,7 @@
 #define BITBOARD_H
 
 #include <cstdint>
+#include <tuple>
 
 namespace ChessEngine {
 
@@ -13,39 +14,50 @@ namespace ChessEngine {
         Bitboard(BoardTile tile);
         Bitboard() = default;
 
+        bool Get(uint8_t index) const;
+        bool Get(uint8_t file, uint8_t rank) const;
+        bool Get(BoardTile tile) const;
+
+        void Set(uint8_t index);
+        void Set(uint8_t file, uint8_t rank);
         void Set(BoardTile tile);
-        void Set_If(BoardTile tile, bool cond);
+        void SetIf(BoardTile tile, bool cond);
 
         // Mirrors the board vertically.
-        void Mirror(){
-            data_ = (data_ & 0x00000000FFFFFFFF) << 32 | (data_ & 0xFFFFFFFF00000000) >> 32;
-            data_ = (data_ & 0x0000FFFF0000FFFF) << 16 | (data_ & 0xFFFF0000FFFF0000) >> 16;
-            data_ = (data_ & 0x00FF00FF00FF00FF) << 8 | (data_ & 0xFF00FF00FF00FF00) >> 8;
-        }
+        void Mirror();
+        void Draw() const;
 
     private:
-        uint64_t data_;
+        uint64_t data_ = 0;
     };
 
     class BoardTile{
     public:
-        BoardTile(uint8_t index) : tileIndex_(index) {}
-        BoardTile(uint8_t file, uint8_t rank) : tileIndex_(rank * 8 + file) {}
+        // [file,rank]
+        using Coordinates = std::tuple<uint8_t, uint8_t>;
+
+        BoardTile(uint8_t index) : tile_index_(index) {}
+        BoardTile(uint8_t file, uint8_t rank) : tile_index_(rank * 8 + file) {}
+        BoardTile(Coordinates coordinates) : BoardTile(std::get<0>(coordinates), std::get<1>(coordinates)) {}
         BoardTile() = default;
 
         uint8_t GetIndex() const{
-            return tileIndex_;
+            return tile_index_;
+        }
+
+        Coordinates GetCoords(){
+            return {tile_index_ % 8, tile_index_ / 8};
         }
 
         // Mirrors the tile index vertically,
         // meaning the file stays the same.
         // We assume the board size is 8x8.
         void Mirror(){
-            tileIndex_ ^= 0b111000;
+            tile_index_ ^= 0b111000;
         }
 
     private:
-        uint8_t tileIndex_;
+        uint8_t tile_index_ = 0;
     };
 
 }

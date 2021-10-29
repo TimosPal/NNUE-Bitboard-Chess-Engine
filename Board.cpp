@@ -6,30 +6,27 @@ namespace ChessEngine {
         rook_queens.Mirror();
         bishop_queens.Mirror();
         pawns_enPassant.Mirror();
-        own_King.Mirror();
-        enemy_King.Mirror();
+        own_king.Mirror();
+        enemy_king.Mirror();
 
-        own_Pieces.Mirror();
-        enemy_Pieces.Mirror();
+        own_pieces.Mirror();
+        enemy_pieces.Mirror();
 
-        std::swap(own_Pieces, enemy_Pieces);
-        std::swap(own_King, enemy_King);
+        std::swap(own_pieces, enemy_pieces);
+        std::swap(own_king, enemy_king);
     }
 
-    Board::Board(const BoardInfo& info, Team startingTeam) :
+    Board::Board(const BoardInfo &info) :
             representation_(std::get<Representation>(info)),
-            castlingRights_(std::get<CastlingRights>(info)),
-            moveCounters_(std::get<MoveCounters>(info)),
-            isFlipped_(startingTeam == Team::Black){
-        // If black starts the board should be flipped.
-        if(isFlipped_)
-            Mirror();
-    }
+            castling_rights_(std::get<CastlingRights>(info)),
+            move_counters_(std::get<MoveCounters>(info)),
+            is_flipped_(std::get<Team>(info) == Team::Black)
+            {}
 
     void Board::Mirror() {
         representation_.Mirror();
-        castlingRights_.Mirror();
-        isFlipped_ = !isFlipped_;
+        castling_rights_.Mirror();
+        is_flipped_ = !is_flipped_;
     }
 
 }

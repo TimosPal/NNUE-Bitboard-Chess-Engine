@@ -3,6 +3,9 @@
 
 #include <string>
 #include <tuple>
+#include "Bitboard.h"
+
+#define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return 1;}}
 
 namespace ChessEngine {
 
@@ -29,6 +32,8 @@ namespace ChessEngine {
     };
 
     using PieceInfo = std::tuple<PieceType, Team>;
+
+    bool AlgebraicNotationToCoord(const std::string &str, BoardTile::Coordinates &coords);
 
 }
 
