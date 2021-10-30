@@ -16,4 +16,5 @@ add_executable(ChessEngine2
         Utilities.cpp
         Utilities.h
         MoveTables.cpp
-        MoveTables.h)
+        MoveTables.h
+        MagicNumbers.h)

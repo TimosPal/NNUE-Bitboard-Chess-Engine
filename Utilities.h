@@ -45,17 +45,19 @@ namespace ChessEngine {
         const Bitboard not_file_B = ~file_B;
         const Bitboard not_file_G = ~file_G;
         const Bitboard not_file_H = ~file_H;
-
         const Bitboard not_file_AB = ~(file_A | file_B);
         const Bitboard not_file_GH = ~(file_H | file_G);
 
         // Ranks.
-        const Bitboard r1 = 0xff;
-        const Bitboard r2 = r1 << (8 * 1);
-        const Bitboard r3 = r1 << (8 * 2);
-        const Bitboard r6 = r1 << (8 * 5);
-        const Bitboard r7 = r1 << (8 * 6);
-        const Bitboard r8 = r1 << (8 * 7);
+        const Bitboard rank_1 = 0xff;
+        const Bitboard rank_2 = rank_1 << (8 * 1);
+        const Bitboard rank_3 = rank_1 << (8 * 2);
+        const Bitboard rank_6 = rank_1 << (8 * 5);
+        const Bitboard rank_7 = rank_1 << (8 * 6);
+        const Bitboard rank_8 = rank_1 << (8 * 7);
+
+        const Bitboard outer_tiles = rank_1 | rank_8  | file_A | file_H;
+        const Bitboard inner_tiles = ~outer_tiles;
     }
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);

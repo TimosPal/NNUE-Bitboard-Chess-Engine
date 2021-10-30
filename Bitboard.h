@@ -23,7 +23,9 @@ namespace ChessEngine {
         void Set(BoardTile tile);
         void SetIf(BoardTile tile, bool cond);
 
-        Bitboard& ShiftTowards(std::tuple<uint8_t, uint8_t> direction);
+        uint64_t AsInt() const { return data_; }
+
+        Bitboard& ShiftTowards(std::tuple<int8_t, int8_t> direction);
 
         // Mirrors the board vertically.
         void Mirror();
@@ -33,7 +35,7 @@ namespace ChessEngine {
         friend Bitboard operator&(const Bitboard& a, const Bitboard& b) { return {a.data_ & b.data_}; }
         friend Bitboard operator>>(const Bitboard& a, const Bitboard& b) { return {a.data_ >> b.data_}; }
         friend Bitboard operator<<(const Bitboard& a, const Bitboard& b) { return {a.data_ << b.data_}; }
-        friend Bitboard operator-(const Bitboard& a, const Bitboard& b) { return {a.data_ & ~b.data_ }; }
+        friend Bitboard operator-(const Bitboard& a, const Bitboard& b) { return {a.data_ & ~b.data_}; }
         friend Bitboard operator~(const Bitboard& a) { return {~a.data_}; }
         Bitboard& operator&=(const Bitboard& a) { data_ &= a.data_; return *this; }
         Bitboard& operator|=(const Bitboard& a) { data_ |= a.data_; return *this; }
