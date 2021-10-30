@@ -33,7 +33,7 @@ namespace ChessEngine {
         if(offset > 0)
             data_ <<= offset;
         else
-            data_ >>= offset;
+            data_ >>= abs(offset);
         return *this;
     }
 

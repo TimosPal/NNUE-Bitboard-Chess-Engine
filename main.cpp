@@ -11,9 +11,5 @@ int main() {
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
 
-    for (int i = 0; i < 64; i++) {
-        ChessEngine::MoveTables::KnightAttacks(i).Draw();
-    }
-
     return 0;
 }

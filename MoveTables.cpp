@@ -64,11 +64,11 @@ namespace ChessEngine::MoveTables{
 
         moves |= Bitboard(board).ShiftTowards({-1, +0}) & Masks::not_file_H; // Left.
         moves |= Bitboard(board).ShiftTowards({-1, +1}) & Masks::not_file_H; // Left Up.
-        moves |= Bitboard(board).ShiftTowards({-1, -1}) & Masks::not_file_A; // Left Down.
+        moves |= Bitboard(board).ShiftTowards({-1, -1}) & Masks::not_file_H; // Left Down.
 
         moves |= Bitboard(board).ShiftTowards({+1, +0}) & Masks::not_file_A; // Right.
         moves |= Bitboard(board).ShiftTowards({+1, +1}) & Masks::not_file_A; // Right Up.
-        moves |= Bitboard(board).ShiftTowards({+1, -1}) & Masks::not_file_H; // Right Down.
+        moves |= Bitboard(board).ShiftTowards({+1, -1}) & Masks::not_file_A; // Right Down.
 
         return moves;
     }
