@@ -3,6 +3,8 @@
 #include "Utilities.h"
 #include "MagicNumbers.h"
 
+// TODO: _pex_u64 (not supported by my computer).
+
 namespace ChessEngine::MoveTables{
 
     // Performance isn't crucial for these functions
@@ -16,6 +18,8 @@ namespace ChessEngine::MoveTables{
     // Does not include outer tiles.
     static Bitboard bishop_rays[64];
     static Bitboard rook_rays[64];
+
+    static Bitboard sliding_pieces_attacks[MagicNumbers::permutations];
 
     // When overflowing / under flowing in files A,H we may end up in the
     // opposite direction producing faulty moves. The inverted fileMasks
@@ -100,6 +104,14 @@ namespace ChessEngine::MoveTables{
                GetRay(from, {-1,-1}, occupancies) | GetRay(from, {1,-1}, occupancies);
     }
 
+    void ProduceSubSets(Bitboard set, uint8_t tile_index, void process(Bitboard permutation, uint8_t tile_index)){
+        Bitboard occupants_permutation = 0;
+        do{
+           process(occupants_permutation, tile_index);
+           occupants_permutation = (occupants_permutation.AsInt() - set) & set;
+        }while(occupants_permutation != 0);
+    }
+
     void InitMoveTables(){
         for (uint8_t rank = 0; rank < 8; rank++) {
             for (uint8_t file = 0; file < 8; file++) {
@@ -112,6 +124,18 @@ namespace ChessEngine::MoveTables{
 
                 bishop_rays[index] = GetBishopRays(tile, Masks::outer_tiles);
                 rook_rays[index] = GetRookRays(tile, Masks::outer_tiles);
+
+                auto set_rooks = [](Bitboard permutation, uint8_t tile_index){
+                    auto key = MagicNumbers::RookMagicHash(permutation, tile_index);
+                    sliding_pieces_attacks[key] = GetRookRays(tile_index, permutation);
+                };
+                auto set_bishops = [](Bitboard permutation, uint8_t tile_index){
+                    auto key = MagicNumbers::BishopMagicHash(permutation, tile_index);
+                    sliding_pieces_attacks[key] = GetBishopRays(tile_index, permutation);
+                };
+                ProduceSubSets(rook_rays[index], index, set_rooks);
+                ProduceSubSets(bishop_rays[index], index, set_bishops);
+
             }
         }
     }
@@ -131,11 +155,13 @@ namespace ChessEngine::MoveTables{
     Bitboard RookAttacks(uint8_t tile_index, Bitboard occupancies){
         Bitboard rays = rook_rays[tile_index];
         auto key = MagicNumbers::RookMagicHash(rays & occupancies, tile_index);
+        return sliding_pieces_attacks[key];
     }
 
     Bitboard BishopAttacks(uint8_t tile_index, Bitboard occupancies){
         Bitboard rays = bishop_rays[tile_index];
         auto key = MagicNumbers::BishopMagicHash(rays & occupancies, tile_index);
+        return sliding_pieces_attacks[key];
     }
 
     Bitboard QueenAttacks(uint8_t tile_index, Bitboard occupancies){

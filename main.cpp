@@ -11,5 +11,7 @@ int main() {
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
 
+    ChessEngine::MoveTables::RookAttacks(1,1);
+
     return 0;
 }

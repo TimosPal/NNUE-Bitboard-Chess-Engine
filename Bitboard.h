@@ -39,6 +39,8 @@ namespace ChessEngine {
         friend Bitboard operator~(const Bitboard& a) { return {~a.data_}; }
         Bitboard& operator&=(const Bitboard& a) { data_ &= a.data_; return *this; }
         Bitboard& operator|=(const Bitboard& a) { data_ |= a.data_; return *this; }
+        bool operator==(const Bitboard& other) const { return data_ == other.data_; }
+        bool operator!=(const Bitboard& other) const { return data_ != other.data_; }
 
     private:
         uint64_t data_ = 0;
