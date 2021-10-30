@@ -33,6 +33,31 @@ namespace ChessEngine {
 
     using PieceInfo = std::tuple<PieceType, Team>;
 
+    namespace Masks{
+        // Files.
+        const Bitboard file_A = 0x0101010101010101ULL;
+        const Bitboard file_B = file_A << 1;
+        const Bitboard file_G = file_A << 6;
+        const Bitboard file_H = file_A << 7;
+
+        // Not files.
+        const Bitboard not_file_A = ~file_A;
+        const Bitboard not_file_B = ~file_B;
+        const Bitboard not_file_G = ~file_G;
+        const Bitboard not_file_H = ~file_H;
+
+        const Bitboard not_file_AB = ~(file_A | file_B);
+        const Bitboard not_file_GH = ~(file_H | file_G);
+
+        // Ranks.
+        const Bitboard r1 = 0xff;
+        const Bitboard r2 = r1 << (8 * 1);
+        const Bitboard r3 = r1 << (8 * 2);
+        const Bitboard r6 = r1 << (8 * 5);
+        const Bitboard r7 = r1 << (8 * 6);
+        const Bitboard r8 = r1 << (8 * 7);
+    }
+
     bool CharToPieceInfo(char token, PieceInfo &piece_info);
     char PieceInfoToChar(const PieceInfo& piece_info);
 

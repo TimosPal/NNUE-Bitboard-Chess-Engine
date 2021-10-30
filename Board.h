@@ -78,7 +78,6 @@ namespace ChessEngine {
         bool is_flipped_ = false;
     };
 
-
 }
 
 #endif

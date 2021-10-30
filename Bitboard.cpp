@@ -24,6 +24,19 @@ namespace ChessEngine {
         std::cout << std::endl;
     }
 
+    Bitboard& Bitboard::ShiftTowards(std::tuple<uint8_t, uint8_t> direction) {
+        // index_curr = y * 8 + x
+        // index_new = (y+y_off)*8 + (x+x_off)
+        // index_new - index_curr =  8*y_off + x_off.
+        auto[x_offset, y_offset] = direction;
+        uint8_t offset = 8*y_offset + x_offset;
+        if(offset > 0)
+            data_ <<= offset;
+        else
+            data_ >>= offset;
+        return *this;
+    }
+
     bool Bitboard::Get(uint8_t index) const{
         return data_ & (std::uint64_t(1) << index);
     }

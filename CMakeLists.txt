@@ -3,4 +3,17 @@ project(ChessEngine2)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(ChessEngine2 main.cpp Bitboard.h Bitboard.cpp Board.cpp Board.h Move.cpp Move.h FenParser.h FenParser.cpp Utilities.cpp Utilities.h)
+add_executable(ChessEngine2
+        main.cpp
+        Bitboard.h
+        Bitboard.cpp
+        Board.cpp
+        Board.h
+        Move.cpp
+        Move.h
+        FenParser.h
+        FenParser.cpp
+        Utilities.cpp
+        Utilities.h
+        MoveTables.cpp
+        MoveTables.h)
