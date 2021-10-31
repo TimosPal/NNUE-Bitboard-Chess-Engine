@@ -15,6 +15,6 @@ add_executable(ChessEngine2
         FenParser.cpp
         Utilities.cpp
         Utilities.h
-        MoveTables.cpp
-        MoveTables.h
+        AttackTables.cpp
+        AttackTables.h
         MagicNumbers.h)

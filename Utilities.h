@@ -58,6 +58,13 @@ namespace ChessEngine {
 
         const Bitboard outer_tiles = rank_1 | rank_8  | file_A | file_H;
         const Bitboard inner_tiles = ~outer_tiles;
+
+        // Corners.
+        const BoardTile a1_tile = BoardTile(0,0);
+        const BoardTile a8_tile = BoardTile(0,7);
+        const BoardTile h1_tile = BoardTile(7,0);
+        const BoardTile h8_tile = BoardTile(7,7);
+        const Bitboard corner_tiles = a1_tile | a8_tile | h1_tile | h8_tile;
     }
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);

@@ -64,6 +64,8 @@ namespace ChessEngine {
         // We assume the board size is 8x8.
         void Mirror(){ tile_index_ ^= 0b111000; }
 
+        friend Bitboard operator|(const BoardTile& a, const BoardTile& b) { return Bitboard(a) | Bitboard(b); }
+
     private:
         uint8_t tile_index_ = 0;
     };
