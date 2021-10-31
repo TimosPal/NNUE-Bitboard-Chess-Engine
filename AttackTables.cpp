@@ -32,17 +32,6 @@ namespace ChessEngine::AttackTables{
             return left_attack | right_attack;
         }
 
-        // Generate the push moves of pawns
-        Bitboard GetSinglePawnPushes(Bitboard board) {
-            return Bitboard(board).ShiftTowards({0, 1});
-        }
-
-        // Generate the double push moves of pawns , check for occupancy only on the first move.
-        Bitboard GetDoublePawnPushes(Bitboard board, Bitboard occupancies) {
-            Bitboard pushes = Bitboard(board & Masks::rank_2).ShiftTowards({0, 1}) - occupancies;
-            return Bitboard(board).ShiftTowards({0, 1});
-        }
-
         // Generate the attack moves of all pawns at the given bitboard based on color
         Bitboard GetKnightAttacks(Bitboard board) {
             Bitboard moves{};
