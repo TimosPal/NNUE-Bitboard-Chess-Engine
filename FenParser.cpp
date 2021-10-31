@@ -7,7 +7,7 @@
 namespace ChessEngine {
 
     namespace {
-        void SetPieces(const PieceInfo &pieceInfo, const BoardTile &tile, Representation &representation) {
+        void SetPieces(const PieceInfo &pieceInfo, const BoardTile &tile, Board::Representation &representation) {
             auto[type, team] = pieceInfo;
             if (team == Team::White) {
                 representation.own_pieces.Set(tile);
@@ -28,7 +28,7 @@ namespace ChessEngine {
             representation.pawns_enPassant.SetIf(tile, type == PieceType::Pawn);
         }
 
-        bool ParsePiecePlacement(const std::string &placement, Representation &representation) {
+        bool ParsePiecePlacement(const std::string &placement, Board::Representation &representation) {
             // Rank are separated by a '/'.
             // numbers mean consecutive empty spaces.
             // letters correspond to piece types.
@@ -81,7 +81,7 @@ namespace ChessEngine {
             }
         }
 
-        bool ParseCastlingRights(const std::string &rights_string, CastlingRights &castling_rights) {
+        bool ParseCastlingRights(const std::string &rights_string, Board::CastlingRights &castling_rights) {
             // KQkq means every castling move is available , - none.
             // doesn't decline strings with wrong ordering (eg: qKQk)
             bool white_king_side, black_king_side;
@@ -93,7 +93,7 @@ namespace ChessEngine {
                 return false;
             if (rights_string == "-") {
                 // Defaults to false.
-                castling_rights = CastlingRights();
+                castling_rights = Board::CastlingRights();
                 return true;
             }
 
@@ -124,11 +124,11 @@ namespace ChessEngine {
                 }
             }
 
-            castling_rights = CastlingRights(white_queen_side, white_king_side, black_queen_side, black_king_side);
+            castling_rights = {white_queen_side, white_king_side, black_queen_side, black_king_side};
             return true;
         }
 
-        bool ParseMoveCounter(const std::string &counter_string, MoveCounters &move_counters, bool for_half) {
+        bool ParseMoveCounter(const std::string &counter_string, Board::MoveCounters &move_counters, bool for_half) {
             // create an input stream with your string.
             // number concat with another string still passes!
             int counter = -1;
@@ -150,7 +150,7 @@ namespace ChessEngine {
             return true;
         }
 
-        bool ParseEnPassant(const std::string &enPassant_string, Representation &representation) {
+        bool ParseEnPassant(const std::string &enPassant_string, Board::Representation &representation) {
             if (enPassant_string == "-") {
                 return true;
             }
@@ -170,9 +170,9 @@ namespace ChessEngine {
     }
 
     bool ParseFenString(const std::string &fen_string, Board::BoardInfo &board_info) {
-        Representation representation;
-        CastlingRights castling_rights;
-        MoveCounters move_counter;
+        Board::Representation representation;
+        Board::CastlingRights castling_rights;
+        Board::MoveCounters move_counter;
         Team starting_team;
 
         std::stringstream stream(fen_string);

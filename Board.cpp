@@ -2,7 +2,7 @@
 
 namespace ChessEngine {
 
-    void Representation::Mirror() {
+    void Board::Representation::Mirror() {
         rook_queens.Mirror();
         bishop_queens.Mirror();
         pawns_enPassant.Mirror();
