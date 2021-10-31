@@ -28,6 +28,8 @@ namespace ChessEngine {
 
     Bitboard::Bitboard(BoardTile tile) : data_(std::uint64_t(1) << tile.GetIndex()) {}
 
+    Bitboard::Bitboard(uint8_t file, uint8_t rank) : Bitboard(BoardTile(file, rank)) {}
+
     void Bitboard::Mirror(){
         data_ = (data_ & 0x00000000FFFFFFFF) << 32 | (data_ & 0xFFFFFFFF00000000) >> 32;
         data_ = (data_ & 0x0000FFFF0000FFFF) << 16 | (data_ & 0xFFFF0000FFFF0000) >> 16;
@@ -88,7 +90,7 @@ namespace ChessEngine {
     }
 
     BoardTile Bitboard::Iterator::operator*() const {
-        return BitScanForward(data_);
+        return BoardTile(BitScanForward(data_));
     }
 
 }

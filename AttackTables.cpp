@@ -88,7 +88,7 @@ namespace ChessEngine::AttackTables{
             y += y_off;
             Bitboard ray{};
             while (x >= 0 && x < 8 && y >= 0 && y < 8) {
-                ray |= Bitboard({x, y});
+                ray |= Bitboard(x, y);
                 if (occupancies.Get(x, y))
                     break;
                 x += x_off;
@@ -98,12 +98,12 @@ namespace ChessEngine::AttackTables{
             return ray;
         }
 
-        Bitboard GetRookRays(BoardTile from, Bitboard occupancies = 0) {
+        Bitboard GetRookRays(BoardTile from, Bitboard occupancies) {
             return GetRay(from, {0, 1}, occupancies) | GetRay(from, {0, -1}, occupancies) |
                    GetRay(from, {1, 0}, occupancies) | GetRay(from, {-1, 0}, occupancies);
         }
 
-        Bitboard GetBishopRays(BoardTile from, Bitboard occupancies = 0) {
+        Bitboard GetBishopRays(BoardTile from, Bitboard occupancies) {
             return GetRay(from, {1, 1}, occupancies) | GetRay(from, {-1, 1}, occupancies) |
                    GetRay(from, {-1, -1}, occupancies) | GetRay(from, {1, -1}, occupancies);
         }
@@ -112,7 +112,7 @@ namespace ChessEngine::AttackTables{
         void ProduceSubSets(Bitboard set, Set process) {
             uint64_t occupants_permutation = 0;
             do {
-                process(occupants_permutation);
+                process(Bitboard(occupants_permutation));
                 occupants_permutation = (occupants_permutation - set.AsInt()) & set.AsInt();
             } while (occupants_permutation != 0);
         }
@@ -122,20 +122,21 @@ namespace ChessEngine::AttackTables{
         for (uint8_t rank = 0; rank < 8; rank++) {
             for (uint8_t file = 0; file < 8; file++) {
                 BoardTile tile = BoardTile(file, rank);
+                Bitboard tile_board = Bitboard(tile);
                 uint8_t index = tile.GetIndex();
 
                 // Leaper pieces.
-                pawn_attacks[index] = GetPawnAttacks(tile);
-                king_attacks[index] = GetKingAttacks(tile);
-                knight_attacks[index] = GetKnightAttacks(tile);
+                pawn_attacks[index] = GetPawnAttacks(tile_board);
+                king_attacks[index] = GetKingAttacks(tile_board);
+                knight_attacks[index] = GetKnightAttacks(tile_board);
 
                 // Relevant slider pieces rays. Meaning the ray in an empty board ,excluding outer edges.
                 // If tile is an outer edge we have to stop at the corners and include the outer rank / file.
                 // This is true only for rooks.
-                bishop_relevant_rays[index] = GetBishopRays(index, Masks::outer_tiles) - Masks::outer_tiles;
-                bool is_at_edge = (tile & Masks::outer_tiles) != 0;
+                bishop_relevant_rays[index] = GetBishopRays(tile, Masks::outer_tiles) - Masks::outer_tiles;
+                bool is_at_edge = !(tile_board & Masks::outer_tiles).IsEmpty();
                 Bitboard halting_mask = is_at_edge ? Masks::corner_tiles : Masks::outer_tiles;
-                rook_relevant_rays[index] = GetRookRays(index, halting_mask) - halting_mask;
+                rook_relevant_rays[index] = GetRookRays(tile, halting_mask) - halting_mask;
 
                 auto set_rooks = [=](Bitboard permutation){
                     auto key = MagicNumbers::RookMagicHash(permutation, index);

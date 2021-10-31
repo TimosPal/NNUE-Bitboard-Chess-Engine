@@ -67,7 +67,7 @@ namespace ChessEngine {
         const BoardTile a8_tile = BoardTile(0,7);
         const BoardTile h1_tile = BoardTile(7,0);
         const BoardTile h8_tile = BoardTile(7,7);
-        const Bitboard corner_tiles = Bitboard(a1_tile | a8_tile | h1_tile | h8_tile);
+        const Bitboard corner_tiles = a1_tile | a8_tile | h1_tile | h8_tile;
     }
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);

@@ -10,7 +10,7 @@ namespace ChessEngine {
 
     class BoardTile {
     public:
-        BoardTile(uint8_t index) : tile_index_(index) {}
+        explicit BoardTile(uint8_t index) : tile_index_(index) {}
         BoardTile(uint8_t file, uint8_t rank) : tile_index_(rank * 8 + file) {}
         BoardTile() = default;
 
@@ -25,7 +25,9 @@ namespace ChessEngine {
         // We assume the board size is 8x8.
         void Mirror() { tile_index_ ^= 0b111000; }
 
+        friend Bitboard operator|(const Bitboard &a, const BoardTile &b) { return a | Bitboard(b);}
         friend Bitboard operator|(const BoardTile &a, const BoardTile &b) { return Bitboard(a) | Bitboard(b); }
+        friend Bitboard operator-(const Bitboard &a, const BoardTile &b) { return a - Bitboard(b); }
 
     private:
         uint8_t tile_index_ = 0;

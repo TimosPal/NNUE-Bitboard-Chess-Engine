@@ -15,13 +15,13 @@ namespace ChessEngine {
         struct Representation{
             // Queens share the bitboards of rooks and bishops
             // Pawns can include the en passant square on ranks 1-8.
-            Bitboard own_pieces = 0;
-            Bitboard enemy_pieces = 0;
-            Bitboard rook_queens = 0;
-            Bitboard bishop_queens = 0;
-            Bitboard pawns_enPassant = 0;
-            BoardTile own_king = 0;
-            BoardTile enemy_king = 0;
+            Bitboard own_pieces = Bitboard(0);
+            Bitboard enemy_pieces = Bitboard(0);
+            Bitboard rook_queens = Bitboard(0);
+            Bitboard bishop_queens = Bitboard(0);
+            Bitboard pawns_enPassant = Bitboard(0);
+            BoardTile own_king = BoardTile(0);
+            BoardTile enemy_king = BoardTile(0);
 
             Bitboard Rooks() const { return rook_queens - bishop_queens; }
             Bitboard Bishops() const { return bishop_queens - rook_queens; }
@@ -75,7 +75,7 @@ namespace ChessEngine {
         };
 
         using BoardInfo = std::tuple<Representation, CastlingRights, MoveCounters, Team>;
-        Board(const BoardInfo &info);
+        explicit Board(const BoardInfo &info);
 
         // Mirrors the board vertically.
         void Mirror();

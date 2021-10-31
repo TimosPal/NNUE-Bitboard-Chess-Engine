@@ -11,7 +11,7 @@ int main() {
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
 
-    ChessEngine::Bitboard a = 0b1111;
+    ChessEngine::Bitboard a = ChessEngine::Bitboard(0b1111);
     for(auto i : a){
         ChessEngine::Bitboard(i).Draw();
     }

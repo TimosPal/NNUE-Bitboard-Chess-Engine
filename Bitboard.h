@@ -22,8 +22,9 @@ namespace ChessEngine {
             uint64_t data_;
         };
 
-        Bitboard(uint64_t value) : data_(value) {}
-        Bitboard(BoardTile tile);
+        explicit Bitboard(uint64_t value) : data_(value) {}
+        explicit Bitboard(uint8_t file, uint8_t rank);
+        explicit Bitboard(BoardTile tile);
         Bitboard() = default;
 
         bool Get(uint8_t index) const;
@@ -42,9 +43,10 @@ namespace ChessEngine {
         // Mirrors the board vertically.
         void Mirror();
         void Draw() const;
+        bool IsEmpty() const { return data_ == 0; }
 
-        Iterator begin() { return Iterator(data_); }
-        Iterator end() { return Iterator(0); }
+        Iterator begin() const { return Iterator(data_); }
+        Iterator end() const { return Iterator(0); }
 
         friend Bitboard operator|(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ | b.data_); }
         friend Bitboard operator&(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ & b.data_); }
@@ -52,8 +54,10 @@ namespace ChessEngine {
         friend Bitboard operator<<(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ << b.data_); }
         friend Bitboard operator-(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ & ~b.data_); }
         friend Bitboard operator~(const Bitboard& a) { return Bitboard(~a.data_); }
+
         Bitboard& operator&=(const Bitboard& a) { data_ &= a.data_; return *this; }
         Bitboard& operator|=(const Bitboard& a) { data_ |= a.data_; return *this; }
+
         bool operator==(const Bitboard& other) const { return data_ == other.data_; }
         bool operator!=(const Bitboard& other) const { return data_ != other.data_; }
 
