@@ -83,8 +83,8 @@ namespace ChessEngine::PseudoMoves {
 
         Bitboard captures_left = pawns.ShiftTowards({-1,1}) & enemy & Masks::not_file_H;
         Bitboard captures_right = pawns.ShiftTowards({1,1}) & enemy & Masks::not_file_A;
-        Bitboard capture_promotion_left = captures_left & Masks::rank_7;
-        Bitboard capture_promotion_right = captures_right & Masks::rank_7;
+        Bitboard capture_promotion_left = captures_left & Masks::rank_8;
+        Bitboard capture_promotion_right = captures_right & Masks::rank_8;
         Bitboard capture_simple_left = captures_left - capture_promotion_left;
         Bitboard capture_simple_right = captures_right - capture_promotion_right;
 
@@ -125,7 +125,7 @@ namespace ChessEngine::PseudoMoves {
         Bitboard enPassant = representation.EnPassant();
 
         GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        //GetPseudoKingMoves(representation.own_king, own, move_list);
+        GetPseudoKingMoves(representation.own_king, own, move_list);
         GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
         GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
         GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);

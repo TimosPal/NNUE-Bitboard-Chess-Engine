@@ -7,7 +7,7 @@
 int main() {
     ChessEngine::AttackTables::InitMoveTables();
 
-    std::string fen = "8/8/8/8/8/6p1/5P2/8 w - - 0 1";
+    std::string fen = "5p2/4P3/8/8/8/8/8/5K1k w - - 0 1";
     ChessEngine::Board::BoardInfo info = {};
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);

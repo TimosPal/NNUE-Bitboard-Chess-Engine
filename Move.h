@@ -18,15 +18,16 @@ namespace ChessEngine {
         Move(BoardTile from, BoardTile to, PieceType promotion) : Move(from.GetIndex(), to.GetIndex(), promotion) {}
 
         uint8_t GetFrom() const {return data_ & Masks::From; }
-        uint8_t GetTo() const {return (data_ & Masks::From) >> 6; }
-        PieceType GetPromotion() const {return static_cast<PieceType>((data_ & Masks::From) >> 12); }
+        uint8_t GetTo() const {return (data_ & Masks::To) >> 6; }
+        PieceType GetPromotion() const {return static_cast<PieceType>((data_ & Masks::Promotion) >> 12); }
 
         friend std::ostream& operator<<(std::ostream& os, const Move& move){
             std::string from_notation;
             CoordsToNotation(BoardTile(move.GetFrom()).GetCoords(), from_notation);
             std::string to_notation;
             CoordsToNotation(BoardTile(move.GetTo()).GetCoords(), to_notation);
-            os << from_notation << " -> " << to_notation;
+            PieceInfo piece_info = {move.GetPromotion(), Team::White};
+            os << from_notation << " -> " << to_notation << " | Promotion " << PieceInfoToChar(piece_info);
             return os;
         }
 

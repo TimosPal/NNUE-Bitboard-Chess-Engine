@@ -33,6 +33,10 @@ namespace ChessEngine {
             // numbers mean consecutive empty spaces.
             // letters correspond to piece types.
 
+            // Kings need to exist for proper behaviour to tile's having a default value of 0.
+            bool has_white_king = false;
+            bool has_black_king = false;
+
             std::stringstream stream(placement);
             std::string sub_string;
             int rank = Rank::R8; // Fen strings start from rank 8 going towards rank 1.
@@ -48,6 +52,14 @@ namespace ChessEngine {
                         if (!CharToPieceInfo(token, piece_info))
                             return false;
                         SetPieces(piece_info, BoardTile(file, rank), representation);
+
+                        auto[type , team] = piece_info;
+                        if(type == King){
+                            if(team == White)
+                                has_white_king = true;
+                            else
+                                has_black_king = true;
+                        }
                     }
                     file++;
 
@@ -61,7 +73,8 @@ namespace ChessEngine {
                 rank--;
             }
 
-            return rank == Rank::R1 - 1; // All 8 rank were described (no more or less).
+            // All 8 rank were described (no more or less). Both kings exist
+            return (rank == Rank::R1 - 1) && has_white_king && has_black_king;
         }
 
         bool ParseStartingTeam(const std::string &starting_team_string, Team &starting_team) {
