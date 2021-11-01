@@ -34,7 +34,7 @@ namespace ChessEngine::PseudoMoves {
         }
     }
 
-    void GetPseudoPawnMoves(Bitboard pawns, Bitboard own, Bitboard enemy, MoveList& move_list) {
+    void GetPseudoPawnMoves(Bitboard pawns, Bitboard own, Bitboard enemy, Bitboard enPassant, MoveList& move_list) {
         // Since we can find the [from] value from each [to] , we calculate all the final moves in parallel
         // with shifts instead of using pre computed attack tables. This function avoids branches as much
         // as possible hence the very exhaustive implementations of each case in separate loops.
@@ -63,6 +63,11 @@ namespace ChessEngine::PseudoMoves {
         constexpr int8_t one_right_offset = 1;
         constexpr int8_t one_left_offset = -1;
 
+        // En passant is in ranks 1 and 8. Since each time the board is mirrored we only
+        // need to check rank 8. We can consider said spot an enemy piece. This does not
+        // affect forward pushes because in front of en passant tile there is an enemy piece.
+        enemy |= enPassant.ShiftTowards({0,-2});
+
         Bitboard all = own | enemy;
         Bitboard pawns_up = pawns.ShiftTowards({0, 1}) - all;
         Bitboard promotions = pawns_up & Masks::rank_8;
@@ -76,8 +81,8 @@ namespace ChessEngine::PseudoMoves {
         pawns_up = (pawns_up & Masks::rank_3).ShiftTowards({0, 1}) - all;
         process_captures_quiet(pawns_up, 2 * one_back_offset, move_list);
 
-        Bitboard captures_left = pawns_up.ShiftTowards({-1,1}) & enemy & Masks::not_file_H;
-        Bitboard captures_right = pawns_up.ShiftTowards({1,1}) & enemy & Masks::not_file_A;
+        Bitboard captures_left = pawns.ShiftTowards({-1,1}) & enemy & Masks::not_file_H;
+        Bitboard captures_right = pawns.ShiftTowards({1,1}) & enemy & Masks::not_file_A;
         Bitboard capture_promotion_left = captures_left & Masks::rank_7;
         Bitboard capture_promotion_right = captures_right & Masks::rank_7;
         Bitboard capture_simple_left = captures_left - capture_promotion_left;
@@ -114,18 +119,17 @@ namespace ChessEngine::PseudoMoves {
         GetSliderPseudoMoves(bishops, own, enemy, move_list, AttackTables::BishopAttacks);
     }
 
-    void GetPseudoMoves(Board::Representation representation){
-        MoveList move_list;
-
+    void GetPseudoMoves(Board::Representation representation, MoveList& move_list){
         Bitboard own = representation.own_pieces;
         Bitboard enemy = representation.enemy_pieces;
+        Bitboard enPassant = representation.EnPassant();
 
         GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        GetPseudoKingMoves(representation.own_king, own, move_list);
+        //GetPseudoKingMoves(representation.own_king, own, move_list);
         GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
         GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
         GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);
-        GetPseudoPawnMoves(representation.Pawns() & own, own, enemy, move_list);
+        GetPseudoPawnMoves(representation.Pawns() & own, own, enemy, enPassant, move_list);
     }
 
 }

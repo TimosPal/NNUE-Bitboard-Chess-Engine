@@ -2,14 +2,22 @@
 
 #include "AttackTables.h"
 #include "FenParser.h"
+#include "PseudoMoves.h"
 
 int main() {
     ChessEngine::AttackTables::InitMoveTables();
 
-    std::string fen = "8/5p1p/8/4p2p/p1p1K3/6p1/4p3/3p4 w - - 0 1";
+    std::string fen = "8/8/8/8/8/6p1/5P2/8 w - - 0 1";
     ChessEngine::Board::BoardInfo info = {};
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
+
+    auto [a, b, c, d] = info;
+    ChessEngine::MoveList moves;
+    ChessEngine::PseudoMoves::GetPseudoMoves(a, moves);
+    for (auto t : moves) {
+        std::cout << t << std::endl;
+    }
 
     return 0;
 }

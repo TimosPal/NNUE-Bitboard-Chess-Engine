@@ -85,8 +85,10 @@ namespace ChessEngine {
 
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str){
         auto[file, rank] = coords;
-        if (file < 0 || file > 7 || rank < 0 || rank > 7)
+        if (file < 0 || file > 7 || rank < 0 || rank > 7) {
+            str = "invalid";
             return false;
+        }
 
         char rank_temp = rank + '0' + 1;
         char file_temp = file + 'a';

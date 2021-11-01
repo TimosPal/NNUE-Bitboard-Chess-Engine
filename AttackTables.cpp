@@ -27,8 +27,8 @@ namespace ChessEngine::AttackTables{
         // handle those 2 cases.
         Bitboard GetPawnAttacks(Bitboard board) {
             Bitboard left_attack, right_attack;
-            left_attack = Bitboard(board).ShiftTowards({-1, 1}) & Masks::not_file_H;
-            right_attack = Bitboard(board).ShiftTowards({1, 1}) & Masks::not_file_A;
+            left_attack = board.ShiftTowards({-1, 1}) & Masks::not_file_H;
+            right_attack = board.ShiftTowards({1, 1}) & Masks::not_file_A;
             return left_attack | right_attack;
         }
 
@@ -36,15 +36,15 @@ namespace ChessEngine::AttackTables{
         Bitboard GetKnightAttacks(Bitboard board) {
             Bitboard moves{};
 
-            moves |= Bitboard(board).ShiftTowards({-1, +2}) & Masks::not_file_H; // Up left.
-            moves |= Bitboard(board).ShiftTowards({+1, +2}) & Masks::not_file_A; // Up right.
-            moves |= Bitboard(board).ShiftTowards({-2, +1}) & Masks::not_file_GH; // Left up.
-            moves |= Bitboard(board).ShiftTowards({+2, +1}) & Masks::not_file_AB; // Right up.
+            moves |= board.ShiftTowards({-1, +2}) & Masks::not_file_H; // Up left.
+            moves |= board.ShiftTowards({+1, +2}) & Masks::not_file_A; // Up right.
+            moves |= board.ShiftTowards({-2, +1}) & Masks::not_file_GH; // Left up.
+            moves |= board.ShiftTowards({+2, +1}) & Masks::not_file_AB; // Right up.
 
-            moves |= Bitboard(board).ShiftTowards({-1, -2}) & Masks::not_file_H; // Down left.
-            moves |= Bitboard(board).ShiftTowards({+1, -2}) & Masks::not_file_A; // Down right.
-            moves |= Bitboard(board).ShiftTowards({-2, -1}) & Masks::not_file_GH; // Left down.
-            moves |= Bitboard(board).ShiftTowards({+2, -1}) & Masks::not_file_AB; // Right down.
+            moves |= board.ShiftTowards({-1, -2}) & Masks::not_file_H; // Down left.
+            moves |= board.ShiftTowards({+1, -2}) & Masks::not_file_A; // Down right.
+            moves |= board.ShiftTowards({-2, -1}) & Masks::not_file_GH; // Left down.
+            moves |= board.ShiftTowards({+2, -1}) & Masks::not_file_AB; // Right down.
 
             return moves;
         }
@@ -53,16 +53,16 @@ namespace ChessEngine::AttackTables{
         Bitboard GetKingAttacks(Bitboard board) {
             Bitboard moves{};
 
-            moves |= Bitboard(board).ShiftTowards({+0, +1}); // Up.
-            moves |= Bitboard(board).ShiftTowards({+0, -1}); // Down.
+            moves |= board.ShiftTowards({+0, +1}); // Up.
+            moves |= board.ShiftTowards({+0, -1}); // Down.
 
-            moves |= Bitboard(board).ShiftTowards({-1, +0}) & Masks::not_file_H; // Left.
-            moves |= Bitboard(board).ShiftTowards({-1, +1}) & Masks::not_file_H; // Left Up.
-            moves |= Bitboard(board).ShiftTowards({-1, -1}) & Masks::not_file_H; // Left Down.
+            moves |= board.ShiftTowards({-1, +0}) & Masks::not_file_H; // Left.
+            moves |= board.ShiftTowards({-1, +1}) & Masks::not_file_H; // Left Up.
+            moves |= board.ShiftTowards({-1, -1}) & Masks::not_file_H; // Left Down.
 
-            moves |= Bitboard(board).ShiftTowards({+1, +0}) & Masks::not_file_A; // Right.
-            moves |= Bitboard(board).ShiftTowards({+1, +1}) & Masks::not_file_A; // Right Up.
-            moves |= Bitboard(board).ShiftTowards({+1, -1}) & Masks::not_file_A; // Right Down.
+            moves |= board.ShiftTowards({+1, +0}) & Masks::not_file_A; // Right.
+            moves |= board.ShiftTowards({+1, +1}) & Masks::not_file_A; // Right Up.
+            moves |= board.ShiftTowards({+1, -1}) & Masks::not_file_A; // Right Down.
 
             return moves;
         }

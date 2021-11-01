@@ -9,7 +9,6 @@ add_executable(ChessEngine2
         Bitboard.cpp
         Board.cpp
         Board.h
-        Move.cpp
         Move.h
         FenParser.h
         FenParser.cpp

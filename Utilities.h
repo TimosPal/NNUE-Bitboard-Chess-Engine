@@ -38,9 +38,9 @@ namespace ChessEngine {
     namespace Masks{
         // Files.
         const Bitboard file_A = Bitboard(0x0101010101010101ULL);
-        const Bitboard file_B = Bitboard(file_A).ShiftTowards({1,0});
-        const Bitboard file_G = Bitboard(file_A).ShiftTowards({6,0});
-        const Bitboard file_H = Bitboard(file_A).ShiftTowards({7,0});
+        const Bitboard file_B = file_A.ShiftTowards({1,0});
+        const Bitboard file_G = file_A.ShiftTowards({6,0});
+        const Bitboard file_H = file_A.ShiftTowards({7,0});
 
         // Not files.
         const Bitboard not_file_A = ~file_A;
@@ -52,11 +52,11 @@ namespace ChessEngine {
 
         // Ranks.
         const Bitboard rank_1 = Bitboard(0xff);
-        const Bitboard rank_2 = Bitboard(rank_1).ShiftTowards({0,1});
-        const Bitboard rank_3 = Bitboard(rank_1).ShiftTowards({0,2});
-        const Bitboard rank_6 = Bitboard(rank_1).ShiftTowards({0,5});
-        const Bitboard rank_7 = Bitboard(rank_1).ShiftTowards({0,6});
-        const Bitboard rank_8 = Bitboard(rank_1).ShiftTowards({0,7});
+        const Bitboard rank_2 = rank_1.ShiftTowards({0,1});
+        const Bitboard rank_3 = rank_1.ShiftTowards({0,2});
+        const Bitboard rank_6 = rank_1.ShiftTowards({0,5});
+        const Bitboard rank_7 = rank_1.ShiftTowards({0,6});
+        const Bitboard rank_8 = rank_1.ShiftTowards({0,7});
         const Bitboard rank_1_8 = rank_1 | rank_8;
 
         const Bitboard outer_tiles = rank_1 | rank_8  | file_A | file_H;

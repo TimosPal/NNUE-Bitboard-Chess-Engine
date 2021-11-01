@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <iostream>
 
 #include "Utilities.h"
 
@@ -19,6 +20,15 @@ namespace ChessEngine {
         uint8_t GetFrom() const {return data_ & Masks::From; }
         uint8_t GetTo() const {return (data_ & Masks::From) >> 6; }
         PieceType GetPromotion() const {return static_cast<PieceType>((data_ & Masks::From) >> 12); }
+
+        friend std::ostream& operator<<(std::ostream& os, const Move& move){
+            std::string from_notation;
+            CoordsToNotation(BoardTile(move.GetFrom()).GetCoords(), from_notation);
+            std::string to_notation;
+            CoordsToNotation(BoardTile(move.GetTo()).GetCoords(), to_notation);
+            os << from_notation << " -> " << to_notation;
+            return os;
+        }
 
     private:
         enum Masks{

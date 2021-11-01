@@ -38,7 +38,7 @@ namespace ChessEngine {
 
         uint64_t AsInt() const { return data_; }
 
-        Bitboard& ShiftTowards(std::tuple<int8_t, int8_t> direction);
+        Bitboard ShiftTowards(std::tuple<int8_t, int8_t> direction) const;
 
         // Mirrors the board vertically.
         void Mirror();
