@@ -24,6 +24,7 @@ namespace ChessEngine {
             BoardTile enemy_king = BoardTile(0);
 
             Bitboard Rooks() const { return rook_queens - bishop_queens; }
+            Bitboard Queens() const { return rook_queens & bishop_queens; }
             Bitboard Bishops() const { return bishop_queens - rook_queens; }
             Bitboard Pawns() const { return pawns_enPassant - Masks::rank_1_8; }
             Bitboard EnPassant() const { return pawns_enPassant & Masks::rank_1_8; }

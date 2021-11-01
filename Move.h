@@ -14,6 +14,7 @@ namespace ChessEngine {
         Move(uint8_t from, uint8_t to, PieceType promotion):
         data_((from & Masks::From) | ((to << 6) & Masks::To) | ((promotion << 12) & Masks::Promotion))
         {}
+        Move(BoardTile from, BoardTile to, PieceType promotion) : Move(from.GetIndex(), to.GetIndex(), promotion) {}
 
         uint8_t GetFrom() const {return data_ & Masks::From; }
         uint8_t GetTo() const {return (data_ & Masks::From) >> 6; }
