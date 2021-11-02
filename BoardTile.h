@@ -25,9 +25,17 @@ namespace ChessEngine {
         // We assume the board size is 8x8.
         void Mirror() { tile_index_ ^= 0b111000; }
 
+        friend Bitboard operator&(const Bitboard &a, const BoardTile &b) { return a & Bitboard(b);}
         friend Bitboard operator|(const Bitboard &a, const BoardTile &b) { return a | Bitboard(b);}
         friend Bitboard operator|(const BoardTile &a, const BoardTile &b) { return Bitboard(a) | Bitboard(b); }
         friend Bitboard operator-(const Bitboard &a, const BoardTile &b) { return a - Bitboard(b); }
+
+        friend BoardTile operator-(const BoardTile &a, const int &b) { return BoardTile(a.tile_index_ - b); }
+        friend BoardTile operator+(const BoardTile &a, const int &b) { return BoardTile(a.tile_index_ + b); }
+
+        bool operator==(const BoardTile& other) const { return tile_index_ == other.tile_index_; }
+        bool operator!=(const BoardTile& other) const { return tile_index_ != other.tile_index_; }
+
 
     private:
         uint8_t tile_index_ = 0;

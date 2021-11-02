@@ -123,7 +123,7 @@ namespace ChessEngine::AttackTables{
                 // If tile is an outer edge we have to stop at the corners and include the outer rank / file.
                 // This is true only for rooks.
                 bishop_relevant_rays[index] = GetBishopRays(tile, Masks::outer_tiles) - Masks::outer_tiles;
-                bool is_at_edge = !(tile_board & Masks::outer_tiles).IsEmpty();
+                bool is_at_edge = Masks::outer_tiles.Get(tile);
                 Bitboard halting_mask = is_at_edge ? Masks::corner_tiles : Masks::outer_tiles;
                 rook_relevant_rays[index] = GetRookRays(tile, halting_mask) - halting_mask;
 

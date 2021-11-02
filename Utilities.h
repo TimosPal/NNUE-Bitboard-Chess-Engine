@@ -68,6 +68,13 @@ namespace ChessEngine {
         const BoardTile h1_tile = BoardTile(7,0);
         const BoardTile h8_tile = BoardTile(7,7);
         const Bitboard corner_tiles = a1_tile | a8_tile | h1_tile | h8_tile;
+
+        // Castling.
+        const BoardTile king_default = BoardTile(4, 0);
+        const BoardTile queen_rook = BoardTile(0,0);
+        const BoardTile king_rook = BoardTile(7,0);
+        const Bitboard queen_castling_tiles = BoardTile(1,0) | BoardTile(2,0) | BoardTile(3,0);
+        const Bitboard king_castling_tiles = BoardTile(6,0) | BoardTile(5,0);
     }
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);
