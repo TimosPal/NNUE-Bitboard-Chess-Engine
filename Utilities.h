@@ -1,6 +1,8 @@
 #ifndef ENGINE_UTIL_H
 #define ENGINE_UTIL_H
 
+#include <assert.h>
+#include <iostream>
 #include <string>
 #include <tuple>
 
@@ -80,6 +82,7 @@ namespace ChessEngine {
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);
     char PieceInfoToChar(const PieceInfo& piece_info);
+    std::string PieceInfoToAscii(const PieceInfo& piece_info);
 
     bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords);
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str);

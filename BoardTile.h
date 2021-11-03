@@ -15,10 +15,10 @@ namespace ChessEngine {
         BoardTile() = default;
 
         uint8_t GetIndex() const { return tile_index_; }
-        uint8_t GetRank() { return tile_index_ / 8; }
-        uint8_t GetFile() { return tile_index_ % 8; }
+        uint8_t GetRank() const { return tile_index_ / 8; }
+        uint8_t GetFile() const { return tile_index_ % 8; }
 
-        std::tuple<uint8_t, uint8_t> GetCoords() { return {GetFile(), GetRank()}; }
+        std::tuple<uint8_t, uint8_t> GetCoords() const { return {GetFile(), GetRank()}; }
 
         // Mirrors the tile index vertically,
         // meaning the file stays the same.

@@ -20,7 +20,7 @@ namespace ChessEngine::AttackTables{
         Bitboard bishop_relevant_rays[64];
         Bitboard rook_relevant_rays[64];
 
-        Bitboard sliding_pieces_attacks[MagicNumbers::permutations];
+        Bitboard sliding_pieces_attacks[MagicNumbers::permutations] = {};
 
         // When overflowing / under flowing in files A,H we may end up in the
         // opposite direction producing faulty moves. The inverted fileMasks
@@ -129,11 +129,15 @@ namespace ChessEngine::AttackTables{
 
                 auto set_rooks = [=](Bitboard permutation){
                     auto key = MagicNumbers::RookMagicHash(permutation, index);
-                    sliding_pieces_attacks[key] = GetRookRays(tile, permutation);
+                    auto value = GetRookRays(tile, permutation);
+                    assert(sliding_pieces_attacks[key] == Bitboard() || sliding_pieces_attacks[index] == value);
+                    sliding_pieces_attacks[key] = value;
                 };
                 auto set_bishops = [=](Bitboard permutation){
                     auto key = MagicNumbers::BishopMagicHash(permutation, index);
-                    sliding_pieces_attacks[key] = GetBishopRays(tile, permutation);
+                    auto value = GetBishopRays(tile, permutation);
+                    assert(sliding_pieces_attacks[key] == Bitboard() || sliding_pieces_attacks[index] == value);
+                    sliding_pieces_attacks[key] = value;
                 };
                 // Populates slider pieces attack table based on magic numbers for every permutation.
                 ProduceSubSets(rook_relevant_rays[index], set_rooks);

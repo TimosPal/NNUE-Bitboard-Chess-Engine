@@ -65,6 +65,62 @@ namespace ChessEngine {
         return  token;
     }
 
+    std::string PieceInfoToAscci(const PieceInfo& piece_info){
+        auto[type, team] = piece_info;
+        std::string token;
+        if(team == Team::White) {
+            switch (type) {
+                case None:
+                    token = "-";
+                    break;
+                case King:
+                    token = "♔";
+                    break;
+                case Queen:
+                    token = "♕";
+                    break;
+                case Bishop:
+                    token = "♗";
+                    break;
+                case Knight:
+                    token = "♘";
+                    break;
+                case Rook:
+                    token = "♖";
+                    break;
+                case Pawn:
+                    token = "♙";
+                    break;
+            }
+        }else{
+            switch (type) {
+                case None:
+                    token = "-";
+                    break;
+                case King:
+                    token = "♚";
+                    break;
+                case Queen:
+                    token = "♛";
+                    break;
+                case Bishop:
+                    token = "♝";
+                    break;
+                case Knight:
+                    token = "♞";
+                    break;
+                case Rook:
+                    token = "♜";
+                    break;
+                case Pawn:
+                    token = "♟";
+                    break;
+            }
+        }
+
+        return  token;
+    }
+
     bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords) {
         if (str.length() != 2)
             return false;

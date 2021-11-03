@@ -82,11 +82,17 @@ namespace ChessEngine {
         // Mirrors the board vertically.
         void Mirror();
         void PlayMove(Move move);
+        void Draw();
 
         bool IsUnderAttack(BoardTile tile);
         bool IsInCheck();
 
+        PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank);
+        PieceInfo GetPieceInfoAt(BoardTile tile);
+
         MoveList GetLegalMoves();
+
+        static int Perft(int depth, Board board);
 
     private:
 

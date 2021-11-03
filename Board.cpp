@@ -182,6 +182,24 @@ namespace ChessEngine {
 
     bool Board::IsLegalMove(const Move& move){
         // TODO: some cases can be optimized to not use a copy.
+        BoardTile from = move.GetFrom();
+        BoardTile to = move.GetTo();
+
+        uint8_t from_file = from.GetFile();
+        uint8_t to_file = to.GetFile();
+
+        bool is_king = from == representation_.own_king;
+        bool is_castling = is_king && (abs(from_file - to_file) == 2);
+        if(is_castling){
+            // Check if already in check.
+            if(IsInCheck())
+                return false;
+            // Check in between tile.
+            if(IsUnderAttack(from + (to_file - from_file) / 2))
+                return false;
+            // End position check will be checked in the general case.
+        }
+
         Board temp = *this;
         temp.PlayMove(move);
         return !temp.IsInCheck();
@@ -192,12 +210,84 @@ namespace ChessEngine {
         MoveList pseudo_moves;
         PseudoMoves::GetPseudoMoves(representation_, castling_rights_, pseudo_moves);
 
-        MoveList legal_moves(pseudo_moves.size());
+        MoveList legal_moves;
         for(auto move : pseudo_moves)
             if(IsLegalMove(move))
                 legal_moves.push_back(move);
 
         return legal_moves;
+    }
+
+    int Board::Perft(int depth, Board board){
+        int nodes = 0;
+
+        if (depth == 0)
+            return 1ULL;
+
+        MoveList moves = board.GetLegalMoves();
+        for (int i = 0; i < moves.size(); i++) {
+            Board temp = board;
+            temp.PlayMove(moves[i]);
+            nodes += Perft(depth - 1, temp);
+        }
+        return nodes;
+    }
+
+    PieceInfo Board::GetPieceInfoAt(BoardTile tile){
+        auto[file, rank] = tile.GetCoords();
+        return GetPieceInfoAt(file, rank);
+    }
+
+    PieceInfo Board::GetPieceInfoAt(uint8_t file, uint8_t rank) {
+        auto representation_temp = representation_;
+        if(is_flipped_){
+            representation_temp.Mirror();
+        }
+
+        Bitboard pawns = representation_temp.Pawns();
+        Bitboard knights = representation_temp.Knights();
+        Bitboard rooks = representation_temp.Rooks();
+        Bitboard bishops = representation_temp.Bishops();
+        Bitboard queens = representation_temp.Queens();
+        Bitboard kings = representation_temp.Kings();
+        Bitboard own = representation_temp.own_pieces;
+
+        PieceType type;
+        if(pawns.Get(file, rank)){
+            type = PieceType::Pawn;
+        } else if(knights.Get(file, rank)){
+            type = PieceType::Knight;
+        } else if(rooks.Get(file, rank)){
+            type = PieceType::Rook;
+        } else if(bishops.Get(file, rank)){
+            type = PieceType::Bishop;
+        } else if(queens.Get(file, rank)){
+            type = PieceType::Queen;
+        } else if(kings.Get(file, rank)) {
+            type = PieceType::King;
+        } else{
+            type = PieceType::None;
+        }
+
+        Team team;
+        if(own.Get(file, rank)){
+            team = White;
+        }else{
+            team = Black;
+        }
+
+        return {type, team};
+    }
+
+    void Board::Draw(){
+        for (int rank = 7; rank >= 0; rank--) {
+            std::cout << rank + 1 << "  ";
+            for (int file = 0; file < 8; file++) {
+                 std::cout << PieceInfoToChar(GetPieceInfoAt(file, rank)) << "  ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "   a  b  c  d  e  f  g  h" << std::endl;
     }
 
 }

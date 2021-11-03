@@ -1,5 +1,7 @@
 #include "PseudoMoves.h"
 
+#include <cassert>
+
 #include "AttackTables.h"
 
 namespace ChessEngine::PseudoMoves {
@@ -15,6 +17,7 @@ namespace ChessEngine::PseudoMoves {
                 Bitboard attacks = get(from.GetIndex()) - own;
                 for(auto to : attacks){
                     Move move = Move(from, to, PieceType::None);
+                    assert(from != to);
                     move_list.push_back(move);
                 }
             }
@@ -28,6 +31,7 @@ namespace ChessEngine::PseudoMoves {
                 Bitboard attacks = get(from.GetIndex(), all) - own;
                 for(auto to : attacks){
                     Move move = Move(from.GetIndex(), to.GetIndex(), PieceType::None);
+                    assert(from != to);
                     move_list.push_back(move);
                 }
             }
@@ -43,6 +47,7 @@ namespace ChessEngine::PseudoMoves {
         auto process_promotions = [](Bitboard moves, uint8_t from_offset, MoveList& move_list){
             for(auto to : moves){
                 BoardTile from = to + from_offset;
+                assert(from != to);
                 move_list.push_back(Move(from, to, PieceType::Rook));
                 move_list.push_back(Move(from, to, PieceType::Bishop));
                 move_list.push_back(Move(from, to, PieceType::Queen));
@@ -53,6 +58,7 @@ namespace ChessEngine::PseudoMoves {
         auto process_captures_quiet = [](Bitboard moves, uint8_t from_offset, MoveList& move_list){
             for(auto to : moves){
                 BoardTile from = BoardTile(to.GetIndex() + from_offset);
+                assert(from != to);
                 Move move = Move(from, to, PieceType::None);
                 move_list.push_back(move);
             }
@@ -117,10 +123,12 @@ namespace ChessEngine::PseudoMoves {
         BoardTile from = Masks::king_default;
         if(rooks.Get(Masks::queen_rook) && (all & Masks::queen_castling_tiles).IsEmpty() && rights.CanOwnQueenSide()){
             BoardTile to = Masks::queen_rook + 1; // Right of rook.
+            assert(from != to);
             move_list.push_back(Move(from, to, PieceType::None));
         }
         if(rooks.Get(Masks::king_rook) && (all & Masks::king_castling_tiles).IsEmpty() && rights.CanOwnKingSide()){
             BoardTile to = Masks::king_rook - 1; // Left of rook.
+            assert(from != to);
             move_list.push_back(Move(from, to, PieceType::None));
         }
     }
