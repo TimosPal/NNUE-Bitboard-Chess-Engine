@@ -1,7 +1,10 @@
-#include <cassert>
 #include "Board.h"
 
+#include <cassert>
+#include <algorithm>
+
 #include "PseudoMoves.h"
+#include "AttackTables.h"
 
 namespace ChessEngine {
 
@@ -54,9 +57,9 @@ namespace ChessEngine {
                 representation_.own_pieces.Set(rook_to);
             };
 
-            bool is_starting_position = from == Masks::king_default;
-            bool is_queen_side = is_starting_position && to == (Masks::queen_rook + 1);
-            bool is_king_side = is_starting_position && to == (Masks::king_rook - 1);
+            bool is_castling = abs(from_file - to_file) == 2;
+            bool is_queen_side = is_castling && to == (Masks::queen_rook + 1);
+            bool is_king_side = is_castling && to == (Masks::king_rook - 1);
             if(is_queen_side)
                 castling(Masks::queen_rook, Masks::queen_rook + 2);
             else if(is_king_side)
@@ -144,9 +147,52 @@ namespace ChessEngine {
         Mirror();
     }
 
-    MoveList Board::GetLegalMoves(){ // TODO: legal only.
+    bool Board::IsUnderAttack(BoardTile tile){
+        // Consider the tile a piece with all the possible moves.
+        Bitboard own = representation_.own_pieces;
+        Bitboard enemy = representation_.enemy_pieces;
+        Bitboard all = own | enemy;
+        uint8_t tile_index = tile.GetIndex();
+
+        auto [enemy_king_file, enemy_king_rank] = representation_.enemy_king.GetCoords();
+        auto [tile_file, tile_rank] = representation_.own_king.GetCoords();
+
+        // King attacks if he is 1 tile away.
+        if(abs(tile_file - enemy_king_file) <= 1 && abs(tile_rank - enemy_king_rank) <= 1)
+            return true;
+
+        Bitboard rook_attacks = AttackTables::RookAttacks(tile_index, all) & enemy & representation_.rook_queens;
+        if(!rook_attacks.IsEmpty())
+            return true;
+        Bitboard bishop_attacks = AttackTables::BishopAttacks(tile_index, all) & enemy & representation_.bishop_queens;
+        if(!bishop_attacks.IsEmpty())
+            return true;
+        Bitboard knight_attacks = AttackTables::KnightAttacks(tile_index) & enemy & representation_.Knights();
+        if(!knight_attacks.IsEmpty())
+            return true;
+        Bitboard pawn_attacks = AttackTables::PawnsAttacks(tile_index) & enemy & representation_.pawns_enPassant;
+        if(!pawn_attacks.IsEmpty())
+            return true;
+
+        return false;
+    }
+
+    bool Board::IsInCheck(){
+        return IsUnderAttack(representation_.own_king);
+    }
+
+    bool Board::IsLegalMove(const Move& move){
+        Board temp = *this;
+        temp.PlayMove(move);
+        return temp.IsInCheck();
+    }
+
+    MoveList Board::GetLegalMoves(){
+        auto IsIllegalMove = [this](const Move& move){return !IsLegalMove(move);};
+
         MoveList moves;
         PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
+        moves.erase(std::remove(moves.begin(), moves.end(), IsIllegalMove), moves.end());
         return moves;
     }
 

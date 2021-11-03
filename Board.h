@@ -83,9 +83,14 @@ namespace ChessEngine {
         void Mirror();
         void PlayMove(Move move);
 
+        bool IsUnderAttack(BoardTile tile);
+        bool IsInCheck();
+
         MoveList GetLegalMoves();
 
     private:
+
+        bool IsLegalMove(const Move& move);
 
         Representation representation_;
         CastlingRights castling_rights_;
