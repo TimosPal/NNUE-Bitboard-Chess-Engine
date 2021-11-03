@@ -36,6 +36,10 @@ namespace ChessEngine {
         void Set(BoardTile tile);
         void SetIf(BoardTile tile, bool cond);
 
+        void Reset(uint8_t index);
+        void Reset(uint8_t file, uint8_t rank);
+        void Reset(BoardTile tile);
+
         uint64_t AsInt() const { return data_; }
 
         Bitboard ShiftTowards(std::tuple<int8_t, int8_t> direction) const;
@@ -57,6 +61,7 @@ namespace ChessEngine {
 
         Bitboard& operator&=(const Bitboard& a) { data_ &= a.data_; return *this; }
         Bitboard& operator|=(const Bitboard& a) { data_ |= a.data_; return *this; }
+        Bitboard& operator-=(const Bitboard& a) { data_ &= ~a.data_; return *this; }
 
         bool operator==(const Bitboard& other) const { return data_ == other.data_; }
         bool operator!=(const Bitboard& other) const { return data_ != other.data_; }

@@ -54,6 +54,7 @@ namespace ChessEngine {
         const Bitboard rank_1 = Bitboard(0xff);
         const Bitboard rank_2 = rank_1.ShiftTowards({0,1});
         const Bitboard rank_3 = rank_1.ShiftTowards({0,2});
+        const Bitboard rank_4 = rank_1.ShiftTowards({0,3});
         const Bitboard rank_6 = rank_1.ShiftTowards({0,5});
         const Bitboard rank_7 = rank_1.ShiftTowards({0,6});
         const Bitboard rank_8 = rank_1.ShiftTowards({0,7});

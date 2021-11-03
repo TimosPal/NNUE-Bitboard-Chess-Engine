@@ -14,7 +14,7 @@ int main() {
 
     auto [a, b, c, d] = info;
     ChessEngine::MoveList moves;
-    ChessEngine::PseudoMoves::GetPseudoMoves(a, moves);
+    ChessEngine::PseudoMoves::GetPseudoMoves(a, b, moves);
     for (auto t : moves) {
         std::cout << t << std::endl;
     }

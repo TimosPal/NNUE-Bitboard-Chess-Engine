@@ -103,7 +103,8 @@ namespace ChessEngine::PseudoMoves {
         GetPseudoLeaperMoves(knights, own, move_list, AttackTables::KnightAttacks);
     }
 
-    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Bitboard rooks, MoveList& move_list) {
+    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Bitboard rooks,
+                            Board::CastlingRights rights, MoveList& move_list) {
         GetPseudoLeaperMoves(Bitboard(king), own, move_list, AttackTables::KingAttacks);
 
         // Castling. King should be at the default position.
@@ -114,11 +115,11 @@ namespace ChessEngine::PseudoMoves {
         // Check if rooks exist at correct tiles and if in between tiles are empty.
         Bitboard all = own | enemy;
         BoardTile from = Masks::king_default;
-        if(rooks.Get(Masks::queen_rook) && (all & Masks::queen_castling_tiles).IsEmpty()){
+        if(rooks.Get(Masks::queen_rook) && (all & Masks::queen_castling_tiles).IsEmpty() && rights.CanOwnQueenSide()){
             BoardTile to = Masks::queen_rook + 1; // Right of rook.
             move_list.push_back(Move(from, to, PieceType::None));
         }
-        if(rooks.Get(Masks::king_rook) && (all & Masks::king_castling_tiles).IsEmpty()){
+        if(rooks.Get(Masks::king_rook) && (all & Masks::king_castling_tiles).IsEmpty() && rights.CanOwnKingSide()){
             BoardTile to = Masks::king_rook - 1; // Left of rook.
             move_list.push_back(Move(from, to, PieceType::None));
         }
@@ -136,13 +137,13 @@ namespace ChessEngine::PseudoMoves {
         GetSliderPseudoMoves(bishops, own, enemy, move_list, AttackTables::BishopAttacks);
     }
 
-    void GetPseudoMoves(Board::Representation representation, MoveList& move_list){
+    void GetPseudoMoves(Board::Representation representation, Board::CastlingRights rights, MoveList& move_list){
         Bitboard own = representation.own_pieces;
         Bitboard enemy = representation.enemy_pieces;
         Bitboard enPassant = representation.EnPassant();
 
         GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        GetPseudoKingMoves(representation.own_king, own, enemy, representation.Rooks(), move_list);
+        GetPseudoKingMoves(representation.own_king, own, enemy, representation.Rooks(), rights, move_list);
         GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
         GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
         GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);

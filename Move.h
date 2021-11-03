@@ -17,8 +17,8 @@ namespace ChessEngine {
         {}
         Move(BoardTile from, BoardTile to, PieceType promotion) : Move(from.GetIndex(), to.GetIndex(), promotion) {}
 
-        uint8_t GetFrom() const {return data_ & Masks::From; }
-        uint8_t GetTo() const {return (data_ & Masks::To) >> 6; }
+        BoardTile GetFrom() const {return BoardTile(data_ & Masks::From); }
+        BoardTile GetTo() const {return BoardTile((data_ & Masks::To) >> 6); }
         PieceType GetPromotion() const {return static_cast<PieceType>((data_ & Masks::Promotion) >> 12); }
 
         friend std::ostream& operator<<(std::ostream& os, const Move& move){

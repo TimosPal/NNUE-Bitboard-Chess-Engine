@@ -7,6 +7,7 @@
 #include "Bitboard.h"
 #include "BoardTile.h"
 #include "Utilities.h"
+#include "Move.h"
 
 namespace ChessEngine {
 
@@ -80,6 +81,7 @@ namespace ChessEngine {
 
         // Mirrors the board vertically.
         void Mirror();
+        void PlayMove(Move move);
 
     private:
 
