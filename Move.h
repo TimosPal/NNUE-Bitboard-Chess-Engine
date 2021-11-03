@@ -16,6 +16,7 @@ namespace ChessEngine {
         data_((from & Masks::From) | ((to << 6) & Masks::To) | ((promotion << 12) & Masks::Promotion))
         {}
         Move(BoardTile from, BoardTile to, PieceType promotion) : Move(from.GetIndex(), to.GetIndex(), promotion) {}
+        Move() = default;
 
         BoardTile GetFrom() const {return BoardTile(data_ & Masks::From); }
         BoardTile GetTo() const {return BoardTile((data_ & Masks::To) >> 6); }
@@ -42,7 +43,7 @@ namespace ChessEngine {
         // 6 bits : to
         // 4 bits : promotion
         // Promotions are exactly 2^3 = 7.
-        uint16_t data_;
+        uint16_t data_ = 0;
     };
 
     using MoveList = std::vector<Move>;

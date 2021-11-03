@@ -1,7 +1,6 @@
 #include "Board.h"
 
 #include <cassert>
-#include <algorithm>
 
 #include "PseudoMoves.h"
 #include "AttackTables.h"
@@ -182,18 +181,23 @@ namespace ChessEngine {
     }
 
     bool Board::IsLegalMove(const Move& move){
+        // TODO: some cases can be optimized to not use a copy.
         Board temp = *this;
         temp.PlayMove(move);
-        return temp.IsInCheck();
+        return !temp.IsInCheck();
     }
 
     MoveList Board::GetLegalMoves(){
-        auto IsIllegalMove = [this](const Move& move){return !IsLegalMove(move);};
+        // TODO: use 1 list only. Pre allocate vector size (Requires a Move default constructor).
+        MoveList pseudo_moves;
+        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, pseudo_moves);
 
-        MoveList moves;
-        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
-        moves.erase(std::remove(moves.begin(), moves.end(), IsIllegalMove), moves.end());
-        return moves;
+        MoveList legal_moves(pseudo_moves.size());
+        for(auto move : pseudo_moves)
+            if(IsLegalMove(move))
+                legal_moves.push_back(move);
+
+        return legal_moves;
     }
 
 }
