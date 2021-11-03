@@ -83,6 +83,8 @@ namespace ChessEngine {
         void Mirror();
         void PlayMove(Move move);
 
+        MoveList GetLegalMoves();
+
     private:
 
         Representation representation_;

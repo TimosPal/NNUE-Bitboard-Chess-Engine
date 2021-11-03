@@ -27,6 +27,7 @@ namespace ChessEngine::PseudoMoves {
 
     // Gets all the pseudo moves for every piece of [own].
     void GetPseudoMoves(Board::Representation representation, Board::CastlingRights rights, MoveList& move_list);
+
 }
 
 #endif

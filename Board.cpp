@@ -1,6 +1,8 @@
 #include <cassert>
 #include "Board.h"
 
+#include "PseudoMoves.h"
+
 namespace ChessEngine {
 
     void Board::Representation::Mirror() {
@@ -39,17 +41,6 @@ namespace ChessEngine {
         auto[from_file, from_rank] = from.GetCoords();
         auto[to_file, to_rank] = to.GetCoords();
 
-        // Reset , set global occupancies.
-        representation_.own_pieces.Reset(from);
-        representation_.own_pieces.Set(to);
-        representation_.enemy_pieces.Reset(to);
-
-        // Reset captured pieces.
-        representation_.rook_queens.Reset(to);
-        representation_.bishop_queens.Reset(to);
-        representation_.pawns_enPassant.Reset(to);
-        representation_.enemy_pieces.Reset(to);
-
         // Castling.
         if(from == representation_.own_king){
             // Reset rights since king moved or castled.
@@ -71,7 +62,6 @@ namespace ChessEngine {
             else if(is_king_side)
                 castling(Masks::king_rook,  Masks::king_rook - 2);
 
-            // We dont need to set any other bitboards since that's done for every piece later.
             representation_.own_king = to;
         }
         // A Castling right is reset if a rook moves. We can reset the rights regardless of the piece type.
@@ -114,7 +104,6 @@ namespace ChessEngine {
                         break;
                 }
             }
-            // If nothing of the above is true then it follows the general case.
         }
 
         // If an enemy rook is captured , reset castling rights.
@@ -127,22 +116,38 @@ namespace ChessEngine {
         // Reset old en passant. Does not affect own en passant.
         representation_.pawns_enPassant -= Masks::rank_8;
 
-        // Set bitboard if it is of type [from].
-        bool is_promo = promotion != PieceType::None;
-        bool is_rook_queen = representation_.rook_queens.Get(from);
-        bool is_bishop_queen = representation_.bishop_queens.Get(from);
-        bool is_pawn_enPassant = representation_.pawns_enPassant.Get(from);
-        representation_.rook_queens.SetIf(to, is_rook_queen);
-        representation_.bishop_queens.SetIf(to, is_bishop_queen);
-        representation_.pawns_enPassant.SetIf(to, is_pawn_enPassant && !is_promo);
+        // Reset , set global occupancies.
+        representation_.own_pieces.Reset(from);
+        representation_.own_pieces.Set(to);
+        representation_.enemy_pieces.Reset(to);
+
+        // Reset captured pieces.
+        representation_.rook_queens.Reset(to);
+        representation_.bishop_queens.Reset(to);
+        representation_.pawns_enPassant.Reset(to);
 
         // Reset from.
         representation_.rook_queens.Reset(from);
         representation_.bishop_queens.Reset(from);
         representation_.pawns_enPassant.Reset(from);
 
+        // Set bitboard if it is of type [from].
+        bool is_promo = promotion != PieceType::None;
+        bool is_rook_queen = representation_.rook_queens.Get(from);
+        bool is_bishop_queen = representation_.bishop_queens.Get(from);
+        bool is_pawn = representation_.pawns_enPassant.Get(from);
+        representation_.rook_queens.SetIf(to, is_rook_queen);
+        representation_.bishop_queens.SetIf(to, is_bishop_queen);
+        representation_.pawns_enPassant.SetIf(to, is_pawn && !is_promo);
+
         // Change turn by mirroring the board.
         Mirror();
+    }
+
+    MoveList Board::GetLegalMoves(){ // TODO: legal only.
+        MoveList moves;
+        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
+        return moves;
     }
 
 }

@@ -84,7 +84,6 @@ namespace ChessEngine {
     bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords);
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str);
 
-
 }
 
 #endif
