@@ -62,10 +62,10 @@ namespace ChessEngine {
             };
 
             bool is_castling = abs(from_file - to_file) >= 2;
-            bool is_queen_side = is_castling && to == (Masks::queen_rook + 1);
+            bool is_queen_side = is_castling && to == (Masks::queen_rook + 2);
             bool is_king_side = is_castling && to == (Masks::king_rook - 1);
             if(is_queen_side)
-                castling(Masks::queen_rook, Masks::queen_rook + 2);
+                castling(Masks::queen_rook, Masks::queen_rook + 3);
             else if(is_king_side)
                 castling(Masks::king_rook,  Masks::king_rook - 2);
 
@@ -187,7 +187,7 @@ namespace ChessEngine {
         uint8_t to_file = to.GetFile();
 
         bool is_king = from == representation_.own_king;
-        bool is_castling = is_king && (abs(from_file - to_file) >= 2);
+        bool is_castling = is_king && (abs(from_file - to_file) == 2);
         if(is_castling){
             // Check if already in check.
             if(IsInCheck())

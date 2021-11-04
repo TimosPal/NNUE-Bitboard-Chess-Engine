@@ -122,7 +122,7 @@ namespace ChessEngine::PseudoMoves {
         Bitboard all = own | enemy;
         BoardTile from = Masks::king_default;
         if(rooks.Get(Masks::queen_rook) && (all & Masks::queen_castling_tiles).IsEmpty() && rights.CanOwnQueenSide()){
-            BoardTile to = Masks::queen_rook + 1; // Right of rook.
+            BoardTile to = Masks::queen_rook + 2; // 2 tiles right from rook.
             assert(from != to);
             move_list.push_back(Move(from, to, PieceType::None));
         }
