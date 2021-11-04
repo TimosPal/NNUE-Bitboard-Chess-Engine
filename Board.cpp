@@ -43,7 +43,12 @@ namespace ChessEngine {
         auto[from_file, from_rank] = from.GetCoords();
         auto[to_file, to_rank] = to.GetCoords();
 
-        // Castling.
+        // Reset captured pieces.
+        representation_.rook_queens.Reset(to);
+        representation_.bishop_queens.Reset(to);
+        representation_.pawns_enPassant.Reset(to);
+
+        // King.
         if(from == representation_.own_king){
             // Reset rights since king moved or castled.
             castling_rights_.ResetOwnKingSide();
@@ -56,7 +61,7 @@ namespace ChessEngine {
                 representation_.own_pieces.Set(rook_to);
             };
 
-            bool is_castling = abs(from_file - to_file) == 2;
+            bool is_castling = abs(from_file - to_file) >= 2;
             bool is_queen_side = is_castling && to == (Masks::queen_rook + 1);
             bool is_king_side = is_castling && to == (Masks::king_rook - 1);
             if(is_queen_side)
@@ -76,7 +81,7 @@ namespace ChessEngine {
         else if(representation_.pawns_enPassant.Get(from)) {
             // Double pawn push. En passant is set at the 0-th rank.
             if ((to_rank - from_rank) == 2) {
-                representation_.own_pieces.Set(from_file, 0);
+                representation_.pawns_enPassant.Set(from_file, 0);
             }
             // En passant capture. Fake pawn does not exist. Movement is diagonal.
             else if (!representation_.enemy_pieces.Get(to) && from_file != to_file) {
@@ -95,10 +100,11 @@ namespace ChessEngine {
                     case Bishop:
                         representation_.bishop_queens.Set(to);
                         break;
-                    case Knight:
-                        // Do nothing.                    break;
                     case Rook:
                         representation_.rook_queens.Set(to);
+                        break;
+                    case Knight:
+                        // Do nothing.
                         break;
                     default:
                         // Invalid promotion.
@@ -123,16 +129,6 @@ namespace ChessEngine {
         representation_.own_pieces.Set(to);
         representation_.enemy_pieces.Reset(to);
 
-        // Reset captured pieces.
-        representation_.rook_queens.Reset(to);
-        representation_.bishop_queens.Reset(to);
-        representation_.pawns_enPassant.Reset(to);
-
-        // Reset from.
-        representation_.rook_queens.Reset(from);
-        representation_.bishop_queens.Reset(from);
-        representation_.pawns_enPassant.Reset(from);
-
         // Set bitboard if it is of type [from].
         bool is_promo = promotion != PieceType::None;
         bool is_rook_queen = representation_.rook_queens.Get(from);
@@ -142,8 +138,10 @@ namespace ChessEngine {
         representation_.bishop_queens.SetIf(to, is_bishop_queen);
         representation_.pawns_enPassant.SetIf(to, is_pawn && !is_promo);
 
-        // Change turn by mirroring the board.
-        Mirror();
+        // Reset from.
+        representation_.rook_queens.Reset(from);
+        representation_.bishop_queens.Reset(from);
+        representation_.pawns_enPassant.Reset(from);
     }
 
     bool Board::IsUnderAttack(BoardTile tile){
@@ -189,7 +187,7 @@ namespace ChessEngine {
         uint8_t to_file = to.GetFile();
 
         bool is_king = from == representation_.own_king;
-        bool is_castling = is_king && (abs(from_file - to_file) == 2);
+        bool is_castling = is_king && (abs(from_file - to_file) >= 2);
         if(is_castling){
             // Check if already in check.
             if(IsInCheck())
@@ -218,19 +216,31 @@ namespace ChessEngine {
         return legal_moves;
     }
 
-    int Board::Perft(int depth, Board board){
+    Board::PerftInfo Board::Perft(int depth, Board board){
         int nodes = 0;
+        int captures = 0;
+        int checks = 0;
 
         if (depth == 0)
-            return 1ULL;
+            return {1ULL, 0, 0};
 
         MoveList moves = board.GetLegalMoves();
         for (int i = 0; i < moves.size(); i++) {
             Board temp = board;
+
+            uint8_t piece_count = temp.representation_.enemy_pieces.Count();
             temp.PlayMove(moves[i]);
-            nodes += Perft(depth - 1, temp);
+            captures += piece_count - temp.representation_.enemy_pieces.Count();
+            temp.Mirror();
+            if(temp.IsInCheck())
+                checks++;
+
+            auto[nodes_next, captures_next, checks_next] = Perft(depth - 1, temp);
+            nodes += nodes_next;
+            captures += captures_next;
+            checks += checks_next;
         }
-        return nodes;
+        return {nodes, captures, checks};
     }
 
     PieceInfo Board::GetPieceInfoAt(BoardTile tile){

@@ -81,6 +81,7 @@ namespace ChessEngine {
 
         // Mirrors the board vertically.
         void Mirror();
+        // Plays the move. Does not alter the turn.
         void PlayMove(Move move);
         void Draw();
 
@@ -92,7 +93,8 @@ namespace ChessEngine {
 
         MoveList GetLegalMoves();
 
-        static int Perft(int depth, Board board);
+        using PerftInfo = std::tuple<int, int, int>;
+        static PerftInfo Perft(int depth, Board board);
 
     private:
 

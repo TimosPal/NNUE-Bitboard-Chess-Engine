@@ -36,6 +36,16 @@ namespace ChessEngine {
         data_ = (data_ & 0x00FF00FF00FF00FF) << 8 | (data_ & 0xFF00FF00FF00FF00) >> 8;
     }
 
+    uint8_t Bitboard::Count() const {
+        uint64_t temp = data_;
+        uint8_t count = 0;
+        while(temp){
+            count++;
+            temp &= (temp - 1);
+        }
+        return count;
+    }
+
     void Bitboard::Draw() const{
         for (uint8_t rank = 0; rank < 8; rank++) {
             for (uint8_t file = 0; file < 8; file++) {

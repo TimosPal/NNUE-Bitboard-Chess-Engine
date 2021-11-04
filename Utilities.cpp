@@ -50,7 +50,7 @@ namespace ChessEngine {
                 token = 'b';
                 break;
             case Knight:
-                token = 'k';
+                token = 'n';
                 break;
             case Rook:
                 token = 'r';

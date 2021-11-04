@@ -6,7 +6,6 @@
 namespace ChessEngine::AttackTables{
     void InitMoveTables();
 
-    // NOTE: Pawns attacks not currently used for move generation.
     Bitboard PawnsAttacks(uint8_t tile_index);
     Bitboard KnightAttacks(uint8_t tile_index);
     Bitboard KingAttacks(uint8_t tile_index);
