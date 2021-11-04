@@ -64,6 +64,7 @@ namespace ChessEngine {
 
         const Bitboard outer_tiles = rank_1 | rank_8  | file_A | file_H;
         const Bitboard inner_tiles = ~outer_tiles;
+        const Bitboard empty = Bitboard(0);
 
         // Corners.
         const BoardTile a1_tile = BoardTile(0,0);

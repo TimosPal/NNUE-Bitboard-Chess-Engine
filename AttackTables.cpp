@@ -87,12 +87,12 @@ namespace ChessEngine::AttackTables{
             return ray;
         }
 
-        Bitboard GetRookRays(BoardTile from, Bitboard occupancies) {
+        Bitboard GetRookRays(BoardTile from, Bitboard occupancies = Masks::empty) {
             return GetRay(from, {0, 1}, occupancies) | GetRay(from, {0, -1}, occupancies) |
                    GetRay(from, {1, 0}, occupancies) | GetRay(from, {-1, 0}, occupancies);
         }
 
-        Bitboard GetBishopRays(BoardTile from, Bitboard occupancies) {
+        Bitboard GetBishopRays(BoardTile from, Bitboard occupancies = Masks::empty) {
             return GetRay(from, {1, 1}, occupancies) | GetRay(from, {-1, 1}, occupancies) |
                    GetRay(from, {-1, -1}, occupancies) | GetRay(from, {1, -1}, occupancies);
         }
@@ -105,6 +105,27 @@ namespace ChessEngine::AttackTables{
                 occupants_permutation = (occupants_permutation - set.AsInt()) & set.AsInt();
             } while (occupants_permutation != 0);
         }
+
+        Bitboard RookHaltingMask(BoardTile tile){
+            // If tile is an outer edge we have to include said side. If we simply used the outer tiles mask
+            // we would get 0 moves which is not the wanted outcome. This is achieved by creating a an outer tile masks
+            // without the active side. We also include the corners.
+            Bitboard mask = Masks::outer_tiles;
+            if(Masks::file_A.Get(tile)){
+                mask -= Masks::file_A;
+            }
+            if(Masks::file_H.Get(tile)){
+                mask -= Masks::file_H;
+            }
+            if(Masks::rank_1.Get(tile)){
+                mask -= Masks::rank_1;
+            }
+            if(Masks::rank_8.Get(tile)){
+                mask -= Masks::rank_8;
+            }
+            return mask | Masks::corner_tiles;
+        }
+
     }
 
     void InitMoveTables(){
@@ -112,36 +133,33 @@ namespace ChessEngine::AttackTables{
             for (uint8_t file = 0; file < 8; file++) {
                 BoardTile tile = BoardTile(file, rank);
                 Bitboard tile_board = Bitboard(tile);
-                uint8_t index = tile.GetIndex();
+                uint8_t tile_index = tile.GetIndex();
 
                 // Leaper pieces.
-                pawn_attacks[index] = GetPawnAttacks(tile_board);
-                king_attacks[index] = GetKingAttacks(tile_board);
-                knight_attacks[index] = GetKnightAttacks(tile_board);
+                pawn_attacks[tile_index] = GetPawnAttacks(tile_board);
+                king_attacks[tile_index] = GetKingAttacks(tile_board);
+                knight_attacks[tile_index] = GetKnightAttacks(tile_board);
 
                 // Relevant slider pieces rays. Meaning the ray in an empty board ,excluding outer edges.
-                // If tile is an outer edge we have to stop at the corners and include the outer rank / file.
-                // This is true only for rooks.
-                bishop_relevant_rays[index] = GetBishopRays(tile, Masks::outer_tiles) - Masks::outer_tiles;
-                bool is_at_edge = Masks::outer_tiles.Get(tile);
-                Bitboard halting_mask = is_at_edge ? Masks::corner_tiles : Masks::outer_tiles;
-                rook_relevant_rays[index] = GetRookRays(tile, halting_mask) - halting_mask;
+                bishop_relevant_rays[tile_index] = GetBishopRays(tile) - Masks::outer_tiles;
+                Bitboard halting_mask = RookHaltingMask(tile); // For cases where the rook is on an edge.
+                rook_relevant_rays[tile_index] = GetRookRays(tile) - halting_mask;
 
                 auto set_rooks = [=](Bitboard permutation){
-                    auto key = MagicNumbers::RookMagicHash(permutation, index);
+                    auto key = MagicNumbers::RookMagicHash(permutation, tile_index);
                     auto value = GetRookRays(tile, permutation);
-                    assert(sliding_pieces_attacks[key] == Bitboard() || sliding_pieces_attacks[index] == value);
+                    assert(sliding_pieces_attacks[key].AsInt() == 0 || sliding_pieces_attacks[key] == value);
                     sliding_pieces_attacks[key] = value;
                 };
                 auto set_bishops = [=](Bitboard permutation){
-                    auto key = MagicNumbers::BishopMagicHash(permutation, index);
+                    auto key = MagicNumbers::BishopMagicHash(permutation, tile_index);
                     auto value = GetBishopRays(tile, permutation);
-                    assert(sliding_pieces_attacks[key] == Bitboard() || sliding_pieces_attacks[index] == value);
+                    assert(sliding_pieces_attacks[key].AsInt() == 0 || sliding_pieces_attacks[key] == value);
                     sliding_pieces_attacks[key] = value;
                 };
                 // Populates slider pieces attack table based on magic numbers for every permutation.
-                ProduceSubSets(rook_relevant_rays[index], set_rooks);
-                ProduceSubSets(bishop_relevant_rays[index], set_bishops);
+                ProduceSubSets(rook_relevant_rays[tile_index], set_rooks);
+                ProduceSubSets(bishop_relevant_rays[tile_index], set_bishops);
             }
         }
     }

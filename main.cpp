@@ -22,9 +22,6 @@ int main() {
     repr.EnPassant().Draw();
     */
 
-    ChessEngine::AttackTables::BishopAttacks(repr.own_king.GetIndex(), repr.own_pieces | repr.enemy_pieces).Draw();
-    return 0;
-
     auto moves = board.GetLegalMoves();
     for(auto move : moves){
         ChessEngine::Board temp =  board;
