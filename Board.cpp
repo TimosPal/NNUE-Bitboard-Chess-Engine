@@ -1,6 +1,7 @@
 #include "Board.h"
 
 #include <cassert>
+#include <algorithm>
 
 #include "PseudoMoves.h"
 #include "AttackTables.h"
@@ -204,16 +205,16 @@ namespace ChessEngine {
     }
 
     MoveList Board::GetLegalMoves(){
-        // TODO: use 1 list only. Pre allocate vector size (Requires a Move default constructor).
-        MoveList pseudo_moves;
-        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, pseudo_moves);
+        PROFILE_FUNCTION();
+        // Pre allocate vector size (Requires a Move default constructor).
+        MoveList moves;
+        moves.reserve(50);
+        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
 
-        MoveList legal_moves;
-        for(auto move : pseudo_moves)
-            if(IsLegalMove(move))
-                legal_moves.push_back(move);
+        auto is_illegal = [this](const Move& move) { return !IsLegalMove(move); };
+        moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
-        return legal_moves;
+        return moves;
     }
 
     Board::PerftInfo Board::Perft(int depth, Board board){

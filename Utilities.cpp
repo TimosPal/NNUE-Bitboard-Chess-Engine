@@ -153,4 +153,34 @@ namespace ChessEngine {
         return true;
     }
 
+    Timer::Timer(std::string function_name) : function_name_(function_name) {
+        starting_time_point_ = std::chrono::steady_clock ::now();
+    }
+
+    std::unordered_map<std::string, Timer::TimeInfo> Timer::info;
+    void Timer::Stop(){
+        auto ending_time_point = std::chrono::steady_clock ::now();
+        auto start = std::chrono::time_point_cast<std::chrono::microseconds>(starting_time_point_);
+        auto end = std::chrono::time_point_cast<std::chrono::microseconds>(ending_time_point);
+        auto duration = end - start;
+        if(info.find(function_name_) == info.end()){
+            TimeInfo time_info = { .time_count = duration.count(), .count = 1};
+            info.insert({function_name_, time_info});
+        }else{
+            info[function_name_].count++;
+            info[function_name_].time_count += duration.count();
+        }
+
+        //
+    }
+
+    void Timer::Print(){
+        for(const auto& pair : info) {
+            auto fun_name = pair.first;
+            auto time_info = pair.second;
+            std::cout << "[Profiler] " << fun_name << " : " << time_info.time_count / time_info.count << std::endl;
+        }
+    }
+
+
 }
