@@ -36,7 +36,6 @@ namespace ChessEngine {
     }
 
     void Board::PlayMove(Move move){
-        PROFILE_FUNCTION();
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();
         PieceType promotion = move.GetPromotion();
@@ -146,7 +145,7 @@ namespace ChessEngine {
         representation_.pawns_enPassant.Reset(from);
     }
 
-    bool Board::IsUnderAttack(BoardTile tile){
+    bool Board::IsUnderAttack(BoardTile tile) const{
         // Consider the tile a piece with all the possible moves.
         Bitboard own = representation_.own_pieces;
         Bitboard enemy = representation_.enemy_pieces;
@@ -176,11 +175,11 @@ namespace ChessEngine {
         return false;
     }
 
-    bool Board::IsInCheck(){
+    bool Board::IsInCheck() const{
         return IsUnderAttack(representation_.own_king);
     }
 
-    Bitboard Board::GetPins(){
+    Bitboard Board::GetPins() const{
         Bitboard pins(0);
 
         Bitboard own = representation_.own_pieces;
@@ -212,9 +211,7 @@ namespace ChessEngine {
         return pins;
     }
 
-    bool Board::IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check){
-        PROFILE_FUNCTION();
-
+    bool Board::IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const {
         auto try_move = [=]() {
             Board temp = *this;
             temp.PlayMove(move);
@@ -249,8 +246,9 @@ namespace ChessEngine {
                 const int dx_to = to_file - king_file;
                 const int dy_to = to_rank - king_rank;
 
-                // Check if the move direction is on the attack line of the pin.
-                // If not the move is illegal.
+                // The move is legal only if the vector {from-king} is codirectional with
+                // the vector {to-king}. This is checked by comparing the slopes.
+                // dy_from / dx_from = dy_to / dx_to.
                 if (dx_from == 0 || dx_to == 0) {
                     return (dx_from == dx_to);
                 } else {
@@ -262,8 +260,7 @@ namespace ChessEngine {
         }
     }
 
-    MoveList Board::GetLegalMoves(){
-        PROFILE_FUNCTION();
+    MoveList Board::GetLegalMoves() const {
         // Pre allocate vector size (Requires a Move default constructor).
         MoveList moves;
         moves.reserve(60);
@@ -277,7 +274,7 @@ namespace ChessEngine {
         return moves;
     }
 
-    int Board::Perft(int depth, Board board){
+    int Board::Perft(int depth, const Board& board) {
         int nodes = 0;
 
         if (depth == 0)
@@ -295,12 +292,12 @@ namespace ChessEngine {
         return nodes;
     }
 
-    PieceInfo Board::GetPieceInfoAt(BoardTile tile){
+    PieceInfo Board::GetPieceInfoAt(BoardTile tile) const{
         auto[file, rank] = tile.GetCoords();
         return GetPieceInfoAt(file, rank);
     }
 
-    PieceInfo Board::GetPieceInfoAt(uint8_t file, uint8_t rank) {
+    PieceInfo Board::GetPieceInfoAt(uint8_t file, uint8_t rank) const {
         auto representation_temp = representation_;
         if(is_flipped_){
             representation_temp.Mirror();
@@ -341,7 +338,7 @@ namespace ChessEngine {
         return {type, team};
     }
 
-    void Board::Draw(){
+    void Board::Draw() const{
         for (int rank = 7; rank >= 0; rank--) {
             std::cout << rank + 1 << "  ";
             for (int file = 0; file < 8; file++) {

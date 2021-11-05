@@ -83,22 +83,21 @@ namespace ChessEngine {
         void Mirror();
         // Plays the move. Does not alter the turn.
         void PlayMove(Move move);
-        void Draw();
+        void Draw() const;
 
-        bool IsUnderAttack(BoardTile tile);
-        bool IsInCheck();
+        PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank) const;
+        PieceInfo GetPieceInfoAt(BoardTile tile) const;
 
-        PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank);
-        PieceInfo GetPieceInfoAt(BoardTile tile);
+        MoveList GetLegalMoves() const;
 
-        MoveList GetLegalMoves();
-
-        static int Perft(int depth, Board board);
+        static int Perft(int depth, const Board& board);
 
     private:
 
-        bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check);
-        Bitboard GetPins();
+        Bitboard GetPins() const;
+        bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const;
+        bool IsUnderAttack(BoardTile tile) const;
+        bool IsInCheck() const;
 
         Representation representation_;
         CastlingRights castling_rights_;

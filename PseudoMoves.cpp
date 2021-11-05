@@ -146,7 +146,6 @@ namespace ChessEngine::PseudoMoves {
     }
 
     void GetPseudoMoves(Board::Representation representation, Board::CastlingRights rights, MoveList& move_list){
-        PROFILE_FUNCTION();
         Bitboard own = representation.own_pieces;
         Bitboard enemy = representation.enemy_pieces;
         Bitboard enPassant = representation.EnPassant();

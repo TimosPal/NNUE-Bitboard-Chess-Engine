@@ -12,8 +12,8 @@ namespace ChessEngine {
 
     void Timer::Stop() {
         auto ending_time_point = std::chrono::steady_clock::now();
-        auto start = std::chrono::time_point_cast<std::chrono::microseconds>(starting_time_point_);
-        auto end = std::chrono::time_point_cast<std::chrono::microseconds>(ending_time_point);
+        auto start = std::chrono::time_point_cast<std::chrono::milliseconds>(starting_time_point_);
+        auto end = std::chrono::time_point_cast<std::chrono::milliseconds>(ending_time_point);
         auto duration = end - start;
         if (info.find(function_name_) == info.end()) {
             TimerInfo time_info = {.time_sum = duration.count(), .number_of_calls = 1};

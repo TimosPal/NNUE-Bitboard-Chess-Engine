@@ -13,7 +13,7 @@ int main() {
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
 
-    int nodes = ChessEngine::Board::Perft(6, board);
+    int nodes = ChessEngine::Board::Perft(5, board);
     std::cout << "Nodes : " << nodes << std::endl;
     }
     ChessEngine::Timer::Print();
