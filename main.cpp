@@ -8,7 +8,7 @@ int main() {
     PROFILE_SCOPE("Program");
     ChessEngine::AttackTables::InitMoveTables();
 
-    //std::string fen = "8/8/2k5/5q2/5n2/8/5K2/8 b - - 0 1";
+    //std::string fen = "7r/6N1/q1P2KQb/4PP2/5r2/2b5/8/2k5 w - - 0 1";
     std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     ChessEngine::Board::BoardInfo info = {};
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
@@ -28,7 +28,7 @@ int main() {
     }
     */
 
-    auto[nodes, captures, checks] = ChessEngine::Board::Perft(5, board);
+    auto[nodes, captures, checks] = ChessEngine::Board::Perft(3, board);
     std::cout << "Nodes : " << nodes << std::endl;
     std::cout << "Captures : " << captures << std::endl;
     std::cout << "Checks : " << checks << std::endl;

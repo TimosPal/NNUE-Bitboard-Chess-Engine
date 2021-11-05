@@ -180,7 +180,39 @@ namespace ChessEngine {
         return IsUnderAttack(representation_.own_king);
     }
 
-    bool Board::IsLegalMove(const Move& move){
+    Bitboard Board::GetPins(){
+        Bitboard pins(0);
+
+        Bitboard own = representation_.own_pieces;
+        Bitboard enemy = representation_.enemy_pieces;
+        Bitboard bishops = representation_.bishop_queens;
+        Bitboard rooks = representation_.rook_queens;
+        Bitboard all = own | enemy;
+
+        uint8_t king_index = representation_.own_king.GetIndex();
+        Bitboard rook_pins = AttackTables::RookAttacks(king_index, own) & own;
+        Bitboard rook_rays = AttackTables::RookAttacks(king_index, pins);
+        Bitboard bishop_pins = AttackTables::BishopAttacks(king_index, own) & own;
+        Bitboard bishop_rays = AttackTables::BishopAttacks(king_index, pins);
+
+        for(auto piece : rook_pins){
+            uint8_t pinned_piece_index = piece.GetIndex();
+            auto mask = rook_rays & enemy & rooks;
+            Bitboard rook_attacks = AttackTables::RookAttacks(pinned_piece_index, all) & mask;
+            pins.SetIf(piece, !rook_attacks.IsEmpty());
+        }
+
+        for(auto piece : bishop_pins){
+            uint8_t pinned_piece_index = piece.GetIndex();
+            auto mask = bishop_rays & enemy & bishops;
+            Bitboard rook_attacks = AttackTables::BishopAttacks(pinned_piece_index, all) & mask;
+            pins.SetIf(piece, !rook_attacks.IsEmpty());
+        }
+
+        return pins;
+    }
+
+    bool Board::IsLegalMove(const Move& move, const Bitboard& pins){
         PROFILE_FUNCTION();
         // TODO: some cases can be optimized to not use a copy.
         BoardTile from = move.GetFrom();
@@ -199,6 +231,23 @@ namespace ChessEngine {
             if(IsUnderAttack(from + (to_file - from_file) / 2))
                 return false;
             // End position check will be checked in the general case.
+        } else if(pins.Get(move.GetFrom())){
+            uint8_t from_rank = from.GetRank();
+            uint8_t to_rank = to.GetRank();
+            auto[king_file, king_rank] = representation_.own_king.GetCoords();
+
+            const int dx_from = from_file - king_file;
+            const int dy_from = from_rank - king_rank;
+            const int dx_to = to_file - king_file;
+            const int dy_to = to_rank - king_rank;
+
+            // Check if the move direction is on the attack line of the pin.
+            // If not the move is illegal.
+            if (dx_from == 0 || dx_to == 0) {
+                return (dx_from == dx_to);
+            } else {
+                return (dx_from * dy_to == dx_to * dy_from);
+            }
         }
 
         Board temp = *this;
@@ -213,7 +262,8 @@ namespace ChessEngine {
         moves.reserve(60);
         PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
 
-        auto is_illegal = [this](const Move &move) { return !IsLegalMove(move); };
+        Bitboard pins = GetPins();
+        auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins); };
         moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
         return moves;

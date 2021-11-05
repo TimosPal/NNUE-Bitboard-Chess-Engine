@@ -3,6 +3,7 @@ project(ChessEngine2)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 add_executable(ChessEngine2
         main.cpp
         Bitboard.h
@@ -16,19 +17,6 @@ add_executable(ChessEngine2
         Utilities.h
         AttackTables.cpp
         AttackTables.h
-        MagicNumbers.h PseudoMoves.cpp PseudoMoves.h BoardTile.h)
+        MagicNumbers.h PseudoMoves.cpp PseudoMoves.h BoardTile.h Timer.cpp Timer.h)
 
-add_library(
-        engine STATIC
-        Bitboard.h
-        Bitboard.cpp
-        Board.cpp
-        Board.h
-        Move.h
-        FenParser.h
-        FenParser.cpp
-        Utilities.cpp
-        Utilities.h
-        AttackTables.cpp
-        AttackTables.h
-        MagicNumbers.h PseudoMoves.cpp PseudoMoves.h BoardTile.h)
+target_compile_definitions(ChessEngine2 PRIVATE PROFILER)

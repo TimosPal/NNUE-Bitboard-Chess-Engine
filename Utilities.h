@@ -5,15 +5,13 @@
 #include <iostream>
 #include <string>
 #include <tuple>
-#include <chrono>
-#include <unordered_map>
 
 #include "Bitboard.h"
 #include "BoardTile.h"
+#include "Timer.h"
 
-#define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return 1;}}
-#define PROFILE_SCOPE(name) ChessEngine::Timer timer##__LINE__(name)
-#define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
+#define ERROR 1
+#define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return ERROR;}}
 
 namespace ChessEngine {
 
@@ -91,24 +89,6 @@ namespace ChessEngine {
 
     bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords);
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str);
-
-    class Timer{
-    public:
-        struct TimerInfo{
-            long long int time_sum = 0;
-            int number_of_calls = 0;
-        };
-
-        Timer(std::string function_name);
-        ~Timer(){ Stop(); }
-        void Stop();
-        static void Print();
-    private:
-        std::chrono::time_point<std::chrono::steady_clock> starting_time_point_;
-        std::string function_name_;
-
-        static std::unordered_map<std::string, TimerInfo> info;
-    };
 
 }
 

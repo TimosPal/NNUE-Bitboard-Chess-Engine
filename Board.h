@@ -98,7 +98,8 @@ namespace ChessEngine {
 
     private:
 
-        bool IsLegalMove(const Move& move);
+        bool IsLegalMove(const Move& move, const Bitboard& pins);
+        Bitboard GetPins();
 
         Representation representation_;
         CastlingRights castling_rights_;
