@@ -212,9 +212,15 @@ namespace ChessEngine {
         return pins;
     }
 
-    bool Board::IsLegalMove(const Move& move, const Bitboard& pins){
+    bool Board::IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check){
         PROFILE_FUNCTION();
-        // TODO: some cases can be optimized to not use a copy.
+
+        auto try_move = [=]() {
+            Board temp = *this;
+            temp.PlayMove(move);
+            return !temp.IsInCheck();
+        };
+
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();
 
@@ -223,36 +229,37 @@ namespace ChessEngine {
 
         bool is_king = from == representation_.own_king;
         bool is_castling = is_king && (abs(from_file - to_file) == 2);
-        if(is_castling){
-            // Check if already in check.
-            if(IsInCheck())
+        if(is_in_check){
+            if(is_castling)
                 return false;
-            // Check in between tile.
-            if(IsUnderAttack(from + (to_file - from_file) / 2))
-                return false;
-            // End position check will be checked in the general case.
-        } else if(pins.Get(move.GetFrom())){
-            uint8_t from_rank = from.GetRank();
-            uint8_t to_rank = to.GetRank();
-            auto[king_file, king_rank] = representation_.own_king.GetCoords();
+            return try_move();
+        }else{
+            if(is_king){
+                // Check in between tile.
+                if(is_castling && IsUnderAttack(from + (to_file - from_file) / 2))
+                    return false;
+                return try_move();
+            }else if(pins.Get(move.GetFrom())) {
+                uint8_t from_rank = from.GetRank();
+                uint8_t to_rank = to.GetRank();
+                auto[king_file, king_rank] = representation_.own_king.GetCoords();
 
-            const int dx_from = from_file - king_file;
-            const int dy_from = from_rank - king_rank;
-            const int dx_to = to_file - king_file;
-            const int dy_to = to_rank - king_rank;
+                const int dx_from = from_file - king_file;
+                const int dy_from = from_rank - king_rank;
+                const int dx_to = to_file - king_file;
+                const int dy_to = to_rank - king_rank;
 
-            // Check if the move direction is on the attack line of the pin.
-            // If not the move is illegal.
-            if (dx_from == 0 || dx_to == 0) {
-                return (dx_from == dx_to);
-            } else {
-                return (dx_from * dy_to == dx_to * dy_from);
+                // Check if the move direction is on the attack line of the pin.
+                // If not the move is illegal.
+                if (dx_from == 0 || dx_to == 0) {
+                    return (dx_from == dx_to);
+                } else {
+                    return (dx_from * dy_to == dx_to * dy_from);
+                }
+            } else{
+                return true; // Not pinned , no check. Can freely move.
             }
         }
-
-        Board temp = *this;
-        temp.PlayMove(move);
-        return !temp.IsInCheck();
     }
 
     MoveList Board::GetLegalMoves(){
@@ -263,37 +270,29 @@ namespace ChessEngine {
         PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
 
         Bitboard pins = GetPins();
-        auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins); };
+        bool is_in_check = IsInCheck();
+        auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins, is_in_check); };
         moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
         return moves;
     }
 
-    Board::PerftInfo Board::Perft(int depth, Board board){
+    int Board::Perft(int depth, Board board){
         int nodes = 0;
-        int captures = 0;
-        int checks = 0;
 
         if (depth == 0)
-            return {1ULL, 0, 0};
+            return 1ULL;
 
         MoveList moves = board.GetLegalMoves();
         for (const Move& move : moves) {
             Board temp = board;
-
-            uint8_t piece_count = temp.representation_.enemy_pieces.Count();
             temp.PlayMove(move);
-            captures += piece_count - temp.representation_.enemy_pieces.Count();
             temp.Mirror();
-            if(temp.IsInCheck())
-                checks++;
 
-            auto[nodes_next, captures_next, checks_next] = Perft(depth - 1, temp);
-            nodes += nodes_next;
-            captures += captures_next;
-            checks += checks_next;
+            nodes += Perft(depth - 1, temp);
         }
-        return {nodes, captures, checks};
+
+        return nodes;
     }
 
     PieceInfo Board::GetPieceInfoAt(BoardTile tile){

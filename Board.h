@@ -93,12 +93,11 @@ namespace ChessEngine {
 
         MoveList GetLegalMoves();
 
-        using PerftInfo = std::tuple<int, int, int>;
-        static PerftInfo Perft(int depth, Board board);
+        static int Perft(int depth, Board board);
 
     private:
 
-        bool IsLegalMove(const Move& move, const Bitboard& pins);
+        bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check);
         Bitboard GetPins();
 
         Representation representation_;
