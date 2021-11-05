@@ -36,6 +36,7 @@ namespace ChessEngine {
     }
 
     void Board::PlayMove(Move move){
+        PROFILE_FUNCTION();
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();
         PieceType promotion = move.GetPromotion();
@@ -180,6 +181,7 @@ namespace ChessEngine {
     }
 
     bool Board::IsLegalMove(const Move& move){
+        PROFILE_FUNCTION();
         // TODO: some cases can be optimized to not use a copy.
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();
@@ -208,10 +210,10 @@ namespace ChessEngine {
         PROFILE_FUNCTION();
         // Pre allocate vector size (Requires a Move default constructor).
         MoveList moves;
-        moves.reserve(50);
+        moves.reserve(60);
         PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
 
-        auto is_illegal = [this](const Move& move) { return !IsLegalMove(move); };
+        auto is_illegal = [this](const Move &move) { return !IsLegalMove(move); };
         moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
         return moves;
@@ -226,11 +228,11 @@ namespace ChessEngine {
             return {1ULL, 0, 0};
 
         MoveList moves = board.GetLegalMoves();
-        for (int i = 0; i < moves.size(); i++) {
+        for (const Move& move : moves) {
             Board temp = board;
 
             uint8_t piece_count = temp.representation_.enemy_pieces.Count();
-            temp.PlayMove(moves[i]);
+            temp.PlayMove(move);
             captures += piece_count - temp.representation_.enemy_pieces.Count();
             temp.Mirror();
             if(temp.IsInCheck())

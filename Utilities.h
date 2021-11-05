@@ -94,9 +94,9 @@ namespace ChessEngine {
 
     class Timer{
     public:
-        struct TimeInfo{
-            long long int time_count = 0;
-            int count = 0;
+        struct TimerInfo{
+            long long int time_sum = 0;
+            int number_of_calls = 0;
         };
 
         Timer(std::string function_name);
@@ -107,7 +107,7 @@ namespace ChessEngine {
         std::chrono::time_point<std::chrono::steady_clock> starting_time_point_;
         std::string function_name_;
 
-        static std::unordered_map<std::string, TimeInfo> info;
+        static std::unordered_map<std::string, TimerInfo> info;
     };
 
 }
