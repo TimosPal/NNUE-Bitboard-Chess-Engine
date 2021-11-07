@@ -79,16 +79,15 @@ namespace ChessEngine {
         using BoardInfo = std::tuple<Representation, CastlingRights, MoveCounters, Team>;
         explicit Board(const BoardInfo &info);
 
-        // Mirrors the board vertically.
-        void Mirror();
-        // Plays the move. Does not alter the turn.
-        void PlayMove(Move move);
-        void Draw() const;
-
         MoveList GetLegalMoves() const;
+        void PlayMove(Move move); // Plays the move. Does not alter the turn.
+        void Mirror(); // Mirrors the board vertically.
+
+        // The following functions do not account for mirroring.
+        void Draw() const;
+        std::string Fen() const;
         PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank) const;
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
-        std::string Fen() const;
 
         static int Perft(int depth, const Board& board);
 

@@ -185,10 +185,10 @@ namespace ChessEngine {
         Bitboard all = own | enemy;
 
         uint8_t king_index = representation_.own_king.GetIndex();
-        Bitboard rook_pins = AttackTables::RookAttacks(king_index, own) & own;
-        Bitboard rook_rays = AttackTables::RookAttacks(king_index, pins);
-        Bitboard bishop_pins = AttackTables::BishopAttacks(king_index, own) & own;
-        Bitboard bishop_rays = AttackTables::BishopAttacks(king_index, pins);
+        Bitboard rook_pins = AttackTables::RookAttacks(king_index, all) & own;
+        Bitboard rook_rays = AttackTables::RookAttacks(king_index);
+        Bitboard bishop_pins = AttackTables::BishopAttacks(king_index, all) & own;
+        Bitboard bishop_rays = AttackTables::BishopAttacks(king_index);
 
         for(auto piece : rook_pins){
             uint8_t pinned_piece_index = piece.GetIndex();
@@ -243,7 +243,6 @@ namespace ChessEngine {
         }
 
         if(pins.Get(move.GetFrom())) {
-            return try_move();
             uint8_t from_rank = from.GetRank();
             uint8_t to_rank = to.GetRank();
             auto[king_file, king_rank] = representation_.own_king.GetCoords();
@@ -304,18 +303,13 @@ namespace ChessEngine {
     }
 
     PieceInfo Board::GetPieceInfoAt(uint8_t file, uint8_t rank) const {
-        auto representation_temp = representation_;
-        if(is_flipped_){
-            representation_temp.Mirror();
-        }
-
-        Bitboard pawns = representation_temp.Pawns();
-        Bitboard knights = representation_temp.Knights();
-        Bitboard rooks = representation_temp.Rooks();
-        Bitboard bishops = representation_temp.Bishops();
-        Bitboard queens = representation_temp.Queens();
-        Bitboard kings = representation_temp.Kings();
-        Bitboard own = representation_temp.own_pieces;
+        Bitboard pawns = representation_.Pawns();
+        Bitboard knights = representation_.Knights();
+        Bitboard rooks = representation_.Rooks();
+        Bitboard bishops = representation_.Bishops();
+        Bitboard queens = representation_.Queens();
+        Bitboard kings = representation_.Kings();
+        Bitboard own = representation_.own_pieces;
 
         PieceType type;
         if(pawns.Get(file, rank)){
