@@ -85,10 +85,10 @@ namespace ChessEngine {
         void PlayMove(Move move);
         void Draw() const;
 
+        MoveList GetLegalMoves() const;
         PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank) const;
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
-
-        MoveList GetLegalMoves() const;
+        std::string Fen() const;
 
         static int Perft(int depth, const Board& board);
 

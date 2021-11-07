@@ -222,14 +222,12 @@ namespace ChessEngine {
 
         bool is_king = from == representation_.own_king;
         bool is_castling = is_king && (abs(from_file - to_file) == 2);
+        bool is_enPassant = to_file != from_file &&
+                !representation_.enemy_pieces.Get(to) &&
+                representation_.pawns_enPassant.Get(from);
 
-        if(is_castling){
-            if(is_in_check)
-                return false;
-            if(IsUnderAttack(from + (to_file - from_file) / 2))
-                return false;
-        }
-        return try_move();
+        if(is_enPassant)
+            return try_move();
 
         if(is_in_check){
             if(is_castling)
@@ -245,6 +243,7 @@ namespace ChessEngine {
         }
 
         if(pins.Get(move.GetFrom())) {
+            return try_move();
             uint8_t from_rank = from.GetRank();
             uint8_t to_rank = to.GetRank();
             auto[king_file, king_rank] = representation_.own_king.GetCoords();
@@ -354,6 +353,35 @@ namespace ChessEngine {
             std::cout << std::endl;
         }
         std::cout << "   a  b  c  d  e  f  g  h" << std::endl;
+    }
+
+    std::string Board::Fen() const { // TODO : castling rights moves etc not done.
+        std::string fen;
+        for (int rank = 7; rank >= 0; rank--) {
+            char empty_tiles = 0;
+            for (int file = 0; file < 8; file++) {
+                auto[type, team] = GetPieceInfoAt(file, rank);
+                if(type != None) {
+                    if(empty_tiles != 0){
+                        assert(empty_tiles <= 8);
+                        fen += std::string(1, empty_tiles + '0');
+                    }
+                    char token = PieceInfoToChar({type, team});
+                    empty_tiles = 0;
+                    fen += token;
+                }else{
+                    empty_tiles++;
+                }
+            }
+            if(empty_tiles != 0){
+                assert(empty_tiles <= 8);
+                fen += std::string(1, empty_tiles + '0');
+            }
+            if(rank != 0)
+                fen += "/";
+        }
+
+        return fen;
     }
 
 }
