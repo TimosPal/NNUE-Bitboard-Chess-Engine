@@ -26,8 +26,8 @@ namespace ChessEngine::PseudoMoves {
         // Used for basic movement of slider pieces.
         template<typename GetAttacks>
         void GetSliderPseudoMoves(Bitboard piece, Bitboard own, Bitboard enemy, MoveList& move_list, GetAttacks get) {
+            Bitboard all = own | enemy;
             for(auto from : piece){
-                Bitboard all = own | enemy;
                 Bitboard attacks = get(from.GetIndex(), all) - own;
                 for(auto to : attacks){
                     Move move = Move(from.GetIndex(), to.GetIndex(), PieceType::None);
@@ -62,7 +62,6 @@ namespace ChessEngine::PseudoMoves {
                 Move move = Move(from, to, PieceType::None);
                 move_list.push_back(move);
             }
-
         };
 
         constexpr int8_t one_back_offset = -8;
@@ -84,8 +83,8 @@ namespace ChessEngine::PseudoMoves {
         // Push promotions.
         process_promotions(promotions, one_back_offset, move_list);
         // Double push.
-        pawns_up = (pawns_up & Masks::rank_3).ShiftTowards({0, 1}) - all;
-        process_captures_quiet(pawns_up, 2 * one_back_offset, move_list);
+        Bitboard double_push = (pawns_up & Masks::rank_3).ShiftTowards({0, 1}) - all;
+        process_captures_quiet(double_push, 2 * one_back_offset, move_list);
 
         Bitboard captures_left = pawns.ShiftTowards({-1,1}) & enemy & Masks::not_file_H;
         Bitboard captures_right = pawns.ShiftTowards({1,1}) & enemy & Masks::not_file_A;
@@ -109,8 +108,8 @@ namespace ChessEngine::PseudoMoves {
         GetPseudoLeaperMoves(knights, own, move_list, AttackTables::KnightAttacks);
     }
 
-    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Bitboard rooks,
-                            Board::CastlingRights rights, MoveList& move_list) {
+    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Board::CastlingRights rights,
+                            MoveList &move_list) {
         GetPseudoLeaperMoves(Bitboard(king), own, move_list, AttackTables::KingAttacks);
 
         // Castling. King should be at the default position.
@@ -121,12 +120,12 @@ namespace ChessEngine::PseudoMoves {
         // Check if rooks exist at correct tiles and if in between tiles are empty.
         Bitboard all = own | enemy;
         BoardTile from = Masks::king_default;
-        if(rooks.Get(Masks::queen_rook) && (all & Masks::queen_castling_tiles).IsEmpty() && rights.CanOwnQueenSide()){
+        if(rights.CanOwnQueenSide() && (all & Masks::queen_castling_tiles).IsEmpty()){
             BoardTile to = Masks::queen_rook + 2; // 2 tiles right from rook.
             assert(from != to);
             move_list.push_back(Move(from, to, PieceType::None));
         }
-        if(rooks.Get(Masks::king_rook) && (all & Masks::king_castling_tiles).IsEmpty() && rights.CanOwnKingSide()){
+        if(rights.CanOwnKingSide() && (all & Masks::king_castling_tiles).IsEmpty()){
             BoardTile to = Masks::king_rook - 1; // Left of rook.
             assert(from != to);
             move_list.push_back(Move(from, to, PieceType::None));
@@ -151,7 +150,7 @@ namespace ChessEngine::PseudoMoves {
         Bitboard enPassant = representation.EnPassant();
 
         GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        GetPseudoKingMoves(representation.own_king, own, enemy, representation.Rooks(), rights, move_list);
+        GetPseudoKingMoves(representation.own_king, own, enemy, rights, move_list);
         GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
         GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
         GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);

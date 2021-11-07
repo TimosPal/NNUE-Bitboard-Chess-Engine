@@ -62,7 +62,7 @@ namespace ChessEngine {
                 representation_.own_pieces.Set(rook_to);
             };
 
-            bool is_castling = abs(from_file - to_file) >= 2;
+            bool is_castling = abs(from_file - to_file) == 2;
             bool is_queen_side = is_castling && to == (Masks::queen_rook + 2);
             bool is_king_side = is_castling && to == (Masks::king_rook - 1);
             if(is_queen_side)
@@ -79,7 +79,7 @@ namespace ChessEngine {
             castling_rights_.ResetOwnKingSide();
         }
         // Pawn.
-        else if(representation_.pawns_enPassant.Get(from)) {
+        else if(representation_.Pawns().Get(from)) {
             // Double pawn push. En passant is set at the 0-th rank.
             if ((to_rank - from_rank) == 2) {
                 representation_.pawns_enPassant.Set(from_file, 0);
@@ -92,7 +92,7 @@ namespace ChessEngine {
                 representation_.enemy_pieces.Reset(enemy_pawn);
             }
             // Promotions.
-            else if(to_rank == 7){
+            else if(to_rank == Rank::R8){
                 switch (promotion) {
                     case Queen:
                         representation_.bishop_queens.Set(to);
@@ -119,7 +119,7 @@ namespace ChessEngine {
         const uint8_t enemy_rooks_offset = 7 * 8;
         if(to == Masks::queen_rook + enemy_rooks_offset)
             castling_rights_.ResetEnemyQueenSide();
-        if(from == Masks::king_rook + enemy_rooks_offset)
+        else if(to == Masks::king_rook + enemy_rooks_offset)
             castling_rights_.ResetEnemyKingSide();
 
         // Reset old en passant. Does not affect own en passant.
@@ -152,13 +152,9 @@ namespace ChessEngine {
         Bitboard all = own | enemy;
         uint8_t tile_index = tile.GetIndex();
 
-        auto [enemy_king_file, enemy_king_rank] = representation_.enemy_king.GetCoords();
-        auto [tile_file, tile_rank] = representation_.own_king.GetCoords();
-
-        // King attacks if he is 1 tile away.
-        if(abs(tile_file - enemy_king_file) <= 1 && abs(tile_rank - enemy_king_rank) <= 1)
+        Bitboard king_attacks = AttackTables::KingAttacks(tile_index) & Bitboard(representation_.enemy_king);
+        if(!king_attacks.IsEmpty())
             return true;
-
         Bitboard rook_attacks = AttackTables::RookAttacks(tile_index, all) & enemy & representation_.rook_queens;
         if(!rook_attacks.IsEmpty())
             return true;
@@ -226,38 +222,49 @@ namespace ChessEngine {
 
         bool is_king = from == representation_.own_king;
         bool is_castling = is_king && (abs(from_file - to_file) == 2);
+
+        if(is_castling){
+            if(is_in_check)
+                return false;
+            if(IsUnderAttack(from + (to_file - from_file) / 2))
+                return false;
+        }
+        return try_move();
+
         if(is_in_check){
             if(is_castling)
                 return false;
             return try_move();
-        }else{
-            if(is_king){
-                // Check in between tile.
-                if(is_castling && IsUnderAttack(from + (to_file - from_file) / 2))
-                    return false;
-                return try_move();
-            }else if(pins.Get(move.GetFrom())) {
-                uint8_t from_rank = from.GetRank();
-                uint8_t to_rank = to.GetRank();
-                auto[king_file, king_rank] = representation_.own_king.GetCoords();
+        }
 
-                const int dx_from = from_file - king_file;
-                const int dy_from = from_rank - king_rank;
-                const int dx_to = to_file - king_file;
-                const int dy_to = to_rank - king_rank;
+        if(is_king){
+            // Check in between tile.
+            if(is_castling && IsUnderAttack(from + (to_file - from_file) / 2))
+                return false;
+            return try_move();
+        }
 
-                // The move is legal only if the vector {from-king} is codirectional with
-                // the vector {to-king}. This is checked by comparing the slopes.
-                // dy_from / dx_from = dy_to / dx_to.
-                if (dx_from == 0 || dx_to == 0) {
-                    return (dx_from == dx_to);
-                } else {
-                    return (dx_from * dy_to == dx_to * dy_from);
-                }
-            } else{
-                return true; // Not pinned , no check. Can freely move.
+        if(pins.Get(move.GetFrom())) {
+            uint8_t from_rank = from.GetRank();
+            uint8_t to_rank = to.GetRank();
+            auto[king_file, king_rank] = representation_.own_king.GetCoords();
+
+            const int dx_from = from_file - king_file;
+            const int dy_from = from_rank - king_rank;
+            const int dx_to = to_file - king_file;
+            const int dy_to = to_rank - king_rank;
+
+            // The move is legal only if the vector {from-king} is codirectional with
+            // the vector {to-king}. This is checked by comparing the slopes.
+            // dy_from / dx_from = dy_to / dx_to.
+            if (dx_from == 0 || dx_to == 0) {
+                return (dx_from == dx_to);
+            } else {
+                return (dx_from * dy_to == dx_to * dy_from);
             }
         }
+
+        return true; // Not pinned , no check. Can freely move.
     }
 
     MoveList Board::GetLegalMoves() const {

@@ -32,7 +32,7 @@ namespace ChessEngine {
             Bitboard Kings() const { return own_king | enemy_king; }
             Bitboard Knights() const {
                 return (own_pieces | enemy_pieces)
-                       - rook_queens - bishop_queens - pawns_enPassant
+                       - rook_queens - bishop_queens - Pawns()
                        - own_king - enemy_king;
             }
 

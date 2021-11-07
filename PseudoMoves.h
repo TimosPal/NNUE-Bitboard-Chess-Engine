@@ -13,8 +13,8 @@ namespace ChessEngine::PseudoMoves {
 
     // Gets capture and quiet pseudo king moves. Does not include castling moves.
     // If the king does not exist , king's tile is set to 0 so this can cause invalid behaviour.
-    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Bitboard rooks,
-                            Board::CastlingRights rights, MoveList& move_list);
+    void
+    GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Board::CastlingRights rights, MoveList &move_list);
 
     // Gets capture and quiet pseudo queen moves.
     void GetPseudoQueenMoves(Bitboard queens, Bitboard own, Bitboard enemy, MoveList &move_list);
