@@ -208,6 +208,8 @@ namespace ChessEngine {
     }
 
     bool Board::IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const {
+        // NOTE: can optimize en passant and check positions but it didnt seem to give
+        // a great performance boost in perft so the simplified version is kept.
         auto try_move = [=]() {
             Board temp = *this;
             temp.PlayMove(move);
@@ -242,7 +244,7 @@ namespace ChessEngine {
             return try_move();
         }
 
-        if(pins.Get(move.GetFrom())) {
+        if(pins.Get(from)) {
             uint8_t from_rank = from.GetRank();
             uint8_t to_rank = to.GetRank();
             auto[king_file, king_rank] = representation_.own_king.GetCoords();
