@@ -49,6 +49,9 @@ namespace ChessEngine {
         representation_.bishop_queens.Reset(to);
         representation_.pawns_enPassant.Reset(to);
 
+        // If there has been a capture.
+        bool reset_50_move_rule = representation_.enemy_pieces.Get(to);
+
         // King.
         if(from == representation_.own_king){
             // Reset rights since king moved or castled.
@@ -80,6 +83,9 @@ namespace ChessEngine {
         }
         // Pawn.
         else if(representation_.Pawns().Get(from)) {
+            // Pawn movements reset the rule.
+            reset_50_move_rule = true;
+
             // Double pawn push. En passant is set at the 0-th rank.
             if ((to_rank - from_rank) == 2) {
                 representation_.pawns_enPassant.Set(from_file, 0);
@@ -143,6 +149,17 @@ namespace ChessEngine {
         representation_.rook_queens.Reset(from);
         representation_.bishop_queens.Reset(from);
         representation_.pawns_enPassant.Reset(from);
+
+        // Set counters,
+        if(is_flipped_)
+            // Increments only when black moves.
+            move_counters_.full_moves++;
+
+        // Increments only if there were no captures or pawn moves.
+        if(reset_50_move_rule)
+            move_counters_.half_moves = 0;
+        else
+            move_counters_.half_moves++;
     }
 
     bool Board::IsUnderAttack(BoardTile tile) const{
@@ -389,6 +406,8 @@ namespace ChessEngine {
             return GameResult::Draw;
 
         // 50 moves rule.
+        if(move_counters_.half_moves >= 100)
+            return GameResult::Draw;
 
         // 3 move repetition.
 

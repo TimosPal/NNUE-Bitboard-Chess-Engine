@@ -42,7 +42,9 @@ namespace ChessEngine {
         };
 
         struct MoveCounters{
+            // 50 move rule counter.
             uint8_t half_moves = 0;
+            // Game's plys.
             uint8_t full_moves = 0;
         };
 

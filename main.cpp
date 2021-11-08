@@ -13,7 +13,7 @@ int main() {
     IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
     ChessEngine::Board board(info);
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 100; i++) {
             ChessEngine::Board temp = board;
             for (int j = 0; j < 500; j++) {
                 auto moves = temp.GetLegalMoves();
