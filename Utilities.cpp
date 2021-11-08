@@ -35,7 +35,7 @@ namespace ChessEngine {
 
     char PieceInfoToChar(const PieceInfo& piece_info){
         auto[type, team] = piece_info;
-        char token;
+        char token = '-';
         switch (type) {
             case None:
                 token = '-';
@@ -61,7 +61,7 @@ namespace ChessEngine {
         }
 
         if(team == Team::White)
-            token = toupper(token);
+            token = (char)toupper(token);
         return  token;
     }
 
@@ -127,11 +127,11 @@ namespace ChessEngine {
 
         // Is a number between 0-7
         int rank_temp = str[1] - '0' - 1;
-        if (rank_temp < 0 || rank_temp > 7)
+        if (rank_temp > 7)
             return false;
 
         int file_temp = str[0] - 'a';
-        if (file_temp < 0 || file_temp > 7)
+        if (file_temp > 7)
             return false;
 
         coords = {file_temp, rank_temp};
@@ -141,7 +141,7 @@ namespace ChessEngine {
 
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str){
         auto[file, rank] = coords;
-        if (file < 0 || file > 7 || rank < 0 || rank > 7) {
+        if (file > 7 || rank > 7) {
             str = "invalid";
             return false;
         }

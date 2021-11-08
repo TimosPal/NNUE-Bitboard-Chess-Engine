@@ -351,6 +351,50 @@ namespace ChessEngine {
         std::cout << "   a  b  c  d  e  f  g  h" << std::endl;
     }
 
+    bool Board::InsufficientMaterial() const{
+        // Pawns can promote.
+        if(!representation_.pawns_enPassant.IsEmpty())
+            return false;
+        // Rook or queens can lead to a checkmate.
+        if(!representation_.rook_queens.IsEmpty())
+            return false;
+
+        // Can not check with 1 minor piece.
+        if((representation_.own_pieces | representation_.enemy_pieces).Count() < 4)
+            return true;
+
+        // More than 3 pieces exist that are not rook or queens.
+        if(!representation_.Knights().IsEmpty())
+            return false;
+
+        // Only bishops remain. If they are same color it's a draw.
+        Bitboard light_bishops = representation_.bishop_queens & Masks::light_squares;
+        Bitboard dark_bishops = representation_.bishop_queens & Masks::dark_squares;
+        return light_bishops.IsEmpty() || dark_bishops.IsEmpty();
+    }
+
+    GameResult Board::Result(const MoveList& moves) const {
+        if(moves.empty()){
+            if(IsInCheck()){
+                // checkmate.
+                return (is_flipped_) ? GameResult::WhiteWon : GameResult::BlackWon;
+            }else{
+                // stalemate.
+                return GameResult::Draw;
+            }
+        }
+
+        // not enough pieces.
+        if(InsufficientMaterial())
+            return GameResult::Draw;
+
+        // 50 moves rule.
+
+        // 3 move repetition.
+
+        return GameResult::Playing;
+    }
+
     std::string Board::Fen() const { // TODO : castling rights moves etc not done.
         std::string fen;
         for (int rank = 7; rank >= 0; rank--) {

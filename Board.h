@@ -79,9 +79,12 @@ namespace ChessEngine {
         using BoardInfo = std::tuple<Representation, CastlingRights, MoveCounters, Team>;
         explicit Board(const BoardInfo &info);
 
+        bool IsFlipped() const { return is_flipped_; }
+
         MoveList GetLegalMoves() const;
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
         void Mirror(); // Mirrors the board vertically.
+        GameResult Result(const MoveList& moves) const;
 
         // The following functions do not account for mirroring.
         void Draw() const;
@@ -97,6 +100,7 @@ namespace ChessEngine {
         bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const;
         bool IsUnderAttack(BoardTile tile) const;
         bool IsInCheck() const;
+        bool InsufficientMaterial() const;
 
         Representation representation_;
         CastlingRights castling_rights_;

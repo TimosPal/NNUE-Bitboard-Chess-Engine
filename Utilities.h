@@ -81,6 +81,9 @@ namespace ChessEngine {
         const BoardTile king_rook = BoardTile(7,0);
         const Bitboard queen_castling_tiles = BoardTile(1,0) | BoardTile(2,0) | BoardTile(3,0);
         const Bitboard king_castling_tiles = BoardTile(6,0) | BoardTile(5,0);
+
+        const Bitboard light_squares(0x55AA55AA55AA55AAULL);
+        const Bitboard dark_squares(0xAA55AA55AA55AA55ULL);
     }
 
     bool CharToPieceInfo(char token, PieceInfo &piece_info);
