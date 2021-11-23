@@ -48,7 +48,7 @@ namespace ChessEngine {
             switch(result){
                 case GameResult::WhiteWon:
                 case GameResult::BlackWon:
-                    return INT16_MAX * color;
+                    return (INT16_MAX + depth) * color;
                 case GameResult::Draw:
                     return 0;
                 case GameResult::Playing:
@@ -60,12 +60,11 @@ namespace ChessEngine {
             return Evaluate(board);
         }
 
-        int value = INT32_MIN;
+        int value = INT16_MIN;
         for (auto move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
-
             value = std::max(value, -NegaMax(new_board, depth - 1, -b, -a, -color));
             a = std::max(a, value);
             if (a >= b) break;
@@ -76,7 +75,7 @@ namespace ChessEngine {
 
     Move GetBestMove(const Board& board, int depth){
         Move best_move;
-        int value = INT32_MIN;
+        int value = INT16_MIN;
 
         auto moves = board.GetLegalMoves();
         for (auto move : moves) {
@@ -95,6 +94,7 @@ namespace ChessEngine {
             }
         }
 
+        std::cout << "Score : " << value << std::endl;
         return best_move;
     }
 
