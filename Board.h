@@ -83,6 +83,8 @@ namespace ChessEngine {
 
         bool IsFlipped() const { return is_flipped_; }
 
+        const Representation& GetRepresentation() const { return representation_; }
+
         MoveList GetLegalMoves() const;
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
         void Mirror(); // Mirrors the board vertically.

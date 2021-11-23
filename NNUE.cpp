@@ -9,7 +9,7 @@ namespace ChessEngine{
     }
 
     int GetSide(bool is_flipped){
-        return is_flipped ? 0 : 1;
+        return !is_flipped ? 0 : 1;
     }
 
     int GetPieceEncoding(const PieceType& type, const Team& team){
@@ -57,31 +57,32 @@ namespace ChessEngine{
         return tile.GetIndex();
     }
 
-    void InitInput(const Board::Representation& representation , int* pieces, int* squares){
+    void InitInput(Board::Representation representation, bool is_flipped, int* pieces, int* squares){
         // index 0 -> white king.
         // index 1 -> black king.
         // index x -> piece encoding
         // index n + 1 -> 0 for end of array.
         // Ordering does not matter other than the kings.
 
-        // We always evaluate for white.
-        squares[0] = GetSquare(representation.own_king);
-        pieces[0] = GetPieceEncoding(King, White);
-        squares[1] = GetSquare(representation.enemy_king);
-        pieces[1] = GetPieceEncoding(King, Black);
+        // Make it so own is always white.
+        // Also mirrors the tiles.
+        if(is_flipped)
+            representation.Mirror();
 
-        int index = 2;
+        int index = 0;
         auto update_arrays = [&] (Bitboard piece_board, PieceType type) {
+            // White first for kings to work.
             for(auto tile : piece_board & representation.own_pieces){
-                squares[index++] = GetSquare(tile);
+                squares[index] = GetSquare(tile);
                 pieces[index++] = GetPieceEncoding(type, White);
             }
             for(auto tile : piece_board & representation.enemy_pieces){
-                squares[index++] = GetSquare(tile);
+                squares[index] = GetSquare(tile);
                 pieces[index++] = GetPieceEncoding(type, Black);
             }
         };
 
+        update_arrays(representation.Kings(), King);
         update_arrays(representation.Pawns(), Pawn);
         update_arrays(representation.Knights(), Knight);
         update_arrays(representation.Queens(), Queen);
@@ -91,15 +92,23 @@ namespace ChessEngine{
         pieces[index] = 0;
     }
 
-    int Evaluate(const Board::Representation& representation){
+    int Evaluate(const Board& board){
         const int max_pieces = 16 * 2;
-        int pieces[max_pieces + 1];
-        int squares[max_pieces];
+        static int pieces[max_pieces + 1];
+        static int squares[max_pieces];
 
-        InitInput(representation, pieces, squares);
-        int eval = nnue_evaluate(0, pieces, squares);
+        Board::Representation representation = board.GetRepresentation();
+        bool is_flipped = board.IsFlipped();
+
+        InitInput(representation, is_flipped, pieces, squares);
+        int side = GetSide(is_flipped);
+        int eval = nnue_evaluate(side, pieces, squares);
 
         return eval;
+    }
+
+    void InitModel(char* file_name){
+        nnue_init(file_name);
     }
 
 }
