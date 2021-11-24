@@ -5,7 +5,7 @@
 
 namespace ChessEngine {
 
-    int NegaMax(const Board& board, int depth, int a, int b);
+    int NegaMax(const Board& board, int depth, int a, int b, bool order);
     Move GetBestMove(const Board& board, int depth);
 
 }

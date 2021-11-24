@@ -6,27 +6,51 @@
 
 namespace ChessEngine {
 
-    int NegaMax(const Board& board, int depth, int a, int b) {
+    int QSearch(const Board& board, int a, int b) {
+        int evaluation = Evaluate(board);
+        if(evaluation >= b)
+            return b;
+        if( evaluation > a )
+            a = evaluation;
+
         auto moves = board.GetLegalMoves();
-        if(moves.empty()){
-            // Terminal node.
-            GameResult result = board.Result(moves);
-            switch(result){
-                case GameResult::WhiteWon:
-                case GameResult::BlackWon:
-                    // The board is flipped. If the game is over
-                    // the current side lost. We return relative to
-                    // the current side hence the score is negative.
-                    return -(INT16_MAX + depth);
-                case GameResult::Draw:
-                    return 0;
-                case GameResult::Playing:
-                    assert(false);
-                    break;
+        for (auto move : moves) {
+            auto to_tile = move.GetTo();
+            if(board.GetRepresentation().enemy_pieces.Get(to_tile)) {
+                // Only capture moves.
+                Board new_board = Board(board);
+                new_board.PlayMove(move);
+                new_board.Mirror();
+
+                int score = -QSearch(new_board, -b, -a);
+                if (score >= b)
+                    return b;
+                if (score > a)
+                    a = score;
             }
         }
-        if (depth <= 0) {
-            return Evaluate(board);
+
+        return a;
+    }
+
+    int NegaMax(const Board& board, int depth, int a, int b) {
+        auto moves = board.GetLegalMoves();
+        GameResult result = board.Result(moves);
+        switch(result){
+            // Terminal node.
+            case GameResult::WhiteWon:
+            case GameResult::BlackWon:
+                // The board is flipped. If the game is over
+                // the current side lost. We return relative to
+                // the current side hence the score is negative.
+                return -(INT16_MAX + depth);
+            case GameResult::Draw:
+                return 0;
+            case GameResult::Playing:
+                break;
+        }
+        if (depth == 0) {
+            return QSearch(board, a, b);
         }
 
         for (auto move : moves) {
