@@ -43,7 +43,6 @@ namespace ChessEngine::PseudoMoves {
         // with shifts instead of using pre computed attack tables. This function avoids branches as much
         // as possible hence the very exhaustive implementations of each case in separate loops.
 
-        // TODO : simpler shifts for these cases to avoid branches.
         auto process_promotions = [](Bitboard moves, uint8_t from_offset, MoveList& move_list){
             for(auto to : moves){
                 BoardTile from = to + from_offset;
@@ -71,10 +70,10 @@ namespace ChessEngine::PseudoMoves {
         // En passant is in ranks 1 and 8. Since each time the board is mirrored we only
         // need to check rank 8. We can consider said spot an enemy piece. This does not
         // affect forward pushes because in front of en passant tile there is an enemy piece.
-        enemy |= enPassant.ShiftTowards({0,-2});
+        enemy |= enPassant.ShiftDown2();
 
         Bitboard all = own | enemy;
-        Bitboard pawns_up = pawns.ShiftTowards({0, 1}) - all;
+        Bitboard pawns_up = pawns.ShiftUp1() - all;
         Bitboard promotions = pawns_up & Masks::rank_8;
         Bitboard quiet = pawns_up - promotions;
 
@@ -83,11 +82,11 @@ namespace ChessEngine::PseudoMoves {
         // Push promotions.
         process_promotions(promotions, one_back_offset, move_list);
         // Double push.
-        Bitboard double_push = (pawns_up & Masks::rank_3).ShiftTowards({0, 1}) - all;
+        Bitboard double_push = (pawns_up & Masks::rank_3).ShiftUp1() - all;
         process_captures_quiet(double_push, 2 * one_back_offset, move_list);
 
-        Bitboard captures_left = pawns.ShiftTowards({-1,1}) & enemy & Masks::not_file_H;
-        Bitboard captures_right = pawns.ShiftTowards({1,1}) & enemy & Masks::not_file_A;
+        Bitboard captures_left = pawns.ShiftUp1Left1() & enemy & Masks::not_file_H;
+        Bitboard captures_right = pawns.ShiftUp1Right1() & enemy & Masks::not_file_A;
         Bitboard capture_promotion_left = captures_left & Masks::rank_8;
         Bitboard capture_promotion_right = captures_right & Masks::rank_8;
         Bitboard capture_simple_left = captures_left - capture_promotion_left;

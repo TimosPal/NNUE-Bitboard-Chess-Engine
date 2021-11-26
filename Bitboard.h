@@ -43,7 +43,13 @@ namespace ChessEngine {
         uint64_t AsInt() const { return data_; }
         uint8_t Count() const;
 
+        // Slower but used for array init.
         Bitboard ShiftTowards(std::tuple<int8_t, int8_t> direction) const;
+        // Used inside pawn move gen.
+        Bitboard ShiftDown2() const { return Bitboard(data_ >> (2 * 8)); }
+        Bitboard ShiftUp1() const { return Bitboard(data_ << (1 * 8)); }
+        Bitboard ShiftUp1Right1() const { return Bitboard(data_ << (1 * 8 + 1)); }
+        Bitboard ShiftUp1Left1() const { return Bitboard(data_ << (1 * 8 - 1)); }
 
         // Mirrors the board vertically.
         void Mirror();
