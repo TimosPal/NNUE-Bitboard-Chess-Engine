@@ -150,11 +150,11 @@ namespace ChessEngine::PseudoMoves {
         Bitboard enPassant = representation.EnPassant();
 
         GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        GetPseudoKingMoves(representation.own_king, own, enemy, rights, move_list);
         GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
         GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
         GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);
         GetPseudoPawnMoves(representation.Pawns() & own, own, enemy, enPassant, move_list);
+        GetPseudoKingMoves(representation.own_king, own, enemy, rights, move_list);
     }
 
 }

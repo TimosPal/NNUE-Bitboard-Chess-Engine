@@ -298,24 +298,6 @@ namespace ChessEngine {
         return moves;
     }
 
-    int Board::Perft(int depth, const Board& board) {
-        int nodes = 0;
-
-        if (depth == 0)
-            return 1ULL;
-
-        MoveList moves = board.GetLegalMoves();
-        for (const Move& move : moves) {
-            Board temp = board;
-            temp.PlayMove(move);
-            temp.Mirror();
-
-            nodes += Perft(depth - 1, temp);
-        }
-
-        return nodes;
-    }
-
     PieceInfo Board::GetPieceInfoAt(BoardTile tile) const{
         auto[file, rank] = tile.GetCoords();
         return GetPieceInfoAt(file, rank);
@@ -410,11 +392,12 @@ namespace ChessEngine {
             return GameResult::Draw;
 
         // 3 move repetition.
+        // TODO
 
         return GameResult::Playing;
     }
 
-    std::string Board::Fen() const { // TODO : castling rights moves etc not done.
+    std::string Board::Fen() const { // TODO : castling rights moves etc.
         std::string fen;
         for (int rank = 7; rank >= 0; rank--) {
             char empty_tiles = 0;

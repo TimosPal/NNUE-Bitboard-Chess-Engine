@@ -91,4 +91,22 @@ namespace ChessEngine {
         return best_move;
     }
 
+    int Perft(const Board& board, int depth) {
+        int nodes = 0;
+
+        if (depth == 0)
+            return 1ULL;
+
+        MoveList moves = board.GetLegalMoves();
+        for (const Move& move : moves) {
+            Board temp = board;
+            temp.PlayMove(move);
+            temp.Mirror();
+
+            nodes += Perft(temp, depth - 1);
+        }
+
+        return nodes;
+    }
+
 }

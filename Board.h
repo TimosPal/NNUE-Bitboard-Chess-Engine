@@ -38,7 +38,6 @@ namespace ChessEngine {
 
             // Mirrors the representation vertically
             void Mirror();
-
         };
 
         struct MoveCounters{
@@ -87,7 +86,7 @@ namespace ChessEngine {
 
         MoveList GetLegalMoves() const;
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
-        void Mirror(); // Mirrors the board vertically.
+        void Mirror(); // Mirrors the board vertically. Changes turn.
         GameResult Result(const MoveList& moves) const;
 
         // The following functions do not account for mirroring.
@@ -95,8 +94,6 @@ namespace ChessEngine {
         std::string Fen() const;
         PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank) const;
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
-
-        static int Perft(int depth, const Board& board);
 
     private:
 
