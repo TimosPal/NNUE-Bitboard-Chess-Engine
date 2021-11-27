@@ -24,21 +24,18 @@ namespace ChessEngine {
         if( evaluation > a)
             a = evaluation;
 
-        auto moves = board.GetLegalMoves();
+        auto moves = board.GetLegalCaptures();
         for (const auto& move : moves) {
-            auto to_tile = move.GetTo();
-            if(board.GetRepresentation().enemy_pieces.Get(to_tile)) {
-                // Only capture moves.
-                Board new_board = Board(board);
-                new_board.PlayMove(move);
-                new_board.Mirror();
+            // Only capture moves.
+            Board new_board = Board(board);
+            new_board.PlayMove(move);
+            new_board.Mirror();
 
-                int score = -QSearch(new_board, -b, -a);
-                if (score >= b)
-                    return b;
-                if (score > a)
-                    a = score;
-            }
+            int score = -QSearch(new_board, -b, -a);
+            if (score >= b)
+                return b;
+            if (score > a)
+                a = score;
         }
 
         return a;

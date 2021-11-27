@@ -333,6 +333,20 @@ namespace ChessEngine {
         return moves;
     }
 
+    MoveList Board::GetLegalCaptures() const { // TODO : check for possible refactors.
+        // Pre allocate vector size (Requires a Move default constructor).
+        MoveList moves;
+        moves.reserve(20);
+        PseudoMoves::GetCaptures(representation_, moves);
+
+        Bitboard pins = GetPins();
+        bool is_in_check = IsInCheck();
+        auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins, is_in_check); };
+        moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
+
+        return moves;
+    }
+
     PieceInfo Board::GetPieceInfoAt(BoardTile tile) const{
         auto[file, rank] = tile.GetCoords();
         return GetPieceInfoAt(file, rank);

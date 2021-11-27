@@ -85,6 +85,8 @@ namespace ChessEngine {
         const Representation& GetRepresentation() const { return representation_; }
 
         MoveList GetLegalMoves() const;
+        MoveList GetLegalCaptures() const;
+
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
         void UnPlayMove(Move move, PieceType captured_piece);
         void Mirror(); // Mirrors the board vertically. Changes turn.
