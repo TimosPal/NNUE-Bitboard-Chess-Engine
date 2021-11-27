@@ -18,6 +18,7 @@ namespace  ChessEngine{
     void InitModel(char* file_name);
     void InitInput(Board::Representation representation, bool is_flipped, int* pieces, int* squares);
     int Evaluate(const Board& board);
+    int EvaluateIncremental(const Board& board);
 
 }
 

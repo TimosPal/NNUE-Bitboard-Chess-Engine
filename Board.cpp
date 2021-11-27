@@ -35,6 +35,41 @@ namespace ChessEngine {
         is_flipped_ = !is_flipped_;
     }
 
+    void Board::UnPlayMove(Move move, PieceType captured_piece){ // TODO: WIP.
+        BoardTile from = move.GetFrom();
+        BoardTile to = move.GetTo();
+
+        representation_.enemy_pieces.Reset(to);
+        representation_.enemy_pieces.SetIf(to, captured_piece != PieceType::None);
+        representation_.own_pieces.Reset(to);
+        representation_.own_pieces.Set(from);
+
+        bool is_promo = move.GetPromotion() != None;
+        bool is_rook_queen = representation_.rook_queens.Get(to);
+        bool is_bishop_queen = representation_.bishop_queens.Get(to);
+        bool is_pawn = representation_.pawns_enPassant.Get(to);
+        representation_.rook_queens.SetIf(from, !is_promo && is_rook_queen);
+        representation_.bishop_queens.SetIf(from, !is_promo && is_bishop_queen);
+        representation_.pawns_enPassant.SetIf(from, is_promo || is_pawn);
+
+        representation_.rook_queens.SetIf(to, captured_piece == Rook || captured_piece == Queen);
+        representation_.bishop_queens.SetIf(to, captured_piece == Bishop || captured_piece == Queen);
+        representation_.pawns_enPassant.SetIf(to, captured_piece == Pawn);
+
+        if(to == representation_.own_king)
+            representation_.own_king = from;
+
+        // Captures.
+
+        // Promotions.
+
+        // En passant.
+
+        // Castling.
+
+        // Castling rights (ours , or enemy's)
+    }
+
     void Board::PlayMove(Move move){
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();
@@ -288,7 +323,7 @@ namespace ChessEngine {
         // Pre allocate vector size (Requires a Move default constructor).
         MoveList moves;
         moves.reserve(60);
-        PseudoMoves::GetPseudoMoves(representation_, castling_rights_, moves);
+        PseudoMoves::GetMoves(representation_, castling_rights_, moves);
 
         Bitboard pins = GetPins();
         bool is_in_check = IsInCheck();

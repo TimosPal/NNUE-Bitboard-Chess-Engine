@@ -107,6 +107,28 @@ namespace ChessEngine{
         return eval;
     }
 
+    int EvaluateIncremental(const Board& board){
+        const int max_pieces = 16 * 2;
+        static int pieces[max_pieces + 1];
+        static int squares[max_pieces];
+
+        Board::Representation representation = board.GetRepresentation();
+        bool is_flipped = board.IsFlipped();
+
+        InitInput(representation, is_flipped, pieces, squares);
+        int side = GetSide(is_flipped);
+
+        NNUEdata* a_nnue[3] = {0, 0, 0};
+        //for(int i = 0; i < 3 && hply >= i; i++)
+        //a_nnue[i] = &nnue[hply - i];
+
+        NNUEdata nnue_t;
+        nnue_t.accumulator.computedAccumulation = 0;
+
+        a_nnue[0] = &nnue_t;
+        return nnue_evaluate_incremental(side, pieces, squares, &a_nnue[0]);
+    }
+
     void InitModel(char* file_name){
         nnue_init(file_name);
     }

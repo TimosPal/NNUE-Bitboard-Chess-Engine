@@ -6,15 +6,26 @@
 
 namespace ChessEngine {
 
+    int search_nodes = 0;
+
+    int SimpleEval(const Board& board){
+        int own = board.GetRepresentation().own_pieces.Count();
+        int enemy = board.GetRepresentation().enemy_pieces.Count();
+        return own - enemy;
+    }
+
     int QSearch(const Board& board, int a, int b) {
-        int evaluation = Evaluate(board);
+        search_nodes++;
+
+        //int evaluation = Evaluate(board);
+        int evaluation = EvaluateIncremental(board);
         if(evaluation >= b)
             return b;
-        if( evaluation > a )
+        if( evaluation > a)
             a = evaluation;
 
         auto moves = board.GetLegalMoves();
-        for (auto move : moves) {
+        for (const auto& move : moves) {
             auto to_tile = move.GetTo();
             if(board.GetRepresentation().enemy_pieces.Get(to_tile)) {
                 // Only capture moves.
@@ -34,6 +45,7 @@ namespace ChessEngine {
     }
 
     int NegaMax(const Board& board, int depth, int a, int b) {
+        search_nodes++;
         auto moves = board.GetLegalMoves();
         GameResult result = board.Result(moves);
         switch(result){
@@ -53,7 +65,7 @@ namespace ChessEngine {
             return QSearch(board, a, b);
         }
 
-        for (auto move : moves) {
+        for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
@@ -73,7 +85,7 @@ namespace ChessEngine {
         int value = INT16_MIN;
 
         auto moves = board.GetLegalMoves();
-        for (auto move : moves) {
+        for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
@@ -87,6 +99,8 @@ namespace ChessEngine {
                 best_move = move;
             }
         }
+
+        std::cout << search_nodes << std::endl;
 
         return best_move;
     }

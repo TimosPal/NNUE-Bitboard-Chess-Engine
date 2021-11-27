@@ -10,35 +10,50 @@ namespace ChessEngine::PseudoMoves {
     // only have to move upwards.
 
     namespace {
+        void HandleAttacks(BoardTile from, Bitboard attack_map, MoveList& move_list){
+            for(auto to : attack_map){
+                Move move = Move(from, to, PieceType::None);
+                assert(from != to);
+                move_list.push_back(move);
+            }
+        }
+
         // Used for basic movement of kings and knights. Does not work with pawns.
         template<typename GetAttacks>
-        void GetPseudoLeaperMoves(Bitboard piece, Bitboard own, MoveList& move_list, GetAttacks get) {
+        void GetLeaperMoves(Bitboard piece, const Board::Representation& rep, MoveList& move_list, GetAttacks get) {
+            Bitboard all = rep.own_pieces | rep.enemy_pieces;
             for(auto from : piece){
-                Bitboard attacks = get(from.GetIndex()) - own;
-                for(auto to : attacks){
-                    Move move = Move(from, to, PieceType::None);
-                    assert(from != to);
-                    move_list.push_back(move);
-                }
+                Bitboard attacks = get(from.GetIndex());
+                HandleAttacks(from, attacks - rep.own_pieces, move_list);
+                /*HandleAttacks(from, attacks & rep.enemy_king, move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Queens(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Rooks(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Bishops(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Knights(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Pawns(), move_list);
+                HandleAttacks(from, attacks - all, move_list);*/
             }
         }
 
         // Used for basic movement of slider pieces.
         template<typename GetAttacks>
-        void GetSliderPseudoMoves(Bitboard piece, Bitboard own, Bitboard enemy, MoveList& move_list, GetAttacks get) {
-            Bitboard all = own | enemy;
+        void GetSliderMoves(Bitboard piece, const Board::Representation& rep, MoveList& move_list, GetAttacks get) {
+            Bitboard all = rep.own_pieces | rep.enemy_pieces;
             for(auto from : piece){
-                Bitboard attacks = get(from.GetIndex(), all) - own;
-                for(auto to : attacks){
-                    Move move = Move(from.GetIndex(), to.GetIndex(), PieceType::None);
-                    assert(from != to);
-                    move_list.push_back(move);
-                }
+                Bitboard attacks = get(from.GetIndex(), all);
+                HandleAttacks(from, attacks - rep.own_pieces, move_list);
+                /*HandleAttacks(from, attacks & rep.enemy_king, move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Queens(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Rooks(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Bishops(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Knights(), move_list);
+                HandleAttacks(from, attacks & rep.enemy_pieces & rep.Pawns(), move_list);
+                HandleAttacks(from, attacks - all, move_list);*/
             }
         }
     }
 
-    void GetPseudoPawnMoves(Bitboard pawns, Bitboard own, Bitboard enemy, Bitboard enPassant, MoveList& move_list) {
+    void GetPawnMoves(const Board::Representation& rep, MoveList& move_list) {
         // Since we can find the [from] value from each [to] , we calculate all the final moves in parallel
         // with shifts instead of using pre computed attack tables. This function avoids branches as much
         // as possible hence the very exhaustive implementations of each case in separate loops.
@@ -67,12 +82,14 @@ namespace ChessEngine::PseudoMoves {
         constexpr int8_t one_right_offset = 1;
         constexpr int8_t one_left_offset = -1;
 
+
         // En passant is in ranks 1 and 8. Since each time the board is mirrored we only
         // need to check rank 8. We can consider said spot an enemy piece. This does not
         // affect forward pushes because in front of en passant tile there is an enemy piece.
-        enemy |= enPassant.ShiftDown2();
+        Bitboard enemy = rep.enemy_pieces | rep.EnPassant().ShiftDown2();
 
-        Bitboard all = own | enemy;
+        Bitboard pawns = rep.Pawns() & rep.own_pieces;;
+        Bitboard all = rep.own_pieces | enemy;
         Bitboard pawns_up = pawns.ShiftUp1() - all;
         Bitboard promotions = pawns_up & Masks::rank_8;
         Bitboard quiet = pawns_up - promotions;
@@ -103,13 +120,14 @@ namespace ChessEngine::PseudoMoves {
 
     }
 
-    void GetPseudoKnightMoves(Bitboard knights, Bitboard own, MoveList& move_list) {
-        GetPseudoLeaperMoves(knights, own, move_list, AttackTables::KnightAttacks);
+    void GetKnightMoves(const Board::Representation& rep, MoveList& move_list) {
+        Bitboard knights = rep.Knights() & rep.own_pieces;;
+        GetLeaperMoves(knights, rep, move_list, AttackTables::KnightAttacks);
     }
 
-    void GetPseudoKingMoves(BoardTile king, Bitboard own, Bitboard enemy, Board::CastlingRights rights,
-                            MoveList &move_list) {
-        GetPseudoLeaperMoves(Bitboard(king), own, move_list, AttackTables::KingAttacks);
+    void GetKingMoves(const Board::Representation& rep, Board::CastlingRights rights, MoveList &move_list) {
+        BoardTile king = rep.own_king;
+        GetLeaperMoves(Bitboard(king), rep, move_list, AttackTables::KingAttacks);
 
         // Castling. King should be at the default position.
         // The castling flags will be checked later.
@@ -117,7 +135,7 @@ namespace ChessEngine::PseudoMoves {
             return;
 
         // Check if rooks exist at correct tiles and if in between tiles are empty.
-        Bitboard all = own | enemy;
+        Bitboard all = rep.own_pieces | rep.enemy_pieces;
         BoardTile from = Masks::king_default;
         if(rights.CanOwnQueenSide() && (all & Masks::queen_castling_tiles).IsEmpty()){
             BoardTile to = Masks::queen_rook + 2; // 2 tiles right from rook.
@@ -131,29 +149,28 @@ namespace ChessEngine::PseudoMoves {
         }
     }
 
-    void GetPseudoQueenMoves(Bitboard queens, Bitboard own, Bitboard enemy, MoveList& move_list) {
-        GetSliderPseudoMoves(queens, own, enemy, move_list, AttackTables::QueenAttacks);
+    void GetQueenMoves(const Board::Representation& rep, MoveList& move_list) {
+        Bitboard queens = rep.Queens() & rep.own_pieces;
+        GetSliderMoves(queens, rep, move_list, AttackTables::QueenAttacks);
     }
 
-    void GetPseudoRookMoves(Bitboard rooks, Bitboard own, Bitboard enemy, MoveList& move_list) {
-        GetSliderPseudoMoves(rooks, own, enemy, move_list, AttackTables::RookAttacks);
+    void GetRookMoves(const Board::Representation& rep, MoveList& move_list) {
+        Bitboard rooks = rep.Rooks() & rep.own_pieces;
+        GetSliderMoves(rooks, rep, move_list, AttackTables::RookAttacks);
     }
 
-    void GetPseudoBishopMoves(Bitboard bishops, Bitboard own, Bitboard enemy, MoveList& move_list) {
-        GetSliderPseudoMoves(bishops, own, enemy, move_list, AttackTables::BishopAttacks);
+    void GetBishopMoves(const Board::Representation& rep, MoveList& move_list) {
+        Bitboard bishops = rep.Bishops() & rep.own_pieces;
+        GetSliderMoves(bishops, rep, move_list, AttackTables::BishopAttacks);
     }
 
-    void GetPseudoMoves(Board::Representation representation, Board::CastlingRights rights, MoveList& move_list){
-        Bitboard own = representation.own_pieces;
-        Bitboard enemy = representation.enemy_pieces;
-        Bitboard enPassant = representation.EnPassant();
-
-        GetPseudoKnightMoves(representation.Knights() & own, own, move_list);
-        GetPseudoRookMoves(representation.Rooks() & own, own, enemy, move_list);
-        GetPseudoBishopMoves(representation.Bishops() & own, own, enemy, move_list);
-        GetPseudoQueenMoves(representation.Queens() & own, own, enemy, move_list);
-        GetPseudoPawnMoves(representation.Pawns() & own, own, enemy, enPassant, move_list);
-        GetPseudoKingMoves(representation.own_king, own, enemy, rights, move_list);
+    void GetMoves(const Board::Representation& representation, Board::CastlingRights rights, MoveList& move_list){
+        GetPawnMoves(representation, move_list);
+        GetKnightMoves(representation, move_list);
+        GetBishopMoves(representation, move_list);
+        GetRookMoves(representation, move_list);
+        GetQueenMoves(representation, move_list);
+        GetKingMoves(representation, rights, move_list);
     }
 
 }
