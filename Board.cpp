@@ -6,6 +6,8 @@
 #include "PseudoMoves.h"
 #include "AttackTables.h"
 
+#include "NNUE.h"
+
 namespace ChessEngine {
 
     void Board::Representation::Mirror() {
@@ -75,6 +77,33 @@ namespace ChessEngine {
         BoardTile to = move.GetTo();
         PieceType promotion = move.GetPromotion();
 
+        // NNUE move data.
+        EnableAccumulator(move_counters_.ply_counter + 1);
+        DirtyPiece* dirty_piece = GetDirtyPiece(move_counters_.ply_counter + 1);
+        dirty_piece->dirtyNum = 1;
+
+        Team own_color, enemy_color;
+        if(is_flipped_){
+            own_color = Black;
+            enemy_color = White;
+        }else{
+            own_color = White;
+            enemy_color = Black;
+        }
+
+        auto[own_piece_type, own_team] = GetPieceInfoAt(from);
+        dirty_piece->pc[0] = GetPieceEncoding(own_piece_type, own_color);
+        dirty_piece->from[0] = GetSquare(from, is_flipped_);
+        dirty_piece->to[0] = GetSquare(to, is_flipped_);
+
+        if(representation_.enemy_pieces.Get(to)){
+            dirty_piece->dirtyNum = 2;
+            auto[enemy_piece_type, enemy_team] = GetPieceInfoAt(to);
+            dirty_piece->pc[1] = GetPieceEncoding(enemy_piece_type, enemy_color);
+            dirty_piece->from[1] = GetSquare(to, is_flipped_);
+            dirty_piece->to[1] = REMOVED_SQUARE;
+        }
+
         // Reminder that coords start at {0,0}.
         auto[from_file, from_rank] = from.GetCoords();
         auto[to_file, to_rank] = to.GetCoords();
@@ -93,7 +122,12 @@ namespace ChessEngine {
             castling_rights_.ResetOwnKingSide();
             castling_rights_.ResetOwnQueenSide();
 
-            auto castling = [this](BoardTile rook_from, BoardTile rook_to){
+            auto castling = [&](BoardTile rook_from, BoardTile rook_to){
+                dirty_piece->dirtyNum = 2;
+                dirty_piece->from[1] = GetSquare(rook_from, is_flipped_);
+                dirty_piece->to[1] = GetSquare(rook_to, is_flipped_);
+                dirty_piece->pc[1] = GetPieceEncoding(PieceType::Rook, own_color);
+
                 representation_.rook_queens.Reset(rook_from);
                 representation_.rook_queens.Set(rook_to);
                 representation_.own_pieces.Reset(rook_from);
@@ -131,28 +165,42 @@ namespace ChessEngine {
                 BoardTile enemy_pawn = BoardTile(to_file, to_rank - 1);
                 representation_.pawns_enPassant.Reset(enemy_pawn);
                 representation_.enemy_pieces.Reset(enemy_pawn);
+
+                dirty_piece->dirtyNum = 2;
+                dirty_piece->pc[1] = GetPieceEncoding(PieceType::Pawn, enemy_color);
+                dirty_piece->from[1] = GetSquare(enemy_pawn, is_flipped_);
+                dirty_piece->to[1] = REMOVED_SQUARE;
             }
             // Promotions.
             else if(to_rank == Rank::R8){
+                dirty_piece->to[0] = REMOVED_SQUARE;
+                dirty_piece->from[dirty_piece->dirtyNum] = REMOVED_SQUARE;
+                dirty_piece->to[dirty_piece->dirtyNum] = GetSquare(to, is_flipped_);
+
                 switch (promotion) {
                     case Queen:
                         representation_.bishop_queens.Set(to);
                         representation_.rook_queens.Set(to);
+                        dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(PieceType::Queen, own_color);
                         break;
                     case Bishop:
                         representation_.bishop_queens.Set(to);
+                        dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(PieceType::Bishop, own_color);
                         break;
                     case Rook:
                         representation_.rook_queens.Set(to);
+                        dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(PieceType::Rook, own_color);
                         break;
                     case Knight:
-                        // Do nothing.
+                        dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(PieceType::Knight, own_color);
                         break;
                     default:
                         // Invalid promotion.
                         assert(false);
                         break;
+
                 }
+                dirty_piece->dirtyNum++;
             }
         }
 
@@ -195,6 +243,7 @@ namespace ChessEngine {
             move_counters_.half_moves = 0;
         else
             move_counters_.half_moves++;
+        move_counters_.ply_counter++;
     }
 
     bool Board::IsUnderAttack(BoardTile tile) const{

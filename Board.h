@@ -45,6 +45,7 @@ namespace ChessEngine {
             uint8_t half_moves = 0;
             // Game's plys.
             uint8_t full_moves = 0;
+            uint8_t ply_counter = 0;
         };
 
         class CastlingRights{
@@ -83,6 +84,7 @@ namespace ChessEngine {
         bool IsFlipped() const { return is_flipped_; }
 
         const Representation& GetRepresentation() const { return representation_; }
+        const uint8_t GetPlyCounter() const { return move_counters_.ply_counter; }
 
         MoveList GetLegalMoves() const;
         MoveList GetLegalCaptures() const;

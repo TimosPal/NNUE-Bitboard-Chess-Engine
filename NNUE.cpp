@@ -1,8 +1,11 @@
 #include "NNUE.h"
 
-#include "nnue-probe/nnue.h"
+#define CACHE_LINE_SIZE  64
+#define MAX_HSTACK 1024
 
 namespace ChessEngine{
+
+    NNUEdata* nnue_data_arr;
 
     int GetSide(const Team& team){
         return team == Team::White ? 0 : 1;
@@ -10,6 +13,15 @@ namespace ChessEngine{
 
     int GetSide(bool is_flipped){
         return !is_flipped ? 0 : 1;
+    }
+
+    int GetPieceEncoding(const PieceType& type, bool is_flipped){
+        return GetPieceEncoding(type, is_flipped ? Black : White);
+    }
+
+    int GetPieceEncoding(PieceInfo pieceInfo){
+        auto[piece, team] = pieceInfo;
+        return GetPieceEncoding(piece, team);
     }
 
     int GetPieceEncoding(const PieceType& type, const Team& team){
@@ -46,14 +58,17 @@ namespace ChessEngine{
         return encoding;
     }
 
-    int GetPieceEncoding(const ChessEngine::PieceInfo& info){
-        auto [type, team] = info;
-        return GetPieceEncoding(type, team);
-    }
-
     int GetSquare(const BoardTile& tile){
         // A1=0, B1=1 ... H8=63
         // Already calculated as so.
+        return tile.GetIndex();
+    }
+
+    int GetSquare(BoardTile tile, bool is_flipped){
+        // A1=0, B1=1 ... H8=63
+        // Already calculated as so.
+        if(is_flipped)
+            tile.Mirror();
         return tile.GetIndex();
     }
 
@@ -118,19 +133,42 @@ namespace ChessEngine{
         InitInput(representation, is_flipped, pieces, squares);
         int side = GetSide(is_flipped);
 
-        NNUEdata* a_nnue[3] = {0, 0, 0};
-        //for(int i = 0; i < 3 && hply >= i; i++)
-        //a_nnue[i] = &nnue[hply - i];
+        uint8_t current_ply = board.GetPlyCounter();
+        NNUEdata* nnue_latest_data[3] = {0, 0, 0};
+        for(int i = 0; i < 3 && current_ply >= i; i++)
+            nnue_latest_data[i] = &nnue_data_arr[current_ply - i];
 
-        NNUEdata nnue_t;
-        nnue_t.accumulator.computedAccumulation = 0;
+        return nnue_evaluate_incremental(side, pieces, squares, &nnue_latest_data[0]);
+    }
 
-        a_nnue[0] = &nnue_t;
-        return nnue_evaluate_incremental(side, pieces, squares, &a_nnue[0]);
+    void EnableAccumulator(int ply){
+        nnue_data_arr[ply].accumulator.computedAccumulation = 0;
+    }
+
+    DirtyPiece* GetDirtyPiece(int ply){
+        return &(nnue_data_arr[ply].dirtyPiece);
+    }
+
+    template<typename T, int ALIGNMENT = CACHE_LINE_SIZE, bool large_pages = false>
+    void aligned_reserve(T*& mem,const size_t& size) {
+        #ifdef __ANDROID__
+                mem = (T*) memalign(ALIGNMENT,size * sizeof(T));
+        #elif defined(_WIN32)
+                mem = (T*)_aligned_malloc(size * sizeof(T),ALIGNMENT);
+        #else
+                posix_memalign((void**)&mem,ALIGNMENT,size * sizeof(T));
+        #if defined(MADV_HUGEPAGE)
+            if(large_pages)
+                madvise(mem,size * sizeof(T),MADV_HUGEPAGE);
+        #endif
+        #endif
     }
 
     void InitModel(char* file_name){
         nnue_init(file_name);
+        aligned_reserve<NNUEdata>(nnue_data_arr, MAX_HSTACK);
+        EnableAccumulator(0);
+
     }
 
 }

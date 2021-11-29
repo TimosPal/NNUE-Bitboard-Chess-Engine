@@ -21,7 +21,7 @@ namespace ChessEngine {
         int evaluation = EvaluateIncremental(board);
         if(evaluation >= b)
             return b;
-        if( evaluation > a)
+        if(evaluation > a)
             a = evaluation;
 
         auto moves = board.GetLegalCaptures();
@@ -43,6 +43,9 @@ namespace ChessEngine {
 
     int NegaMax(const Board& board, int depth, int a, int b) {
         search_nodes++;
+        if (depth == 0) {
+            return QSearch(board, a, b);
+        }
         auto moves = board.GetLegalMoves();
         GameResult result = board.Result(moves);
         switch(result){
@@ -57,9 +60,6 @@ namespace ChessEngine {
                 return 0;
             case GameResult::Playing:
                 break;
-        }
-        if (depth == 0) {
-            return QSearch(board, a, b);
         }
 
         for (const auto& move : moves) {
