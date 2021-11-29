@@ -25,7 +25,7 @@ namespace ChessEngine {
     int Evaluate(const Board& board);
     int EvaluateIncremental(const Board& board);
 
-    void EnableAccumulator(int ply);
+    void InitAccumulator(int ply);
     DirtyPiece* GetDirtyPiece(int ply);
 
 }

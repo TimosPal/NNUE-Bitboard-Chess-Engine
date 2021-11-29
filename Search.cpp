@@ -8,6 +8,12 @@ namespace ChessEngine {
 
     int search_nodes = 0;
 
+    void SortMoves(MoveList moves){
+        std::sort(moves.begin(), moves.end(), [](){
+
+        });
+    }
+
     int SimpleEval(const Board& board){
         int own = board.GetRepresentation().own_pieces.Count();
         int enemy = board.GetRepresentation().enemy_pieces.Count();
@@ -18,6 +24,7 @@ namespace ChessEngine {
         search_nodes++;
 
         //int evaluation = Evaluate(board);
+        //int evaluation = SimpleEval(board);
         int evaluation = EvaluateIncremental(board);
         if(evaluation >= b)
             return b;
@@ -97,7 +104,7 @@ namespace ChessEngine {
             }
         }
 
-        std::cout << search_nodes << std::endl;
+        std::cout << search_nodes / 1000000.0f << std::endl;
 
         return best_move;
     }

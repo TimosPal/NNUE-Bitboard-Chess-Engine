@@ -130,10 +130,11 @@ namespace ChessEngine{
         Board::Representation representation = board.GetRepresentation();
         bool is_flipped = board.IsFlipped();
 
+        // TODO: nnue prob does not need this for most of the calls...
         InitInput(representation, is_flipped, pieces, squares);
         int side = GetSide(is_flipped);
 
-        uint8_t current_ply = board.GetPlyCounter();
+        uint8_t current_ply = board.GetPlyCounter() - 1;
         NNUEdata* nnue_latest_data[3] = {0, 0, 0};
         for(int i = 0; i < 3 && current_ply >= i; i++)
             nnue_latest_data[i] = &nnue_data_arr[current_ply - i];
@@ -141,7 +142,7 @@ namespace ChessEngine{
         return nnue_evaluate_incremental(side, pieces, squares, &nnue_latest_data[0]);
     }
 
-    void EnableAccumulator(int ply){
+    void InitAccumulator(int ply){
         nnue_data_arr[ply].accumulator.computedAccumulation = 0;
     }
 
@@ -167,8 +168,6 @@ namespace ChessEngine{
     void InitModel(char* file_name){
         nnue_init(file_name);
         aligned_reserve<NNUEdata>(nnue_data_arr, MAX_HSTACK);
-        EnableAccumulator(0);
-
     }
 
 }

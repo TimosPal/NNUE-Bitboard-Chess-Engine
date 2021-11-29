@@ -78,8 +78,8 @@ namespace ChessEngine {
         PieceType promotion = move.GetPromotion();
 
         // NNUE move data.
-        EnableAccumulator(move_counters_.ply_counter + 1);
-        DirtyPiece* dirty_piece = GetDirtyPiece(move_counters_.ply_counter + 1);
+        InitAccumulator(move_counters_.ply_counter);
+        DirtyPiece* dirty_piece = GetDirtyPiece(move_counters_.ply_counter);
         dirty_piece->dirtyNum = 1;
 
         Team own_color, enemy_color;
