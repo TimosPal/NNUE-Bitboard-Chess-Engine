@@ -402,13 +402,25 @@ namespace ChessEngine {
     }
 
     PieceInfo Board::GetPieceInfoAt(uint8_t file, uint8_t rank) const {
+        PieceType type = GetPieceTypeAt(file, rank);
+
+        Team team;
+        if(representation_.own_pieces.Get(file, rank)){
+            team = White;
+        }else{
+            team = Black;
+        }
+
+        return {type, team};
+    }
+
+    PieceType Board::GetPieceTypeAt(uint8_t file, uint8_t rank) const {
         Bitboard pawns = representation_.Pawns();
         Bitboard knights = representation_.Knights();
         Bitboard rooks = representation_.Rooks();
         Bitboard bishops = representation_.Bishops();
         Bitboard queens = representation_.Queens();
         Bitboard kings = representation_.Kings();
-        Bitboard own = representation_.own_pieces;
 
         PieceType type;
         if(pawns.Get(file, rank)){
@@ -427,14 +439,7 @@ namespace ChessEngine {
             type = PieceType::None;
         }
 
-        Team team;
-        if(own.Get(file, rank)){
-            team = White;
-        }else{
-            team = Black;
-        }
-
-        return {type, team};
+        return type;
     }
 
     void Board::Draw() const{

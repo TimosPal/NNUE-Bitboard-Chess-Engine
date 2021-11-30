@@ -8,9 +8,70 @@ namespace ChessEngine {
 
     int search_nodes = 0;
 
-    void SortMoves(MoveList moves){
-        std::sort(moves.begin(), moves.end(), [](){
+    static int GetMVVScore(PieceType own_type, PieceType enemy_type){
+        int base_score = 0;
+        switch (enemy_type) {
+            case King:
+                base_score = 600;
+                break;
+            case Queen:
+                base_score = 500;
+                break;
+            case Rook:
+                base_score = 400;
+                break;
+            case Bishop:
+                base_score = 300;
+                break;
+            case Knight:
+                base_score = 200;
+                break;
+            case Pawn:
+                base_score = 100;
+                break;
+            case None:
+                base_score += 0;
+                break;
+        }
 
+        switch (own_type) {
+            case King:
+                base_score += 0;
+                break;
+            case Queen:
+                base_score += 1;
+                break;
+            case Rook:
+                base_score += 2;
+                break;
+            case Bishop:
+                base_score += 3;
+                break;
+            case Knight:
+                base_score += 4;
+                break;
+            case Pawn:
+                base_score += 5;
+                break;
+            case None:
+                base_score += 0;
+                break;
+        }
+
+        return base_score;
+    }
+
+    void SortMoves(const Board& board, MoveList& moves){
+        auto move_score = [=] (const Move& move){
+            auto [file_from, rank_from] = move.GetFrom().GetCoords();
+            PieceType type_own = board.GetPieceTypeAt(file_from, rank_from);
+            auto [file_to, rank_to] = move.GetTo().GetCoords();
+            PieceType type_enemy = board.GetPieceTypeAt(file_to, rank_to);
+            return GetMVVScore(type_own, type_enemy);
+        };
+
+        std::sort(moves.begin(), moves.end(), [=](const Move& mv1, const Move& mv2){
+            return move_score(mv1) > move_score(mv2);
         });
     }
 
@@ -32,6 +93,7 @@ namespace ChessEngine {
             a = evaluation;
 
         auto moves = board.GetLegalCaptures();
+        SortMoves(board, moves);
         for (const auto& move : moves) {
             // Only capture moves.
             Board new_board = Board(board);
@@ -54,6 +116,7 @@ namespace ChessEngine {
             return QSearch(board, a, b);
         }
         auto moves = board.GetLegalMoves();
+        SortMoves(board, moves);
         GameResult result = board.Result(moves);
         switch(result){
             // Terminal node.

@@ -99,6 +99,7 @@ namespace ChessEngine {
         std::string Fen() const;
         PieceInfo GetPieceInfoAt(uint8_t file, uint8_t rank) const;
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
+        PieceType GetPieceTypeAt(uint8_t file, uint8_t rank) const;
 
     private:
 
