@@ -86,7 +86,7 @@ namespace ChessEngine {
         const Representation& GetRepresentation() const { return representation_; }
         const uint8_t GetPlyCounter() const { return move_counters_.ply_counter; }
 
-        MoveList GetLegalMoves() const;
+        MoveList GetLegalQuietMoves() const;
         MoveList GetLegalCaptures() const;
 
         void PlayMove(Move move); // Plays the move. Does not alter the turn.

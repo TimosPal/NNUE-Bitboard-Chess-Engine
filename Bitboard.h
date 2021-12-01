@@ -14,9 +14,11 @@ namespace ChessEngine {
         public:
             explicit Iterator(uint64_t data): data_(data) {}
             Iterator& operator++() { data_ &= (data_ - 1); return *this; } // Remove lsb.
+            Iterator operator++(int) { Iterator temp = *this; data_ &= (data_ - 1); return temp; } // Remove lsb.
             BoardTile operator*() const; // Gets LSB tile.
 
             friend bool operator!= (const Iterator& a, const Iterator& b) { return a.data_ != b.data_; };
+            friend bool operator== (const Iterator& a, const Iterator& b) { return a.data_ == b.data_; };
         private:
 
             uint64_t data_;
@@ -57,7 +59,7 @@ namespace ChessEngine {
         bool IsEmpty() const { return data_ == 0; }
 
         Iterator begin() const { return Iterator(data_); }
-        Iterator end() const { return Iterator(0); }
+        static Iterator end() { return Iterator(0); }
 
         friend Bitboard operator|(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ | b.data_); }
         friend Bitboard operator&(const Bitboard& a, const Bitboard& b) { return Bitboard(a.data_ & b.data_); }

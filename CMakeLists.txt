@@ -3,11 +3,14 @@ project(ChessEngine2)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+#set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-Ofast")
 
-# set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+#set (CMAKE_CXX_FLAGS "-mavx2 -msse4.1 -msse3 -msse2 -msse")
+set (CMAKE_CXX_FLAGS "-msse4.1 -msse3 -msse2 -msse")
+
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 add_executable(ChessEngine2
         main.cpp
@@ -22,6 +25,19 @@ add_executable(ChessEngine2
         Utilities.h
         AttackTables.cpp
         AttackTables.h
-        MagicNumbers.h PseudoMoves.cpp PseudoMoves.h BoardTile.h Timer.cpp Timer.h)
+        MagicNumbers.h
+        PseudoMoves.cpp
+        PseudoMoves.h
+        BoardTile.h
+        Timer.cpp
+        Timer.h
+        nnue-probe/misc.cpp
+        nnue-probe/misc.h
+        nnue-probe/nnue.cpp
+        nnue-probe/nnue.h
+        NNUE.h
+        NNUE.cpp Search.h Search.cpp)
 
 target_compile_definitions(ChessEngine2 PRIVATE PROFILER)
+#target_compile_definitions(ChessEngine2 PRIVATE USE_AVX2 USE_SSE41 USE_SSE3 USE_SSE2 USE_SSE)
+target_compile_definitions(ChessEngine2 PRIVATE USE_SSE41 USE_SSE3 USE_SSE2 USE_SSE)

@@ -368,11 +368,10 @@ namespace ChessEngine {
         return true; // Not pinned , no check. Can freely move.
     }
 
-    MoveList Board::GetLegalMoves() const {
-        // Pre allocate vector size (Requires a Move default constructor).
+    MoveList Board::GetLegalQuietMoves() const {
         MoveList moves;
         moves.reserve(60);
-        PseudoMoves::GetMoves(representation_, castling_rights_, moves);
+        PseudoMoves::GetQuietMoves(representation_, castling_rights_, moves);
 
         Bitboard pins = GetPins();
         bool is_in_check = IsInCheck();

@@ -8,7 +8,7 @@ namespace ChessEngine {
 
     int search_nodes = 0;
 
-    static int GetMVVScore(PieceType own_type, PieceType enemy_type){
+    static int GetMVVScore(const PieceType& own_type, const PieceType& enemy_type){
         int base_score = 0;
         switch (enemy_type) {
             case King:
@@ -27,10 +27,8 @@ namespace ChessEngine {
                 base_score = 200;
                 break;
             case Pawn:
+            case None: // Only sorts captures . so none means en passant.
                 base_score = 100;
-                break;
-            case None:
-                base_score += 0;
                 break;
         }
 
@@ -55,6 +53,7 @@ namespace ChessEngine {
                 break;
             case None:
                 base_score += 0;
+                assert(false);
                 break;
         }
 
@@ -63,10 +62,13 @@ namespace ChessEngine {
 
     void SortMoves(const Board& board, MoveList& moves){
         auto move_score = [=] (const Move& move){
-            auto [file_from, rank_from] = move.GetFrom().GetCoords();
-            PieceType type_own = board.GetPieceTypeAt(file_from, rank_from);
-            auto [file_to, rank_to] = move.GetTo().GetCoords();
-            PieceType type_enemy = board.GetPieceTypeAt(file_to, rank_to);
+            PieceType type_own, type_enemy;
+            {
+                auto[file_from, rank_from] = move.GetFrom().GetCoords();
+                type_own = board.GetPieceTypeAt(file_from, rank_from);
+                auto[file_to, rank_to] = move.GetTo().GetCoords();
+                type_enemy = board.GetPieceTypeAt(file_to, rank_to);
+            }
             return GetMVVScore(type_own, type_enemy);
         };
 
@@ -92,8 +94,9 @@ namespace ChessEngine {
         if(evaluation > a)
             a = evaluation;
 
-        auto moves = board.GetLegalCaptures();
+        MoveList moves = board.GetLegalCaptures();
         SortMoves(board, moves);
+
         for (const auto& move : moves) {
             // Only capture moves.
             Board new_board = Board(board);
@@ -115,8 +118,12 @@ namespace ChessEngine {
         if (depth == 0) {
             return QSearch(board, a, b);
         }
-        auto moves = board.GetLegalMoves();
+
+        MoveList moves = board.GetLegalCaptures();
         SortMoves(board, moves);
+        MoveList quiet_moves = board.GetLegalQuietMoves();
+        moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
+
         GameResult result = board.Result(moves);
         switch(result){
             // Terminal node.
@@ -151,7 +158,7 @@ namespace ChessEngine {
         Move best_move;
         int value = INT16_MIN;
 
-        auto moves = board.GetLegalMoves();
+        auto moves = board.GetLegalQuietMoves();
         for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
@@ -178,7 +185,9 @@ namespace ChessEngine {
         if (depth == 0)
             return 1ULL;
 
-        MoveList moves = board.GetLegalMoves();
+        MoveList moves = board.GetLegalCaptures();
+        MoveList quiet_moves = board.GetLegalQuietMoves();
+        moves.insert( moves.end(), quiet_moves.begin(), quiet_moves.end());
         for (const Move& move : moves) {
             Board temp = board;
             temp.PlayMove(move);
