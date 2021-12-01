@@ -12,6 +12,7 @@ namespace ChessEngine {
         int base_score = 0;
         switch (enemy_type) {
             case King:
+                assert(false);
                 base_score = 600;
                 break;
             case Queen:
@@ -72,7 +73,7 @@ namespace ChessEngine {
             return GetMVVScore(type_own, type_enemy);
         };
 
-        std::sort(moves.begin(), moves.end(), [=](const Move& mv1, const Move& mv2){
+        std::stable_sort(moves.begin(), moves.end(), [=](const Move& mv1, const Move& mv2){
             return move_score(mv1) > move_score(mv2);
         });
     }
@@ -113,7 +114,7 @@ namespace ChessEngine {
         return a;
     }
 
-    int NegaMax(const Board& board, int depth, int a, int b) {
+    int NegaMax(const Board& board, int depth, int starting_depth, int a, int b, Move& best_move) {
         search_nodes++;
         if (depth == 0) {
             return QSearch(board, a, b);
@@ -144,37 +145,28 @@ namespace ChessEngine {
             new_board.PlayMove(move);
             new_board.Mirror();
 
-            int score = -NegaMax(new_board, depth - 1, -b, -a);
+            int score = -NegaMax(new_board, depth - 1, starting_depth, -b, -a, best_move);
             if( score >= b)
                 return b;
-            if( score > a )
+            if(score > a ) {
                 a = score;
+                if(depth == starting_depth)
+                    best_move = Move(move);
+            }
         }
 
         return a;
     }
 
     Move GetBestMove(const Board& board, int depth){
+        // Using 16 bits because 32 overflows.
+        int a = 2*INT16_MIN;
+        int b = 2*INT16_MAX;
         Move best_move;
-        int value = INT16_MIN;
+        int eval = NegaMax(board, depth, depth, a, b, best_move);
 
-        auto moves = board.GetLegalQuietMoves();
-        for (const auto& move : moves) {
-            Board new_board = Board(board);
-            new_board.PlayMove(move);
-            new_board.Mirror();
-
-            // Using 16 bits because 32 overflows.
-            int a = INT16_MIN;
-            int b = INT16_MAX;
-            int score = -NegaMax(new_board, depth - 1, -b, -a);
-            if(score > value){
-                value = score;
-                best_move = move;
-            }
-        }
-
-        std::cout << search_nodes / 1000000.0f << std::endl;
+        std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
+        std::cout << "evaluation : " << eval << std::endl;
 
         return best_move;
     }
