@@ -39,7 +39,7 @@ int main() {
         std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
         // mid game.
-        // std::string fen = "8/3r4/1p4kp/p2p2pN/P2R2P1/4P3/1P1n2PK/8 w - - 2 35";
+        //std::string fen = "8/3r4/1p4kp/p2p2pN/P2R2P1/4P3/1P1n2PK/8 w - - 2 35";
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
@@ -54,12 +54,8 @@ int main() {
 
         //std::cout << ChessEngine::Perft(board, 5) << std::endl;
         std::cout << GetBestMove(board, 7) << std::endl;
-        for (int i = 1; i <= 0; i++) {
-            std::cout << GetBestMove(board, i) << std::endl;
-        }
 
-/*
-        int i = 1;
+        /*int i = 1;
         while(true) {
         auto moves = board.GetLegalQuietMoves();
 
@@ -96,8 +92,8 @@ int main() {
         board.Mirror();
         i++;
         }
-        std::cout << i << std::endl;*/
-
+        std::cout << i << std::endl;
+*/
     }
 
     ChessEngine::Timer::Print();

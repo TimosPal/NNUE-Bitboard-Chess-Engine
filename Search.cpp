@@ -114,9 +114,9 @@ namespace ChessEngine {
         return a;
     }
 
-    int NegaMax(const Board& board,
-                int depth, int starting_depth, int a, int b,
-                MoveList& pv, const MoveList& previous_pv) {
+    int PVSearch(const Board& board,
+                 int depth, int starting_depth, int a, int b,
+                 MoveList& pv, const MoveList& previous_pv) {
         search_nodes++;
         if (depth == 0) {
             return QSearch(board, a, b);
@@ -151,16 +151,27 @@ namespace ChessEngine {
                 break;
         }
 
+        bool pv_search = true;
         MoveList deeper_pv(depth);
         for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
 
-            int score = -NegaMax(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
+            int score;
+            if (pv_search) {
+                score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
+            } else {
+                score = -PVSearch(new_board, depth - 1, starting_depth, -a - 1, -a, deeper_pv, previous_pv);
+                if (score > a) {
+                    score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
+                }
+            }
+
             if( score >= b)
                 return b;
             if(score > a ) {
+                pv_search = false;
                 a = score;
 
                 // Add pv move. NOTE: possible memory concern.
@@ -183,11 +194,11 @@ namespace ChessEngine {
             int a = 2 * INT16_MIN;
             int b = 2 * INT16_MAX;
             MoveList principal_variation(depth);
-            int eval = NegaMax(board, current_depth, current_depth, a, b,
-                               principal_variation, previous_principal_variation);
+            int eval = PVSearch(board, current_depth, current_depth, a, b,
+                                principal_variation, previous_principal_variation);
             previous_principal_variation = principal_variation;
 
-            std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
+            //std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
             //std::cout << "evaluation : " << eval << std::endl;
         }
 
