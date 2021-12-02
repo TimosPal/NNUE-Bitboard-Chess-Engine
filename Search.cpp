@@ -114,7 +114,7 @@ namespace ChessEngine {
         return a;
     }
 
-    int NegaMax(const Board& board, int depth, int starting_depth, int a, int b, Move& best_move) {
+    int NegaMax(const Board& board, int depth, int a, int b, MoveList& pv) {
         search_nodes++;
         if (depth == 0) {
             return QSearch(board, a, b);
@@ -140,18 +140,21 @@ namespace ChessEngine {
                 break;
         }
 
+        MoveList deeper_pv(depth);
         for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
 
-            int score = -NegaMax(new_board, depth - 1, starting_depth, -b, -a, best_move);
+            int score = -NegaMax(new_board, depth - 1, -b, -a, deeper_pv);
             if( score >= b)
                 return b;
             if(score > a ) {
                 a = score;
-                if(depth == starting_depth)
-                    best_move = Move(move);
+
+                // Add pv move. NOTE : possible memory concern.
+                pv[0] = move;
+                std::copy(std::begin(deeper_pv), std::end(deeper_pv), std::begin(pv) + 1);
             }
         }
 
@@ -160,15 +163,34 @@ namespace ChessEngine {
 
     Move GetBestMove(const Board& board, int depth){
         // Using 16 bits because 32 overflows.
-        int a = 2*INT16_MIN;
-        int b = 2*INT16_MAX;
-        Move best_move;
-        int eval = NegaMax(board, depth, depth, a, b, best_move);
+        search_nodes = 0;
+        int a = 2 * INT16_MIN;
+        int b = 2 * INT16_MAX;
+        MoveList principal_variation(depth);
+        int eval = NegaMax(board, depth, a, b, principal_variation);
 
         std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
         std::cout << "evaluation : " << eval << std::endl;
 
-        return best_move;
+        int i = 1;
+        bool f = board.IsFlipped();
+        for(auto v : principal_variation){
+            auto aa = ChessEngine::BoardTile(v.GetFrom());
+            auto bb = ChessEngine::BoardTile(v.GetTo());
+            if(f){
+                aa.Mirror();
+                bb.Mirror();
+            }
+
+            std::string s1;
+            std::string s2;
+            ChessEngine::CoordsToNotation(aa.GetCoords(), s1);
+            ChessEngine::CoordsToNotation(bb.GetCoords(), s2);
+            std::cout << i++ << ". " << s1 << s2 << std::endl;
+            f = !f;
+        }
+
+        return principal_variation[0];
     }
 
     int Perft(const Board& board, int depth) {

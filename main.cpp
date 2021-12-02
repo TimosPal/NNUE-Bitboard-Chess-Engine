@@ -35,7 +35,11 @@ int main() {
         // discovered attack free queen , more complex board. Does not find it.
         //std::string fen = "r1b2rk1/pp2qppp/3p4/2p5/4B1n1/2P2N2/P4PPP/RN1QR1K1 w - - 0 14";
 
+        // Default starting position.
         std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        // mid game.
+        // std::string fen = "8/3r4/1p4kp/p2p2pN/P2R2P1/4P3/1P1n2PK/8 w - - 2 35";
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
@@ -54,7 +58,7 @@ int main() {
             std::cout << GetBestMove(board, i) << std::endl;
         }
 
-        /*
+/*
         int i = 1;
         while(true) {
         auto moves = board.GetLegalQuietMoves();
@@ -74,7 +78,7 @@ int main() {
             break;
         }
 
-        ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 3 : 3);
+        ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 3 : 6);
         auto aa = ChessEngine::BoardTile(best_move.GetFrom());
         auto bb = ChessEngine::BoardTile(best_move.GetTo());
         if(board.IsFlipped()){
@@ -92,9 +96,7 @@ int main() {
         board.Mirror();
         i++;
         }
-        std::cout << i << std::endl;
-         */
-
+        std::cout << i << std::endl;*/
 
     }
 
