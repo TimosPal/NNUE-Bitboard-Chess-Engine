@@ -114,7 +114,9 @@ namespace ChessEngine {
         return a;
     }
 
-    int NegaMax(const Board& board, int depth, int a, int b, MoveList& pv) {
+    int NegaMax(const Board& board,
+                int depth, int starting_depth, int a, int b,
+                MoveList& pv, const MoveList& previous_pv) {
         search_nodes++;
         if (depth == 0) {
             return QSearch(board, a, b);
@@ -124,6 +126,15 @@ namespace ChessEngine {
         SortMoves(board, moves);
         MoveList quiet_moves = board.GetLegalQuietMoves();
         moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
+
+        int pv_index = starting_depth - depth;
+        if(pv_index < previous_pv.size()) {
+            Move previous_pv_move = previous_pv[pv_index];
+            auto pivot = std::find(moves.begin(), moves.end(), previous_pv_move);
+            if (pivot != moves.end()) {
+                std::rotate(moves.begin(), pivot, pivot + 1);
+            }
+        }
 
         GameResult result = board.Result(moves);
         switch(result){
@@ -146,13 +157,13 @@ namespace ChessEngine {
             new_board.PlayMove(move);
             new_board.Mirror();
 
-            int score = -NegaMax(new_board, depth - 1, -b, -a, deeper_pv);
+            int score = -NegaMax(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
             if( score >= b)
                 return b;
             if(score > a ) {
                 a = score;
 
-                // Add pv move. NOTE : possible memory concern.
+                // Add pv move. NOTE: possible memory concern.
                 pv[0] = move;
                 std::copy(std::begin(deeper_pv), std::end(deeper_pv), std::begin(pv) + 1);
             }
@@ -162,35 +173,25 @@ namespace ChessEngine {
     }
 
     Move GetBestMove(const Board& board, int depth){
-        // Using 16 bits because 32 overflows.
-        search_nodes = 0;
-        int a = 2 * INT16_MIN;
-        int b = 2 * INT16_MAX;
-        MoveList principal_variation(depth);
-        int eval = NegaMax(board, depth, a, b, principal_variation);
+        MoveList previous_principal_variation;
 
-        std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
-        std::cout << "evaluation : " << eval << std::endl;
+        // Iterative deepening.
+        for (int current_depth = 1; current_depth <= depth; current_depth++) {
+            search_nodes = 0;
 
-        int i = 1;
-        bool f = board.IsFlipped();
-        for(auto v : principal_variation){
-            auto aa = ChessEngine::BoardTile(v.GetFrom());
-            auto bb = ChessEngine::BoardTile(v.GetTo());
-            if(f){
-                aa.Mirror();
-                bb.Mirror();
-            }
+            // Using 16 bits because 32 overflows.
+            int a = 2 * INT16_MIN;
+            int b = 2 * INT16_MAX;
+            MoveList principal_variation(depth);
+            int eval = NegaMax(board, current_depth, current_depth, a, b,
+                               principal_variation, previous_principal_variation);
+            previous_principal_variation = principal_variation;
 
-            std::string s1;
-            std::string s2;
-            ChessEngine::CoordsToNotation(aa.GetCoords(), s1);
-            ChessEngine::CoordsToNotation(bb.GetCoords(), s2);
-            std::cout << i++ << ". " << s1 << s2 << std::endl;
-            f = !f;
+            std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
+            //std::cout << "evaluation : " << eval << std::endl;
         }
 
-        return principal_variation[0];
+        return previous_principal_variation[0];
     }
 
     int Perft(const Board& board, int depth) {

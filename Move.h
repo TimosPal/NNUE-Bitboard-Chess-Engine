@@ -32,6 +32,8 @@ namespace ChessEngine {
             return os;
         }
 
+        bool operator==(const Move& mv) const { return data_ == mv.data_; }
+
     private:
         enum Masks{
             From = 0b111111,

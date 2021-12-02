@@ -53,7 +53,7 @@ int main() {
         std::cout << board.Fen() << std::endl;
 
         //std::cout << ChessEngine::Perft(board, 5) << std::endl;
-        std::cout << GetBestMove(board, 6) << std::endl;
+        std::cout << GetBestMove(board, 7) << std::endl;
         for (int i = 1; i <= 0; i++) {
             std::cout << GetBestMove(board, i) << std::endl;
         }
