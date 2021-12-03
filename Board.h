@@ -69,6 +69,8 @@ namespace ChessEngine {
             // We dont use bitfields so we can swap the bits ourselves.
             void Mirror() { data_ = ((data_ & 0b11) << 2) + ((data_ & 0b1100) >> 2); }
 
+            uint8_t AsInt() const { return data_; }
+
         private:
             // Bit 1 -> own queen.
             // Bit 2 -> own king.
@@ -85,11 +87,13 @@ namespace ChessEngine {
 
         const Representation& GetRepresentation() const { return representation_; }
         const uint8_t GetPlyCounter() const { return move_counters_.ply_counter; }
+        CastlingRights GetCastlingRights() const { return castling_rights_; }
 
         MoveList GetLegalQuietMoves() const;
         MoveList GetLegalCaptures() const;
 
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
+        void PlayNullMove();
         void UnPlayMove(Move move, PieceType captured_piece);
         void Mirror(); // Mirrors the board vertically. Changes turn.
         GameResult Result(const MoveList& moves) const;
@@ -101,12 +105,12 @@ namespace ChessEngine {
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
         PieceType GetPieceTypeAt(uint8_t file, uint8_t rank) const;
 
+        bool IsInCheck() const;
     private:
 
         Bitboard GetPins() const;
         bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const;
         bool IsUnderAttack(BoardTile tile) const;
-        bool IsInCheck() const;
         bool InsufficientMaterial() const;
 
         Representation representation_;

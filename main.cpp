@@ -53,47 +53,54 @@ int main() {
         std::cout << board.Fen() << std::endl;
 
         //std::cout << ChessEngine::Perft(board, 5) << std::endl;
-        std::cout << GetBestMove(board, 7) << std::endl;
+        std::cout << GetBestMove(board, 6) << std::endl;
 
-        /*int i = 1;
+        int i = 1;
         while(true) {
-        auto moves = board.GetLegalQuietMoves();
+            auto moves = board.GetLegalCaptures();
+            auto quiet_moves = board.GetLegalQuietMoves();
+            moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
 
-        ChessEngine::GameResult result = board.Result(moves);
-        if (result != ChessEngine::GameResult::Playing) {
-            if(board.IsFlipped())
-                board.Mirror();
-            std::cout << board.Fen() << std::endl;
-            if(result == ChessEngine::GameResult::WhiteWon){
-                std::cout << "White won" << std::endl;
-            }else if(result == ChessEngine::GameResult::BlackWon){
-                std::cout << "Black won" << std::endl;
-            }else{
-                std::cout << "Draw" << std::endl;
+            ChessEngine::GameResult result = board.Result(moves);
+            if (result != ChessEngine::GameResult::Playing) {
+                if(board.IsFlipped())
+                    board.Mirror();
+                std::cout << board.Fen() << std::endl;
+                if(result == ChessEngine::GameResult::WhiteWon){
+                    std::cout << "White won" << std::endl;
+                }else if(result == ChessEngine::GameResult::BlackWon){
+                    std::cout << "Black won" << std::endl;
+                }else{
+                    std::cout << "Draw" << std::endl;
+                }
+                break;
             }
-            break;
-        }
 
-        ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 3 : 6);
-        auto aa = ChessEngine::BoardTile(best_move.GetFrom());
-        auto bb = ChessEngine::BoardTile(best_move.GetTo());
-        if(board.IsFlipped()){
-            aa.Mirror();
-            bb.Mirror();
-        }
+            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 1 : 1);
+            auto aa = ChessEngine::BoardTile(best_move.GetFrom());
+            auto bb = ChessEngine::BoardTile(best_move.GetTo());
+            if(board.IsFlipped()){
+                aa.Mirror();
+                bb.Mirror();
+            }
 
-        std::string s1;
-        std::string s2;
-        ChessEngine::CoordsToNotation(aa.GetCoords(), s1);
-        ChessEngine::CoordsToNotation(bb.GetCoords(), s2);
-        std::cout << i << ". " << s1 << s2 << std::endl;
+            std::string s1;
+            std::string s2;
+            std::string s3 = "";
+            ChessEngine::CoordsToNotation(aa.GetCoords(), s1);
+            ChessEngine::CoordsToNotation(bb.GetCoords(), s2);
+            ChessEngine::PieceType promotion = best_move.GetPromotion();
+            if(promotion != ChessEngine::None){
+                s3 = std::string(1, ChessEngine::PieceInfoToChar({promotion, ChessEngine::White}));
+            }
+            std::cout << i << ". " << s1 << s2 << s3 << std::endl;
 
-        board.PlayMove(best_move);
-        board.Mirror();
-        i++;
+            board.PlayMove(best_move);
+            board.Mirror();
+            i++;
         }
         std::cout << i << std::endl;
-*/
+
     }
 
     ChessEngine::Timer::Print();

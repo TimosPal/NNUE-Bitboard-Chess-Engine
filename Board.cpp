@@ -72,6 +72,19 @@ namespace ChessEngine {
         // Castling rights (ours , or enemy's)
     }
 
+    void Board::PlayNullMove(){
+        // Reset en passant.
+        representation_.pawns_enPassant -= Masks::rank_8;
+
+        CopytToNextAccumulator(move_counters_.ply_counter);
+
+        // Update counters , no move was made so 50 move rule is updated.
+        if(is_flipped_)
+            move_counters_.full_moves++;
+        move_counters_.half_moves++;
+        move_counters_.ply_counter++;
+    }
+
     void Board::PlayMove(Move move){
         BoardTile from = move.GetFrom();
         BoardTile to = move.GetTo();

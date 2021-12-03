@@ -118,9 +118,19 @@ namespace ChessEngine {
                  int depth, int starting_depth, int a, int b,
                  MoveList& pv, const MoveList& previous_pv) {
         search_nodes++;
-        if (depth == 0) {
+        if (depth <= 0) {
             return QSearch(board, a, b);
         }
+
+        // Null move reduction. TODO:
+        /*if(board.GetPlyCounter() > 0 && !board.IsInCheck()) {
+            Board null_move_board = board;
+            null_move_board.PlayNullMove();
+            null_move_board.Mirror();
+            int score = -PVSearch(null_move_board, depth - 1 - 2, starting_depth, -b, -b + 1, pv, previous_pv);
+            if (score >= b)
+                return b;
+        }*/
 
         MoveList moves = board.GetLegalCaptures();
         SortMoves(board, moves);
@@ -152,7 +162,7 @@ namespace ChessEngine {
         }
 
         bool pv_search = true;
-        MoveList deeper_pv(depth);
+        MoveList deeper_pv(depth - 1);
         for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
@@ -193,7 +203,7 @@ namespace ChessEngine {
             // Using 16 bits because 32 overflows.
             int a = 2 * INT16_MIN;
             int b = 2 * INT16_MAX;
-            MoveList principal_variation(depth);
+            MoveList principal_variation(current_depth);
             int eval = PVSearch(board, current_depth, current_depth, a, b,
                                 principal_variation, previous_principal_variation);
             previous_principal_variation = principal_variation;

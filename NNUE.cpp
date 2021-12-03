@@ -1,5 +1,7 @@
 #include "NNUE.h"
 
+#include <cstring>
+
 #define CACHE_LINE_SIZE  64
 #define MAX_HSTACK 1024
 
@@ -148,6 +150,13 @@ namespace ChessEngine{
 
     DirtyPiece* GetDirtyPiece(int ply){
         return &(nnue_data_arr[ply].dirtyPiece);
+    }
+
+    void CopytToNextAccumulator(int ply){
+        assert(ply - 1 >= 0);
+        memcpy(&nnue_data_arr[ply].accumulator, &nnue_data_arr[ply - 1].accumulator, sizeof(Accumulator));
+        DirtyPiece* dp = &(nnue_data_arr[ply].dirtyPiece);
+        dp->dirtyNum = 0;
     }
 
     template<typename T, int ALIGNMENT = CACHE_LINE_SIZE, bool large_pages = false>
