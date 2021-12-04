@@ -1,6 +1,6 @@
 #include "ZobristKey.h"
 
-namespace ChessEngine {
+namespace ChessEngine::Zobrist {
     static uint64_t piece_square_key[16][64];
     static uint64_t enPassant_key[8];
     static uint64_t castling_key[16];

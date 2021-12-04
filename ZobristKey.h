@@ -4,7 +4,7 @@
 #include "Board.h"
 #include "Utilities.h"
 
-namespace ChessEngine {
+namespace ChessEngine::Zobrist {
     uint64_t GetPieceSquareKey(PieceType type, bool is_white, uint8_t tile_index);
     uint64_t GetEnPassantKey(uint8_t tile_file);
     uint64_t GetCastlingKey(Board::CastlingRights rights, bool is_flipped);

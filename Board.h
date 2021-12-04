@@ -88,6 +88,7 @@ namespace ChessEngine {
         const Representation& GetRepresentation() const { return representation_; }
         const uint8_t GetPlyCounter() const { return move_counters_.ply_counter; }
         CastlingRights GetCastlingRights() const { return castling_rights_; }
+        uint64_t GetZobristKey() const { return zobrist_key_; }
 
         MoveList GetLegalQuietMoves() const;
         MoveList GetLegalCaptures() const;

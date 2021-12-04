@@ -11,7 +11,7 @@ int main() {
         PROFILE_SCOPE("Program");
         ChessEngine::AttackTables::InitMoveTables();
         ChessEngine::InitModel("nn-62ef826d1a6d.nnue");
-        ChessEngine::InitZobristKeysArrays();
+        ChessEngine::Zobrist::InitZobristKeysArrays();
 
         // Free bishop capture with pawn.
         //std::string fen = "rn1qkbnr/ppp1pppp/8/3p1b2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1";
@@ -99,6 +99,8 @@ int main() {
             board.Mirror();
             i++;
         }
+
+        std::cout << board.GetZobristKey() << std::endl;
 
     }
 

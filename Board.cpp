@@ -31,7 +31,7 @@ namespace ChessEngine {
             move_counters_(std::get<MoveCounters>(info)),
             is_flipped_(std::get<Team>(info) == Team::Black)
             {
-                zobrist_key_ = GetZobristKey(*this, is_flipped_);
+                zobrist_key_ = Zobrist::GetZobristKey(*this, is_flipped_);
             }
 
     void Board::Mirror() {
@@ -40,7 +40,7 @@ namespace ChessEngine {
         is_flipped_ = !is_flipped_;
 
         // Incremental update on zobrist key due to black's turn.
-        zobrist_key_ ^= GetSideKey();
+        zobrist_key_ ^= Zobrist::GetSideKey();
     }
 
     void Board::UnPlayMove(Move move, PieceType captured_piece){ // TODO: WIP.
@@ -119,8 +119,8 @@ namespace ChessEngine {
         dirty_piece->to[0] = to_normalised_index;
 
         // Incremental update on zobrist key when moving own piece.
-        zobrist_key_ ^= GetPieceSquareKey(own_piece_type, !is_flipped_, from_normalised_index);
-        zobrist_key_ ^= GetPieceSquareKey(own_piece_type, !is_flipped_, to_normalised_index);
+        zobrist_key_ ^= Zobrist::GetPieceSquareKey(own_piece_type, !is_flipped_, from_normalised_index);
+        zobrist_key_ ^= Zobrist::GetPieceSquareKey(own_piece_type, !is_flipped_, to_normalised_index);
 
         if(representation_.enemy_pieces.Get(to)){
             dirty_piece->dirtyNum = 2;
@@ -130,7 +130,7 @@ namespace ChessEngine {
             dirty_piece->to[1] = REMOVED_SQUARE;
 
             // Incremental update on zobrist key when capturing enemy piece.
-            zobrist_key_ ^= GetPieceSquareKey(enemy_piece_type, is_flipped_, to_normalised_index);
+            zobrist_key_ ^= Zobrist::GetPieceSquareKey(enemy_piece_type, is_flipped_, to_normalised_index);
         }
 
         // Reminder that coords start at {0,0}.
@@ -154,13 +154,13 @@ namespace ChessEngine {
             // Incremental update on zobrist key when king moves (or castles).
             // In all the castling updates we have to firstly remove the old rights before
             // xor-ing the new one.
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
 
             // Reset rights since king moved or castled.
             castling_rights_.ResetOwnKingSide();
             castling_rights_.ResetOwnQueenSide();
 
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
 
             auto castling = [&](BoardTile rook_from, BoardTile rook_to){
                 uint8_t rook_from_normalised = GetSquare(rook_from, is_flipped_);
@@ -172,8 +172,8 @@ namespace ChessEngine {
                 dirty_piece->pc[1] = GetPieceEncoding(PieceType::Rook, own_color);
 
                 // Incremental update on zobrist key when moving the rook in castling.
-                zobrist_key_ ^= GetPieceSquareKey(PieceType::Rook, !is_flipped_, rook_from_normalised);
-                zobrist_key_ ^= GetPieceSquareKey(PieceType::Rook, !is_flipped_, rook_to_normalised);
+                zobrist_key_ ^= Zobrist::GetPieceSquareKey(PieceType::Rook, !is_flipped_, rook_from_normalised);
+                zobrist_key_ ^= Zobrist::GetPieceSquareKey(PieceType::Rook, !is_flipped_, rook_to_normalised);
 
                 representation_.rook_queens.Reset(rook_from);
                 representation_.rook_queens.Set(rook_to);
@@ -193,15 +193,15 @@ namespace ChessEngine {
         }
         // A Castling right is reset if a rook moves. We can reset the rights regardless of the piece type.
         else if(from == Masks::queen_rook) {
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
             castling_rights_.ResetOwnQueenSide();
             // Incremental update on zobrist key when castling rights change.
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
         } else if(from == Masks::king_rook) {
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
             castling_rights_.ResetOwnKingSide();
             // Incremental update on zobrist key when castling rights change.
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
         }
         // Pawn.
         else if(representation_.Pawns().Get(from)) {
@@ -212,7 +212,7 @@ namespace ChessEngine {
             if ((to_rank - from_rank) == 2) {
                 representation_.pawns_enPassant.Set(from_file, 0);
                 // Incremental update on zobrist key when enabling en passant flag.
-                zobrist_key_ ^= GetEnPassantKey(from_file);
+                zobrist_key_ ^= Zobrist::GetEnPassantKey(from_file);
             }
             // En passant capture. Fake pawn does not exist. Movement is diagonal.
             else if (!representation_.enemy_pieces.Get(to) && from_file != to_file) {
@@ -224,7 +224,7 @@ namespace ChessEngine {
                 uint8_t enemy_pawn_normalised = GetSquare(enemy_pawn, is_flipped_);
 
                 // Incremental update on zobrist key when en passant capture occures.
-                zobrist_key_ ^= GetPieceSquareKey(PieceType::Pawn, is_flipped_, enemy_pawn_normalised);
+                zobrist_key_ ^= Zobrist::GetPieceSquareKey(PieceType::Pawn, is_flipped_, enemy_pawn_normalised);
 
                 dirty_piece->dirtyNum = 2;
                 dirty_piece->pc[1] = GetPieceEncoding(PieceType::Pawn, enemy_color);
@@ -239,8 +239,8 @@ namespace ChessEngine {
                 dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(promotion, own_color);
 
                 // Incremental update on zobrist key when promoting.
-                zobrist_key_ ^= GetPieceSquareKey(Pawn, !is_flipped_, to_normalised_index);
-                zobrist_key_ ^= GetPieceSquareKey(promotion, !is_flipped_, to_normalised_index);
+                zobrist_key_ ^= Zobrist::GetPieceSquareKey(Pawn, !is_flipped_, to_normalised_index);
+                zobrist_key_ ^= Zobrist::GetPieceSquareKey(promotion, !is_flipped_, to_normalised_index);
 
                 switch (promotion) {
                     case Queen:
@@ -268,15 +268,15 @@ namespace ChessEngine {
         // If an enemy rook is captured , reset castling rights.
         const uint8_t enemy_rooks_offset = 7 * 8;
         if(to == Masks::queen_rook + enemy_rooks_offset) {
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
             castling_rights_.ResetEnemyQueenSide();
             // Incremental update on zobrist key when enemy rook is captured due to castling rights change.
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
         } else if(to == Masks::king_rook + enemy_rooks_offset) {
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
             castling_rights_.ResetEnemyKingSide();
             // Incremental update on zobrist key when enemy rook is captured due to castling rights change.
-            zobrist_key_ ^= GetCastlingKey(castling_rights_, is_flipped_);
+            zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
         }
 
         // Reset old en passant. Does not affect own en passant.
@@ -285,7 +285,7 @@ namespace ChessEngine {
         if(!previous_enPassant_board.IsEmpty()) {
             BoardTile previous_enPassant_tile = previous_enPassant_board.BitScanForward();
             uint8_t previous_enPassant_file = previous_enPassant_tile.GetFile();
-            zobrist_key_ ^= GetEnPassantKey(previous_enPassant_file);
+            zobrist_key_ ^= Zobrist::GetEnPassantKey(previous_enPassant_file);
         }
         representation_.pawns_enPassant -= Masks::rank_8;
 
