@@ -90,6 +90,7 @@ namespace ChessEngine {
         //int evaluation = Evaluate(board);
         //int evaluation = SimpleEval(board);
         int evaluation = EvaluateIncremental(board);
+        assert(evaluation == Evaluate(board));
         if(evaluation >= b)
             return b;
         if(evaluation > a)

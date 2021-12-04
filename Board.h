@@ -119,6 +119,7 @@ namespace ChessEngine {
 
         // default state corresponds to white.
         bool is_flipped_ = false;
+        uint64_t zobrist_key_;
     };
 
 }

@@ -39,5 +39,6 @@ add_executable(ChessEngine2
         NNUE.cpp Search.h Search.cpp ZobristKey.h ZobristKey.cpp)
 
 target_compile_definitions(ChessEngine2 PRIVATE PROFILER)
+target_compile_definitions(ChessEngine2 PRIVATE NDEBUG)
 #target_compile_definitions(ChessEngine2 PRIVATE USE_AVX2 USE_SSE41 USE_SSE3 USE_SSE2 USE_SSE)
 target_compile_definitions(ChessEngine2 PRIVATE USE_SSE41 USE_SSE3 USE_SSE2 USE_SSE)

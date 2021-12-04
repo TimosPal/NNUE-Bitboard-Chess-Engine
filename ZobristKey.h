@@ -2,15 +2,16 @@
 #define ZOBRISTKEY_H
 
 #include "Board.h"
+#include "Utilities.h"
 
 namespace ChessEngine {
-    uint64_t GetPieceSquareKey(PieceType type, uint8_t tile_index);
+    uint64_t GetPieceSquareKey(PieceType type, bool is_white, uint8_t tile_index);
     uint64_t GetEnPassantKey(uint8_t tile_file);
-    uint64_t GetCastlingKey(uint8_t castling);
+    uint64_t GetCastlingKey(Board::CastlingRights rights, bool is_flipped);
     uint64_t GetSideKey();
 
-    void InitRandomKeys();
-    uint64_t ZobristKey(const Board& board, bool is_flipped);
+    void InitZobristKeysArrays();
+    uint64_t GetZobristKey(Board board, bool is_flipped);
 }
 
 #endif

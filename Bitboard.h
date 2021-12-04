@@ -44,6 +44,7 @@ namespace ChessEngine {
 
         uint64_t AsInt() const { return data_; }
         uint8_t Count() const;
+        BoardTile BitScanForward();
 
         // Slower but used for array init.
         Bitboard ShiftTowards(std::tuple<int8_t, int8_t> direction) const;

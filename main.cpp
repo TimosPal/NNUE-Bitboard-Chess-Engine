@@ -2,16 +2,16 @@
 
 #include "AttackTables.h"
 #include "FenParser.h"
-
 #include "NNUE.h"
-
 #include "Search.h"
+#include "ZobristKey.h"
 
 int main() {
     {
         PROFILE_SCOPE("Program");
         ChessEngine::AttackTables::InitMoveTables();
         ChessEngine::InitModel("nn-62ef826d1a6d.nnue");
+        ChessEngine::InitZobristKeysArrays();
 
         // Free bishop capture with pawn.
         //std::string fen = "rn1qkbnr/ppp1pppp/8/3p1b2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1";
@@ -53,7 +53,7 @@ int main() {
         std::cout << board.Fen() << std::endl;
 
         //std::cout << ChessEngine::Perft(board, 5) << std::endl;
-        std::cout << GetBestMove(board, 6) << std::endl;
+        //std::cout << GetBestMove(board, 9) << std::endl;
 
         int i = 1;
         while(true) {
@@ -76,7 +76,7 @@ int main() {
                 break;
             }
 
-            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 1 : 1);
+            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 3 : 3);
             auto aa = ChessEngine::BoardTile(best_move.GetFrom());
             auto bb = ChessEngine::BoardTile(best_move.GetTo());
             if(board.IsFlipped()){
@@ -99,7 +99,6 @@ int main() {
             board.Mirror();
             i++;
         }
-        std::cout << i << std::endl;
 
     }
 
