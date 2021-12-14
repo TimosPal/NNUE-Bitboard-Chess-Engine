@@ -15,9 +15,9 @@ namespace ChessEngine{
         NodeType type; // Determines if we check a,b or just return.
         int evaluation; // Position evaluation.
         uint8_t depth; // depth of search's iteration.
-        MoveList pv; // Picked move on said search's node.
+        Move best_move; // Picked move on said search's node.
 
-        TTEntry(uint8_t depth, int evaluation, NodeType, const MoveList& pv = MoveList());
+        TTEntry(uint8_t depth, int evaluation, NodeType, Move best_move = Move());
         TTEntry() = default;
     };
 

@@ -3,11 +3,11 @@
 
 namespace ChessEngine{
 
-    TTEntry::TTEntry(uint8_t depth, int evaluation, NodeType type, const MoveList& pv){
+    TTEntry::TTEntry(uint8_t depth, int evaluation, NodeType type, Move best_move){
         this->evaluation = evaluation;
         this->depth = depth;
         this->type = type;
-        this->pv = pv;
+        this->best_move = best_move;
     }
 
     void TranspositionTable::AddEntry(uint64_t zobrist_key, const TTEntry& entry){
