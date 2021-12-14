@@ -33,6 +33,7 @@ namespace ChessEngine {
         }
 
         bool operator==(const Move& mv) const { return data_ == mv.data_; }
+        bool operator!=(const Move& mv) const { return data_ != mv.data_; }
 
     private:
         enum Masks{

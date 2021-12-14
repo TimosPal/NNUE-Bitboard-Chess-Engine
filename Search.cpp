@@ -3,8 +3,11 @@
 #include <algorithm>
 
 #include "NNUE.h"
+#include "TranspositionTable.h"
 
 namespace ChessEngine {
+
+    TranspositionTable transposition_table;
 
     int search_nodes = 0;
 
@@ -119,18 +122,37 @@ namespace ChessEngine {
                  int depth, int starting_depth, int a, int b,
                  MoveList& pv, const MoveList& previous_pv) {
         search_nodes++;
+
         if (depth <= 0) {
             return QSearch(board, a, b);
         }
 
-        // Null move reduction. TODO:
-        /*if(board.GetPlyCounter() > 0 && !board.IsInCheck()) {
-            Board null_move_board = board;
-            null_move_board.PlayNullMove();
-            null_move_board.Mirror();
-            int score = -PVSearch(null_move_board, depth - 1 - 2, starting_depth, -b, -b + 1, pv, previous_pv);
-            if (score >= b)
-                return b;
+        uint8_t tree_level = starting_depth - depth;
+        uint64_t zobrist_key = board.GetZobristKey();
+        TTEntry entry_result;
+        static int v1 = 0;
+        static int v2 = 0;
+        static int v3 = 0;
+        if(transposition_table.GetEntry(zobrist_key, entry_result) && entry_result.depth >= depth){
+            if(entry_result.type == NodeType::Exact){
+                //pv = entry_result.pv;
+                //return entry_result.evaluation;
+                v1++;
+            }else if(entry_result.type == NodeType::Alpha && entry_result.evaluation <= a){
+                v2++;
+                return entry_result.evaluation;
+            }else if(entry_result.type == NodeType::Beta && entry_result.evaluation >= b){
+                v3++;
+                return entry_result.evaluation;
+            }
+        }
+
+        /*if(v1 % 1000 == 0 || v3 % 1000 == 0 || v2 % 1000 == 0){
+            int sum = v1 + v2 + v3;
+            std::cout << v1 << std::endl;
+            std::cout << v2 << std::endl;
+            std::cout << v3 << std::endl;
+            std::cout << "- - - -" << std::endl;
         }*/
 
         MoveList moves = board.GetLegalCaptures();
@@ -138,17 +160,16 @@ namespace ChessEngine {
         MoveList quiet_moves = board.GetLegalQuietMoves();
         moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
 
-        int pv_index = starting_depth - depth;
-        if(pv_index < previous_pv.size()) {
-            Move previous_pv_move = previous_pv[pv_index];
+        if(tree_level < previous_pv.size()) {
+            Move previous_pv_move = previous_pv[tree_level];
             auto pivot = std::find(moves.begin(), moves.end(), previous_pv_move);
             if (pivot != moves.end()) {
                 std::rotate(moves.begin(), pivot, pivot + 1);
             }
         }
 
-        GameResult result = board.Result(moves);
-        switch(result){
+        GameResult game_result = board.Result(moves);
+        switch(game_result){
             // Terminal node.
             case GameResult::WhiteWon:
             case GameResult::BlackWon:
@@ -162,6 +183,7 @@ namespace ChessEngine {
                 break;
         }
 
+        NodeType node_type = NodeType::Alpha;
         bool pv_search = true;
         MoveList deeper_pv(depth - 1);
         for (const auto& move : moves) {
@@ -174,14 +196,18 @@ namespace ChessEngine {
                 score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
             } else {
                 score = -PVSearch(new_board, depth - 1, starting_depth, -a - 1, -a, deeper_pv, previous_pv);
-                if (score > a) {
+                if (score > a && score < b) {
                     score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, deeper_pv, previous_pv);
                 }
             }
 
-            if( score >= b)
+            if(score >= b) {
+                // Update TT.
+                transposition_table.AddEntry(zobrist_key, TTEntry(depth, b, NodeType::Beta));
                 return b;
-            if(score > a ) {
+            }
+            if(score > a) {
+                node_type = NodeType::Exact;
                 pv_search = false;
                 a = score;
 
@@ -191,15 +217,69 @@ namespace ChessEngine {
             }
         }
 
+        transposition_table.AddEntry(zobrist_key, TTEntry(depth, a, node_type, pv));
         return a;
     }
 
+    int NegaMax(const Board& board, uint8_t depth, int a, int b){
+        if (depth == 0) {
+            return QSearch(board, a, b);
+        }
+
+        MoveList moves = board.GetLegalCaptures();
+        SortMoves(board, moves);
+        MoveList quiet_moves = board.GetLegalQuietMoves();
+        moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
+
+        GameResult game_result = board.Result(moves);
+        switch(game_result){
+            // Terminal node.
+            case GameResult::WhiteWon:
+            case GameResult::BlackWon:
+                // The board is flipped. If the game is over
+                // the current side lost. We return relative to
+                // the current side hence the best_score is negative.
+                return -(INT16_MAX + depth);
+            case GameResult::Draw:
+                return 0;
+            case GameResult::Playing:
+                break;
+        }
+
+        int best_score = 2 * INT16_MIN;
+        Move bestMove;
+        for (const auto& move : moves) {
+            Board new_board = Board(board);
+            new_board.PlayMove(move);
+            new_board.Mirror();
+
+            int score = -NegaMax(new_board, depth - 1, -b, -a);
+            if(score > best_score){
+                best_score = score;
+                bestMove = move;
+            }
+            if(score >= b){
+                break;
+            }
+            if(score > a){
+                a = score;
+
+                // Add pv move. NOTE: possible memory concern.
+                //pv[0] = move;
+                //std::copy(std::begin(deeper_pv), std::end(deeper_pv), std::begin(pv) + 1);
+            }
+        }
+
+        return best_score;
+    }
+
     Move GetBestMove(const Board& board, int depth){
+        //transposition_table.Clear();
         MoveList previous_principal_variation;
+        search_nodes = 0;
 
         // Iterative deepening.
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
-            search_nodes = 0;
 
             // Using 16 bits because 32 overflows.
             int a = 2 * INT16_MIN;
@@ -209,10 +289,10 @@ namespace ChessEngine {
                                 principal_variation, previous_principal_variation);
             previous_principal_variation = principal_variation;
 
-            //std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
             //std::cout << "evaluation : " << eval << std::endl;
         }
 
+        //std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
         return previous_principal_variation[0];
     }
 

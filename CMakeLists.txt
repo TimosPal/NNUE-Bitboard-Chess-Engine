@@ -36,7 +36,7 @@ add_executable(ChessEngine2
         nnue-probe/nnue.cpp
         nnue-probe/nnue.h
         NNUE.h
-        NNUE.cpp Search.h Search.cpp ZobristKey.h ZobristKey.cpp)
+        NNUE.cpp Search.h Search.cpp ZobristKey.h ZobristKey.cpp TranspositionTable.h TranspositionTable.cpp)
 
 target_compile_definitions(ChessEngine2 PRIVATE PROFILER)
 target_compile_definitions(ChessEngine2 PRIVATE NDEBUG)

@@ -1,5 +1,8 @@
 #include "ZobristKey.h"
 
+#include <random>
+#include <cmath>
+
 namespace ChessEngine::Zobrist {
     static uint64_t piece_square_key[16][64];
     static uint64_t enPassant_key[8];
@@ -28,10 +31,11 @@ namespace ChessEngine::Zobrist {
     }
 
     void InitZobristKeysArrays(){
-        auto rand64 = [] () { return ((long long)rand() << 32) | rand(); };
-        assert(rand64() >> 32 != 0);
+        std::random_device rd;
+        std::mt19937_64 e2(rd());
+        std::uniform_int_distribution<long long int> dist(0, UINT64_MAX);
+        auto rand64 = [&] () { return dist(e2); };
 
-        srand(0);
         for (int type = 0; type < 12; type++) {
             for (int square = 0; square < 64; square++) {
                 piece_square_key[type][square] = rand64();

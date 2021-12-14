@@ -53,7 +53,7 @@ int main() {
         std::cout << board.Fen() << std::endl;
 
         //std::cout << ChessEngine::Perft(board, 5) << std::endl;
-        //std::cout << GetBestMove(board, 9) << std::endl;
+        //std::cout << GetBestMove(board, 6) << std::endl;
 
         int i = 1;
         while(true) {
@@ -76,7 +76,7 @@ int main() {
                 break;
             }
 
-            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 3 : 3);
+            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 5 : 5);
             auto aa = ChessEngine::BoardTile(best_move.GetFrom());
             auto bb = ChessEngine::BoardTile(best_move.GetTo());
             if(board.IsFlipped()){
@@ -98,9 +98,12 @@ int main() {
             board.PlayMove(best_move);
             board.Mirror();
             i++;
+
+            if( i > 1000)
+                break;
         }
 
-        std::cout << board.GetZobristKey() << std::endl;
+        //std::cout << board.GetZobristKey() << std::endl;
 
     }
 

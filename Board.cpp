@@ -113,7 +113,9 @@ namespace ChessEngine {
             enemy_color = Black;
         }
 
+
         auto[own_piece_type, own_team] = GetPieceInfoAt(from);
+        assert(own_piece_type != None);
         dirty_piece->pc[0] = GetPieceEncoding(own_piece_type, own_color);
         dirty_piece->from[0] = from_normalised_index;
         dirty_piece->to[0] = to_normalised_index;
@@ -320,7 +322,7 @@ namespace ChessEngine {
             move_counters_.half_moves++;
         move_counters_.ply_counter++;
 
-        assert(GetZobristKey(*this, is_flipped_) == zobrist_key_);
+        assert(Zobrist::GetZobristKey(*this, is_flipped_) == zobrist_key_);
     }
 
     bool Board::IsUnderAttack(BoardTile tile) const{
