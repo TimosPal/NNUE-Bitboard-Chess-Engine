@@ -125,11 +125,13 @@ namespace ChessEngine {
             return QSearch(board, a, b);
         }
 
-        uint8_t tree_level = starting_depth - depth;
         uint64_t zobrist_key = board.GetZobristKey();
+        uint8_t tree_level = starting_depth - depth;
+        bool is_root = tree_level == 0;
+
         TTEntry entry_result;
         bool entry_found = transposition_table.GetEntry(zobrist_key, entry_result);
-        if(entry_found && tree_level != 0 && entry_result.depth >= depth){
+        if(entry_found && !is_root && entry_result.depth >= depth){
             if(entry_result.type == NodeType::Exact){
                 return entry_result.evaluation;
             }else if(entry_result.type == NodeType::Alpha && entry_result.evaluation <= a){
@@ -171,8 +173,9 @@ namespace ChessEngine {
         }
 
         NodeType node_type = NodeType::Alpha;
-        bool pv_search = true;
         Move current_best_move;
+        bool pv_search = true;
+        int best_score = INT32_MIN;
         for (const auto& move : moves) {
             Board new_board = Board(board);
             new_board.PlayMove(move);
@@ -188,25 +191,26 @@ namespace ChessEngine {
                 }
             }
 
+            if(score > best_score){
+                best_score = score;
+                current_best_move = move;
+            }
             if(score >= b) {
-                // Update TT.
-                transposition_table.AddEntry(zobrist_key, TTEntry(depth, b, NodeType::Beta, move));
-                return b;
+                node_type = NodeType::Beta;
+                break;
             }
             if(score > a) {
                 node_type = NodeType::Exact;
                 pv_search = false;
                 a = score;
 
-                current_best_move = move;
-                if(tree_level == 0){
+                if(is_root)
                     best_move = move;
-                }
             }
         }
 
-        transposition_table.AddEntry(zobrist_key, TTEntry(depth, a, node_type, current_best_move));
-        return a;
+        transposition_table.AddEntry(zobrist_key, TTEntry(depth, best_score, node_type, current_best_move));
+        return best_score;
     }
 
     Move GetBestMove(const Board& board, int depth){

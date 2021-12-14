@@ -4,7 +4,7 @@ project(ChessEngine2)
 set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_DEBUG "-Ofast")
 
 #set (CMAKE_CXX_FLAGS "-mavx2 -msse4.1 -msse3 -msse2 -msse")
