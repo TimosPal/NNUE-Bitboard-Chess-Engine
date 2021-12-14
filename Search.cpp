@@ -90,14 +90,12 @@ namespace ChessEngine {
     int QSearch(const Board& board, int a, int b) {
         search_nodes++;
 
-        //int evaluation = Evaluate(board);
-        //int evaluation = SimpleEval(board);
-        int evaluation = EvaluateIncremental(board);
-        assert(evaluation == Evaluate(board));
-        if(evaluation >= b)
+        int best_score = EvaluateIncremental(board);
+        assert(best_score == Evaluate(board));
+        if(best_score >= b)
             return b;
-        if(evaluation > a)
-            a = evaluation;
+        if(best_score > a)
+            a = best_score;
 
         MoveList moves = board.GetLegalCaptures();
         SortMoves(board, moves);
@@ -109,13 +107,15 @@ namespace ChessEngine {
             new_board.Mirror();
 
             int score = -QSearch(new_board, -b, -a);
+            if(score > best_score)
+                best_score = score;
             if (score >= b)
                 return b;
             if (score > a)
                 a = score;
         }
 
-        return a;
+        return best_score;
     }
 
     int PVSearch(const Board& board, int depth, int starting_depth, int a, int b, Move& best_move) {

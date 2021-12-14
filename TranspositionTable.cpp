@@ -11,14 +11,7 @@ namespace ChessEngine{
     }
 
     void TranspositionTable::AddEntry(uint64_t zobrist_key, const TTEntry& entry){
-        auto it = table_.find(zobrist_key);
-        if(it != table_.end()) {
-            if(entry.depth >= it->second.depth) {
-                it->second = entry;
-            }
-        }else {
-            table_.insert({zobrist_key, entry});
-        }
+        table_[zobrist_key] = entry;
     }
 
     bool TranspositionTable::GetEntry(uint64_t zobrist_key, TTEntry& result) const {
