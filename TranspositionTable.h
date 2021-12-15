@@ -23,10 +23,11 @@ namespace ChessEngine{
 
     class TranspositionTable{
     public:
+        void Clear() { table_.clear(); }
+        void Reserve(int size) { table_.reserve(size); }
         void AddEntry(uint64_t zobrist_key, const TTEntry& entry);
         bool GetEntry(uint64_t zobrist_key, TTEntry& result) const;
         int GetSize() const;
-        void Clear() { table_.clear(); }
 
     private:
         // <zobrist key, entry>

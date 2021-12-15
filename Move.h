@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include <iostream>
+#include <sstream>
 
 #include "Utilities.h"
 
@@ -31,6 +32,8 @@ namespace ChessEngine {
             os << from_notation << " -> " << to_notation << " | Promotion " << PieceInfoToChar(piece_info);
             return os;
         }
+
+        std::string AlgebraicNotation(bool is_flipped);
 
         bool operator==(const Move& mv) const { return data_ == mv.data_; }
         bool operator!=(const Move& mv) const { return data_ != mv.data_; }

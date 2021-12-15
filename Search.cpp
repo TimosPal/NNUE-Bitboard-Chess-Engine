@@ -1,6 +1,7 @@
 #include "Search.h"
 
 #include <algorithm>
+#include <random>
 
 #include "NNUE.h"
 #include "TranspositionTable.h"
@@ -217,13 +218,24 @@ namespace ChessEngine {
         search_nodes = 0;
 
         // Iterative deepening.
+        int a = 2 * INT16_MIN;
+        int b = 2 * INT16_MAX;
         Move best_move;
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
             // Using 16 bits because 32 overflows.
-            int a = 2 * INT16_MIN;
-            int b = 2 * INT16_MAX;
             int eval = PVSearch(board, current_depth, current_depth, a, b, best_move);
             //std::cout << "evaluation : " << eval << std::endl;
+
+            // Aspiration search
+            /*if(eval <= a || eval >= b) {
+                a = 2 * INT16_MIN;
+                b = 2 * INT16_MAX;
+                current_depth--;
+                continue;
+            }
+
+            a = eval - 100;
+            b = eval + 100;*/
         }
 
         //std::cout << "Nodes : " << search_nodes / 1000000.0f << std::endl;
