@@ -82,6 +82,7 @@ namespace ChessEngine {
 
         using BoardInfo = std::tuple<Representation, CastlingRights, MoveCounters, Team>;
         explicit Board(const BoardInfo &info);
+        Board() = default;
 
         bool IsFlipped() const { return is_flipped_; }
 
