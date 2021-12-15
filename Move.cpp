@@ -27,4 +27,38 @@ namespace ChessEngine{
         return oss.str();
     }
 
+    Move::Move(std::string algebraic_notation, bool is_flipped){
+        // NOTE: Assumes string is correct.
+        // Also be ware that this is from white perspective.
+        // Any needed flipping should be done.
+
+        std::string from_string = std::string(&algebraic_notation[0], &algebraic_notation[2]);
+        std::string to_string = std::string(&algebraic_notation[2], &algebraic_notation[4]);
+
+        std::tuple<uint8_t, uint8_t> coords_from;
+        NotationToCoords(from_string, coords_from);
+        auto [from_file, from_rank] = coords_from;
+        BoardTile from(from_file, from_rank);
+
+        std::tuple<uint8_t, uint8_t> coords_to;
+        NotationToCoords(to_string, coords_to);
+        auto [to_file, to_rank] = coords_to;
+        BoardTile to(to_file, to_rank);
+
+        if(is_flipped){
+            from.Mirror();
+            to.Mirror();
+        }
+
+        if(algebraic_notation.size() > 4){
+            // Add promotion.
+            PieceInfo info;
+            CharToPieceInfo(algebraic_notation[4], info);
+            auto [piece_type, team] = info;
+            *this = Move(from, to, piece_type);
+        }else{
+            *this = Move(from, to, PieceType::None);
+        }
+    }
+
 }

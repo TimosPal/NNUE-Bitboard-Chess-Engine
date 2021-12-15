@@ -17,6 +17,7 @@ namespace ChessEngine {
         data_((from & Masks::From) | ((to << 6) & Masks::To) | ((promotion << 12) & Masks::Promotion))
         {}
         Move(BoardTile from, BoardTile to, PieceType promotion) : Move(from.GetIndex(), to.GetIndex(), promotion) {}
+        Move(std::string algebraic_notation, bool is_flipped);
         Move() = default;
 
         BoardTile GetFrom() const {return BoardTile(data_ & Masks::From); }
