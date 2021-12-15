@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "Bitboard.h"
 #include "BoardTile.h"
@@ -12,6 +13,7 @@
 
 #define ERROR 1
 #define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return ERROR;}}
+#define BUFFER_SIZE 256
 
 namespace ChessEngine {
 
@@ -92,6 +94,10 @@ namespace ChessEngine {
 
     bool NotationToCoords(const std::string &str, std::tuple<uint8_t, uint8_t>& coords);
     bool CoordsToNotation(const std::tuple<uint8_t, uint8_t>& coords, std::string &str);
+
+    std::vector<std::string> Tokenise(const std::string& string);
+
+    const std::string starting_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 }
 

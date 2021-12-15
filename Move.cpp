@@ -2,7 +2,7 @@
 
 namespace ChessEngine{
 
-    std::string Move::AlgebraicNotation(bool is_flipped){
+    std::string Move::AlgebraicNotation(bool is_flipped) const{
         // Returns a string with formal algebraic notation.
         // The board is flipped accordingly.
         auto from = ChessEngine::BoardTile(this->GetFrom());

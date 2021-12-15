@@ -1,3 +1,4 @@
+#include <sstream>
 #include "Utilities.h"
 
 namespace ChessEngine {
@@ -151,6 +152,16 @@ namespace ChessEngine {
         str = std::string(1,file_temp) + rank_temp;
 
         return true;
+    }
+
+    std::vector<std::string> Tokenise(const std::string& string){
+        std::string word;
+        std::istringstream iss(string);
+        std::vector<std::string> words;
+        while(iss >> word) {
+            words.push_back(word);
+        }
+        return words;
     }
 
 }

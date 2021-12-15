@@ -13,9 +13,9 @@ int main() {
         ChessEngine::AttackTables::InitMoveTables();
         ChessEngine::InitModel("nn-62ef826d1a6d.nnue");
         ChessEngine::Zobrist::InitZobristKeysArrays();
-        //ChessEngine::UCI::MainLoop();
+        ChessEngine::UCI::MainLoop();
 
-        std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        std::string fen = ChessEngine::starting_position_fen;
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")

@@ -34,7 +34,7 @@ namespace ChessEngine {
             return os;
         }
 
-        std::string AlgebraicNotation(bool is_flipped);
+        std::string AlgebraicNotation(bool is_flipped) const;
 
         bool operator==(const Move& mv) const { return data_ == mv.data_; }
         bool operator!=(const Move& mv) const { return data_ != mv.data_; }
