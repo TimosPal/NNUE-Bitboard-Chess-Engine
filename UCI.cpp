@@ -39,9 +39,9 @@ namespace ChessEngine::UCI{
             // NOTE: Assume correct format.
             std::string fen = ChessEngine::starting_position_fen;
             auto iter = words.begin() + 1;
-            if (*iter == "fen") {
+            iter++;
+            if (*(iter-1) == "fen") {
                 fen = "";
-                iter++;
                 // Concat fen sub parts into 1 string.
                 for (int i = 0; i < 6; i++) {
                     fen += *iter + " ";
@@ -68,7 +68,7 @@ namespace ChessEngine::UCI{
         }
 
         void CommandGo(const std::vector<std::string> &words, const Board &board) {
-            int depth = 1;
+            int depth = 5;
             int index;
             if(FindWord(words, "depth", index)){
                 depth = atoi(words[index + 1].c_str());
