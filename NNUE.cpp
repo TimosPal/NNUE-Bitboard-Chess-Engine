@@ -152,7 +152,7 @@ namespace ChessEngine{
         return &(nnue_data_arr[ply].dirtyPiece);
     }
 
-    void CopytToNextAccumulator(int ply){
+    void CopyToNextAccumulator(int ply){
         assert(ply - 1 >= 0);
         memcpy(&nnue_data_arr[ply].accumulator, &nnue_data_arr[ply - 1].accumulator, sizeof(Accumulator));
         DirtyPiece* dp = &(nnue_data_arr[ply].dirtyPiece);

@@ -81,7 +81,7 @@ namespace ChessEngine {
         // Reset en passant.
         representation_.pawns_enPassant -= Masks::rank_8;
 
-        CopytToNextAccumulator(move_counters_.ply_counter);
+        CopyToNextAccumulator(move_counters_.ply_counter);
 
         // Update counters , no move was made so 50 move rule is updated.
         if(is_flipped_)

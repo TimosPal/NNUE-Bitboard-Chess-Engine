@@ -19,12 +19,12 @@ namespace ChessEngine {
             return history;
         }
 
-        void AddState(uint8_t index, Element element){
-            data[index] = element;
+        void AddState(uint8_t ply, Element element){
+            data[ply] = element;
         }
 
-        Element GetState(uint8_t index){
-            return data_[index];
+        Element GetState(uint8_t ply){
+            return data_[ply];
         }
 
     private:

@@ -27,7 +27,7 @@ namespace ChessEngine {
 
     void InitAccumulator(int ply);
     DirtyPiece* GetDirtyPiece(int ply);
-    void CopytToNextAccumulator(int ply);
+    void CopyToNextAccumulator(int ply);
 
 }
 
