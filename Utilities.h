@@ -13,7 +13,7 @@
 
 #define ERROR 1
 #define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return ERROR;}}
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 1024 * 2
 
 namespace ChessEngine {
 

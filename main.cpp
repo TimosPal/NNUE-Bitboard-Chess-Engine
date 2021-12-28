@@ -13,15 +13,16 @@ int main() {
         ChessEngine::AttackTables::InitMoveTables();
         ChessEngine::InitModel("nn-62ef826d1a6d.nnue");
         ChessEngine::Zobrist::InitZobristKeysArrays();
-        ChessEngine::UCI::MainLoop();
+/*        ChessEngine::UCI::MainLoop();
+        return 0;*/
 
-        std::string fen = ChessEngine::starting_position_fen;
+        std::string fen = "r2rk3/pp1b1ppN/2n1p2p/4P3/q2p3Q/3B4/5PPP/3RR1K1 w - - 10 25";
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
         ChessEngine::Board board(info);
 
-        //std::cout << GetBestMove(board, 8) << std::endl;
+        std::cout << GetBestMove(board, 5) << std::endl;
 
         int i = 1;
         while(true) {
@@ -47,10 +48,6 @@ int main() {
             ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 6 : 6);
             std::string notation = best_move.AlgebraicNotation(board.IsFlipped());
             std::cout << i << ". " << notation << std::endl;
-
-            ChessEngine::Move move_from_not = ChessEngine::Move(notation, board.IsFlipped());
-            std::cout << i << ". " << move_from_not.AlgebraicNotation(board.IsFlipped())  << std::endl;
-
 
             board.PlayMove(best_move);
             board.Mirror();

@@ -8,7 +8,6 @@
 #include "NNUE.h"
 #include "ZobristKey.h"
 
-
 namespace ChessEngine {
 
     void Board::Representation::Mirror() {

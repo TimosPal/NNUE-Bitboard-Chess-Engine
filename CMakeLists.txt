@@ -36,7 +36,7 @@ add_executable(Tim_ChessEngine
         nnue-probe/nnue.cpp
         nnue-probe/nnue.h
         NNUE.h
-        NNUE.cpp Search.h Search.cpp ZobristKey.h ZobristKey.cpp TranspositionTable.h TranspositionTable.cpp UCI.h Move.cpp UCI.cpp)
+        NNUE.cpp Search.h Search.cpp ZobristKey.h ZobristKey.cpp TranspositionTable.h TranspositionTable.cpp UCI.h Move.cpp UCI.cpp History.h)
 
 target_compile_definitions(Tim_ChessEngine PRIVATE PROFILER)
 target_compile_definitions(Tim_ChessEngine PRIVATE NDEBUG)
