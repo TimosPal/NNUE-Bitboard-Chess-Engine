@@ -126,6 +126,25 @@ namespace ChessEngine {
             return QSearch(board, a, b);
         }
 
+        MoveList moves = board.GetLegalCaptures();
+        SortMoves(board, moves);
+        MoveList quiet_moves = board.GetLegalQuietMoves();
+        moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
+        GameResult game_result = board.Result(moves);
+        switch(game_result){
+            // Terminal node.
+            case GameResult::WhiteWon:
+            case GameResult::BlackWon:
+                // The board is flipped. If the game is over
+                // the current side lost. We return relative to
+                // the current side hence the score is negative.
+                return -(INT16_MAX + depth);
+            case GameResult::Draw:
+                return 0;
+            case GameResult::Playing:
+                break;
+        }
+
         uint64_t zobrist_key = board.GetZobristKey();
         uint8_t tree_level = starting_depth - depth;
         bool is_root = tree_level == 0;
@@ -142,11 +161,6 @@ namespace ChessEngine {
             }
         }
 
-        MoveList moves = board.GetLegalCaptures();
-        SortMoves(board, moves);
-        MoveList quiet_moves = board.GetLegalQuietMoves();
-        moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
-
         // Put TT move first.
         if(entry_found) {
             // TT's move can be invalid if it was never set. This case isnt troublesome since
@@ -156,21 +170,6 @@ namespace ChessEngine {
             if (pivot != moves.end()) {
                 std::rotate(moves.begin(), pivot, pivot + 1);
             }
-        }
-
-        GameResult game_result = board.Result(moves);
-        switch(game_result){
-            // Terminal node.
-            case GameResult::WhiteWon:
-            case GameResult::BlackWon:
-                // The board is flipped. If the game is over
-                // the current side lost. We return relative to
-                // the current side hence the score is negative.
-                return -(INT16_MAX + depth);
-            case GameResult::Draw:
-                return 0;
-            case GameResult::Playing:
-                break;
         }
 
         NodeType node_type = NodeType::Alpha;
@@ -224,7 +223,8 @@ namespace ChessEngine {
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
             // Using 16 bits because 32 overflows.
             int eval = PVSearch(board, current_depth, current_depth, a, b, best_move);
-            //std::cout << "evaluation : " << eval << std::endl;
+            //if(current_depth == depth)
+            //  std::cout << "evaluation : " << eval << std::endl;
 
             // Aspiration search
             /*if(eval <= a || eval >= b) {

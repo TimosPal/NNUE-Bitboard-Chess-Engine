@@ -599,7 +599,7 @@ namespace ChessEngine {
             return GameResult::Draw;
 
         // 3 move repetition.
-        // If positions has occured 2 more times.
+        // If positions has occurred 2 more times.
         if(move_counters_.repetitions >= 2)
             return GameResult::Draw;
 
