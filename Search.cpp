@@ -92,7 +92,7 @@ namespace ChessEngine {
         search_nodes++;
 
         int best_score = NNUE::Instance().EvaluateIncremental(board);
-        assert(best_score == Evaluate(board));
+        assert(best_score == NNUE::Instance().Evaluate(board));
         if(best_score >= b)
             return b;
         if(best_score > a)

@@ -116,6 +116,7 @@ namespace ChessEngine {
         bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const;
         bool IsUnderAttack(BoardTile tile) const;
         bool InsufficientMaterial() const;
+        int StateRepetitions(uint64_t zobrist_key, uint8_t ply) const;
 
         Representation representation_;
         CastlingRights castling_rights_;

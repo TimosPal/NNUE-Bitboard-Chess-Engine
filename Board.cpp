@@ -7,6 +7,7 @@
 #include "AttackTables.h"
 #include "NNUE.h"
 #include "ZobristKey.h"
+#include "History.h"
 
 namespace ChessEngine {
 
@@ -111,7 +112,6 @@ namespace ChessEngine {
             own_color = White;
             enemy_color = Black;
         }
-
 
         auto[own_piece_type, own_team] = GetPieceInfoAt(from);
         assert(own_piece_type != None);
@@ -309,6 +309,12 @@ namespace ChessEngine {
         representation_.bishop_queens.Reset(from);
         representation_.pawns_enPassant.Reset(from);
 
+        // Update history.
+        History::Element history_element = {.key = zobrist_key_, .progress_made = reset_50_move_rule};
+        History::Instance().AddState(move_counters_.ply_counter, history_element);
+        // Repetitions count.
+        move_counters_.repetitions = StateRepetitions(this->zobrist_key_, move_counters_.ply_counter);
+
         // Set counters,
         if(is_flipped_)
             // Increments only when black moves.
@@ -322,6 +328,27 @@ namespace ChessEngine {
         move_counters_.ply_counter++;
 
         assert(Zobrist::GetZobristKey(*this, is_flipped_) == zobrist_key_);
+    }
+
+    int Board::StateRepetitions(uint64_t zobrist_key, uint8_t ply) const{
+        // If currently made progress , no repetition.
+        // Ply should be equal to the index of the last played move.
+        if(History::Instance().GetState(ply).progress_made)
+            return 0;
+
+        int repetitions = 0;
+        for (int i = ply - 2; i >= 0; i-=2) {
+            if(History::Instance().GetState(i+1).progress_made)
+                break;
+            auto state = History::Instance().GetState(i);
+            if(state.progress_made)
+                break;
+            if(state.key == zobrist_key) {
+                repetitions++;
+            }
+        }
+
+        return repetitions;
     }
 
     bool Board::IsUnderAttack(BoardTile tile) const{
@@ -572,7 +599,9 @@ namespace ChessEngine {
             return GameResult::Draw;
 
         // 3 move repetition.
-        // TODO
+        // If positions has occured 2 more times.
+        if(move_counters_.repetitions >= 2)
+            return GameResult::Draw;
 
         return GameResult::Playing;
     }

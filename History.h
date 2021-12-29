@@ -20,7 +20,7 @@ namespace ChessEngine {
         }
 
         void AddState(uint8_t ply, Element element){
-            data[ply] = element;
+            data_[ply] = element;
         }
 
         Element GetState(uint8_t ply){
@@ -28,9 +28,9 @@ namespace ChessEngine {
         }
 
     private:
-        History();
+        History() = default;
         std::array<Element, HISTORY_SIZE> data_;
-    }
+    };
 }
 
 #endif
