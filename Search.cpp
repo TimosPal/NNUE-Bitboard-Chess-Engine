@@ -91,7 +91,7 @@ namespace ChessEngine {
     int QSearch(const Board& board, int a, int b) {
         search_nodes++;
 
-        int best_score = EvaluateIncremental(board);
+        int best_score = NNUE::Instance().EvaluateIncremental(board);
         assert(best_score == Evaluate(board));
         if(best_score >= b)
             return b;

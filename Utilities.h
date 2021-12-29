@@ -14,6 +14,7 @@
 #define ERROR 1
 #define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return ERROR;}}
 #define BUFFER_SIZE 1024 * 2
+#define CACHE_LINE_SIZE 64
 
 namespace ChessEngine {
 
@@ -98,6 +99,22 @@ namespace ChessEngine {
     std::vector<std::string> Tokenise(const std::string& string);
 
     const std::string starting_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    // Allocate aligned memory.
+    template<typename T, int ALIGNMENT = CACHE_LINE_SIZE, bool large_pages = false>
+    void AlignedReserve(T*& mem,const size_t& size) {
+    #ifdef __ANDROID__
+        mem = (T*) memalign(ALIGNMENT,size * sizeof(T));
+    #elif defined(_WIN32)
+        mem = (T*)_aligned_malloc(size * sizeof(T),ALIGNMENT);
+    #else
+        posix_memalign((void**)&mem,ALIGNMENT,size * sizeof(T));
+        #if defined(MADV_HUGEPAGE)
+            if(large_pages)
+                madvise(mem,size * sizeof(T),MADV_HUGEPAGE);
+        #endif
+    #endif
+    }
 
 }
 

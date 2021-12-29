@@ -11,7 +11,7 @@ int main() {
     {
         PROFILE_SCOPE("Program");
         ChessEngine::AttackTables::InitMoveTables();
-        ChessEngine::InitModel("nn-62ef826d1a6d.nnue");
+        ChessEngine::NNUE::InitModel("nn-62ef826d1a6d.nnue");
         ChessEngine::Zobrist::InitZobristKeysArrays();
 /*        ChessEngine::UCI::MainLoop();
         return 0;*/

@@ -81,7 +81,7 @@ namespace ChessEngine {
         // Reset en passant.
         representation_.pawns_enPassant -= Masks::rank_8;
 
-        CopyToNextAccumulator(move_counters_.ply_counter);
+        NNUE::Instance().CopyToNextAccumulator(move_counters_.ply_counter);
 
         // Update counters , no move was made so 50 move rule is updated.
         if(is_flipped_)
@@ -95,12 +95,12 @@ namespace ChessEngine {
         BoardTile to = move.GetTo();
         PieceType promotion = move.GetPromotion();
 
-        uint8_t from_normalised_index = GetSquare(from, is_flipped_);
-        uint8_t to_normalised_index = GetSquare(to, is_flipped_);
+        uint8_t from_normalised_index = NNUE::GetSquareEncoding(from, is_flipped_);
+        uint8_t to_normalised_index = NNUE::GetSquareEncoding(to, is_flipped_);
 
         // Incremental NNUE , keeps changes inside dirty_piece.
-        InitAccumulator(move_counters_.ply_counter);
-        DirtyPiece* dirty_piece = GetDirtyPiece(move_counters_.ply_counter);
+        NNUE::Instance().InitAccumulator(move_counters_.ply_counter);
+        DirtyPiece* dirty_piece = NNUE::Instance().GetDirtyPiece(move_counters_.ply_counter);
         dirty_piece->dirtyNum = 1;
 
         Team own_color, enemy_color;
@@ -115,7 +115,7 @@ namespace ChessEngine {
 
         auto[own_piece_type, own_team] = GetPieceInfoAt(from);
         assert(own_piece_type != None);
-        dirty_piece->pc[0] = GetPieceEncoding(own_piece_type, own_color);
+        dirty_piece->pc[0] = NNUE::GetPieceEncoding(own_piece_type, own_color);
         dirty_piece->from[0] = from_normalised_index;
         dirty_piece->to[0] = to_normalised_index;
 
@@ -126,7 +126,7 @@ namespace ChessEngine {
         if(representation_.enemy_pieces.Get(to)){
             dirty_piece->dirtyNum = 2;
             auto[enemy_piece_type, enemy_team] = GetPieceInfoAt(to);
-            dirty_piece->pc[1] = GetPieceEncoding(enemy_piece_type, enemy_color);
+            dirty_piece->pc[1] = NNUE::GetPieceEncoding(enemy_piece_type, enemy_color);
             dirty_piece->from[1] = to_normalised_index;
             dirty_piece->to[1] = REMOVED_SQUARE;
 
@@ -164,13 +164,13 @@ namespace ChessEngine {
             zobrist_key_ ^= Zobrist::GetCastlingKey(castling_rights_, is_flipped_);
 
             auto castling = [&](BoardTile rook_from, BoardTile rook_to){
-                uint8_t rook_from_normalised = GetSquare(rook_from, is_flipped_);
-                uint8_t rook_to_normalised = GetSquare(rook_to, is_flipped_);
+                uint8_t rook_from_normalised = NNUE::GetSquareEncoding(rook_from, is_flipped_);
+                uint8_t rook_to_normalised = NNUE::GetSquareEncoding(rook_to, is_flipped_);
 
                 dirty_piece->dirtyNum = 2;
                 dirty_piece->from[1] = rook_from_normalised;
                 dirty_piece->to[1] = rook_to_normalised;
-                dirty_piece->pc[1] = GetPieceEncoding(PieceType::Rook, own_color);
+                dirty_piece->pc[1] = NNUE::GetPieceEncoding(PieceType::Rook, own_color);
 
                 // Incremental update on zobrist key when moving the rook in castling.
                 zobrist_key_ ^= Zobrist::GetPieceSquareKey(PieceType::Rook, !is_flipped_, rook_from_normalised);
@@ -222,13 +222,13 @@ namespace ChessEngine {
                 representation_.pawns_enPassant.Reset(enemy_pawn);
                 representation_.enemy_pieces.Reset(enemy_pawn);
 
-                uint8_t enemy_pawn_normalised = GetSquare(enemy_pawn, is_flipped_);
+                uint8_t enemy_pawn_normalised = NNUE::GetSquareEncoding(enemy_pawn, is_flipped_);
 
                 // Incremental update on zobrist key when en passant capture occures.
                 zobrist_key_ ^= Zobrist::GetPieceSquareKey(PieceType::Pawn, is_flipped_, enemy_pawn_normalised);
 
                 dirty_piece->dirtyNum = 2;
-                dirty_piece->pc[1] = GetPieceEncoding(PieceType::Pawn, enemy_color);
+                dirty_piece->pc[1] = NNUE::GetPieceEncoding(PieceType::Pawn, enemy_color);
                 dirty_piece->from[1] = enemy_pawn_normalised;
                 dirty_piece->to[1] = REMOVED_SQUARE;
             }
@@ -236,8 +236,8 @@ namespace ChessEngine {
             else if(to_rank == Rank::R8){
                 dirty_piece->to[0] = REMOVED_SQUARE;
                 dirty_piece->from[dirty_piece->dirtyNum] = REMOVED_SQUARE;
-                dirty_piece->to[dirty_piece->dirtyNum] = GetSquare(to, is_flipped_);
-                dirty_piece->pc[dirty_piece->dirtyNum] = GetPieceEncoding(promotion, own_color);
+                dirty_piece->to[dirty_piece->dirtyNum] = NNUE::GetSquareEncoding(to, is_flipped_);
+                dirty_piece->pc[dirty_piece->dirtyNum] = NNUE::GetPieceEncoding(promotion, own_color);
 
                 // Incremental update on zobrist key when promoting.
                 zobrist_key_ ^= Zobrist::GetPieceSquareKey(Pawn, !is_flipped_, to_normalised_index);
