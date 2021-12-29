@@ -21,7 +21,7 @@ int main() {
         // Random game d-7
         //std::string fen = "r2qk2r/4pp1p/2p3Pb/1pB1P3/3PbP2/1pP5/P2QNKn1/R6R w kq - 0 21";
         // Default
-        //std::string fen = ChessEngine::starting_position_fen;
+        std::string fen = ChessEngine::starting_position_fen;
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
