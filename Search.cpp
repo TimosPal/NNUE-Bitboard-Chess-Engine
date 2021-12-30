@@ -128,8 +128,11 @@ namespace ChessEngine {
             return QSearch(board, a, b);
         }
 
-        Bitboard pins = board.GetPins();
         bool is_in_check = board.IsInCheck();
+        Bitboard pins = board.GetPins();
+
+        //if(is_in_check)
+            //depth++;
 
         // Move ordering.
         MoveList moves = board.GetLegalCaptures(pins, is_in_check);
@@ -139,6 +142,7 @@ namespace ChessEngine {
 
         // Draw / Checkmate detection.
         GameResult game_result = board.Result(moves);
+        static constexpr int checkmate_score = INT16_MAX;
         switch(game_result){
             // Terminal node.
             case GameResult::WhiteWon:
@@ -146,7 +150,7 @@ namespace ChessEngine {
                 // The board is flipped. If the game is over
                 // the current side lost. We return relative to
                 // the current side hence the score is negative.
-                return -(INT16_MAX + depth);
+                return -(checkmate_score + depth);
             case GameResult::Draw:
                 return 0;
             case GameResult::Playing:
@@ -155,6 +159,7 @@ namespace ChessEngine {
 
         uint64_t zobrist_key = board.GetZobristKey();
         bool is_root = ply == 0;
+        bool is_pv_node = b - a != 1;
 
         // TT probing.
         TTEntry entry_result;
@@ -180,15 +185,46 @@ namespace ChessEngine {
             }
         }
 
+        // Static Null move pruning.
+        /*if(!is_in_check && !is_pv_node && abs(b) < checkmate_score){
+            static int static_null_move_pruning_base_margin = 120;
+            int static_score = NNUE::Instance().EvaluateIncremental(board);
+            int score_margin = static_null_move_pruning_base_margin * depth;
+            if(static_score - score_margin >= b){
+                return b;
+            }
+        }*/
+
+        // Futility pruning.
+        bool can_futility_prune = false;
+        if(depth <= 8 && !is_pv_node && !is_in_check && a < checkmate_score) {
+            static int futility_margins[] = {0, 100, 160, 220, 280, 340, 400, 460, 520};
+            int static_score = NNUE::Instance().EvaluateIncremental(board);
+            if(static_score + futility_margins[depth] < a){
+                can_futility_prune = true;
+            }
+        }
+
         // Main PVS loop.
         NodeType node_type = NodeType::Alpha;
         Move current_best_move;
         bool pv_search = true;
+        int moves_played = 0;
         int best_score = INT32_MIN;
         for (const auto& move : moves) {
+            moves_played++;
             Board new_board = Board(board);
             new_board.PlayMove(move);
             new_board.Mirror();
+
+            // Futility pruning.
+            if(can_futility_prune && moves_played > 1){
+                bool tactical = is_in_check || move.GetPromotion() != None ||
+                        board.GetRepresentation().enemy_pieces.Get(move.GetTo());
+                if(!tactical){
+                    continue;
+                }
+            }
 
             int score;
             if (pv_search) {

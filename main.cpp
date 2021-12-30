@@ -21,20 +21,23 @@ int main() {
         // Random game d-7
         //std::string fen = "r2qk2r/4pp1p/2p3Pb/1pB1P3/3PbP2/1pP5/P2QNKn1/R6R w kq - 0 21";
         // Default
-        std::string fen = ChessEngine::starting_position_fen;
+        //std::string fen = ChessEngine::starting_position_fen;
+        //std::string fen = "8/4K2k/8/8/6Q1/8/8/8 w - - 6 68";
+
+        std::string fen = "5rk1/p2b1ppp/1q2pn2/1pr5/8/3Q2P1/PP1NPPBP/2R2RK1 b - - 3 16";
 
         ChessEngine::Board::BoardInfo info = {};
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
         ChessEngine::Board board(info);
 
-        if(false) {
-            auto best_move = GetBestMove(board, 7);
+        if(true) {
+            auto best_move = GetBestMove(board, 8);
             std::string notation = best_move.AlgebraicNotation(board.IsFlipped());
             std::cout << notation << std::endl;
         }
 
         int i = 1;
-        while(true) {
+        while(false) {
             ChessEngine::Bitboard pins = board.GetPins();
             bool is_in_check = board.IsInCheck();
             auto moves = board.GetLegalCaptures(pins, is_in_check);
@@ -64,7 +67,7 @@ int main() {
             board.Mirror();
             i++;
 
-            if(i > 200)
+            if(i > 2000)
                 break;
         }
     }
