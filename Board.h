@@ -46,8 +46,8 @@ namespace ChessEngine {
             // 3 fold repetition.
             uint8_t repetitions = 0;
             // Game's plys.
-            uint8_t full_moves = 0;
-            uint8_t ply_counter = 0;
+            uint16_t full_moves = 0;
+            uint16_t ply_counter = 0;
         };
 
         class CastlingRights{
@@ -89,7 +89,7 @@ namespace ChessEngine {
         bool IsFlipped() const { return is_flipped_; }
 
         const Representation& GetRepresentation() const { return representation_; }
-        const uint8_t GetPlyCounter() const { return move_counters_.ply_counter; }
+        const uint16_t GetPlyCounter() const { return move_counters_.ply_counter; }
         CastlingRights GetCastlingRights() const { return castling_rights_; }
         uint64_t GetZobristKey() const { return zobrist_key_; }
 

@@ -121,7 +121,7 @@ namespace ChessEngine {
         return best_score;
     }
 
-    int PVSearch(const Board& board, int depth, int ply, int a, int b, Move& best_move) {
+    int PVSearch(const Board& board, int depth, int ply, int a, int b, Move& best_move, bool do_null) {
         search_nodes++;
 
         if (depth <= 0) {
@@ -131,6 +131,7 @@ namespace ChessEngine {
         bool is_in_check = board.IsInCheck();
         Bitboard pins = board.GetPins();
 
+        // Check extension.
         //if(is_in_check)
             //depth++;
 
@@ -186,21 +187,33 @@ namespace ChessEngine {
         }
 
         // Static Null move pruning.
-        /*if(!is_in_check && !is_pv_node && abs(b) < checkmate_score){
+        if(!is_in_check && !is_pv_node && abs(b) < checkmate_score){
             static int static_null_move_pruning_base_margin = 120;
             int static_score = NNUE::Instance().EvaluateIncremental(board);
             int score_margin = static_null_move_pruning_base_margin * depth;
             if(static_score - score_margin >= b){
                 return b;
             }
-        }*/
+        }
+
+        // Null move pruning.
+        if(do_null && !is_in_check && !is_pv_node && depth >= 3){
+            int R = 2;
+            Board new_board = Board(board);
+            new_board.PlayNullMove();
+            new_board.Mirror();
+            int score = -PVSearch(new_board, depth - R - 1, ply + 1, -b, -b +1, best_move, false);
+            if(score >= b && abs(score) < checkmate_score){
+                return b;
+            }
+        }
 
         // Futility pruning.
         bool can_futility_prune = false;
         if(depth <= 8 && !is_pv_node && !is_in_check && a < checkmate_score) {
             static int futility_margins[] = {0, 100, 160, 220, 280, 340, 400, 460, 520};
             int static_score = NNUE::Instance().EvaluateIncremental(board);
-            if(static_score + futility_margins[depth] < a){
+            if(static_score + futility_margins[depth] <= a){
                 can_futility_prune = true;
             }
         }
@@ -217,9 +230,18 @@ namespace ChessEngine {
             new_board.PlayMove(move);
             new_board.Mirror();
 
+            // Late move pruning.
+            static int late_move_pruning_margins[] = {0, 8, 12, 24};
+            if(depth <= 3 && !is_pv_node && !is_in_check && moves_played > late_move_pruning_margins[depth]){
+                bool tactical = new_board.IsInCheck() || move.GetPromotion() != None;
+                if(!tactical){
+                    continue;
+                }
+            }
+
             // Futility pruning.
             if(can_futility_prune && moves_played > 1){
-                bool tactical = is_in_check || move.GetPromotion() != None ||
+                bool tactical = new_board.IsInCheck() || move.GetPromotion() != None ||
                         board.GetRepresentation().enemy_pieces.Get(move.GetTo());
                 if(!tactical){
                     continue;
@@ -228,11 +250,11 @@ namespace ChessEngine {
 
             int score;
             if (pv_search) {
-                score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move);
+                score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move, true);
             } else {
-                score = -PVSearch(new_board, depth - 1, ply + 1, -a - 1, -a, best_move);
+                score = -PVSearch(new_board, depth - 1, ply + 1, -a - 1, -a, best_move, true);
                 if (score > a && score < b) {
-                    score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move);
+                    score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move, true);
                 }
             }
 
@@ -268,7 +290,7 @@ namespace ChessEngine {
         Move best_move;
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
             // Using 16 bits because 32 overflows.
-            int eval = PVSearch(board, current_depth, 0, a, b, best_move);
+            int eval = PVSearch(board, current_depth, 0, a, b, best_move, true);
             //if(current_depth == depth)
             //  std::cout << "evaluation : " << eval << std::endl;
 

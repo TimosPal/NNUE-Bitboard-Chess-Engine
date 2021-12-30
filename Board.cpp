@@ -80,14 +80,24 @@ namespace ChessEngine {
 
     void Board::PlayNullMove(){
         // Reset en passant.
+        Bitboard previous_enPassant_board = representation_.pawns_enPassant & Masks::rank_8;
+        if(!previous_enPassant_board.IsEmpty()) {
+            BoardTile previous_enPassant_tile = previous_enPassant_board.BitScanForward();
+            uint8_t previous_enPassant_file = previous_enPassant_tile.GetFile();
+            zobrist_key_ ^= Zobrist::GetEnPassantKey(previous_enPassant_file);
+        }
         representation_.pawns_enPassant -= Masks::rank_8;
 
         NNUE::Instance().CopyToNextAccumulator(move_counters_.ply_counter);
 
+        // Update history.
+        History::Element history_element = {.key = zobrist_key_, .progress_made = false};
+        History::Instance().AddState(move_counters_.ply_counter, history_element);
+
         // Update counters , no move was made so 50 move rule is updated.
         if(is_flipped_)
             move_counters_.full_moves++;
-        move_counters_.half_moves++;
+        move_counters_.half_moves = 0;
         move_counters_.ply_counter++;
     }
 

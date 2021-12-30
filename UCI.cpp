@@ -68,7 +68,7 @@ namespace ChessEngine::UCI{
         }
 
         void CommandGo(const std::vector<std::string> &words, const Board &board) {
-            int depth = 7;
+            int depth = 8;
             int index;
             if(FindWord(words, "depth", index)){
                 depth = atoi(words[index + 1].c_str());
