@@ -93,8 +93,8 @@ namespace ChessEngine {
         CastlingRights GetCastlingRights() const { return castling_rights_; }
         uint64_t GetZobristKey() const { return zobrist_key_; }
 
-        MoveList GetLegalQuietMoves() const;
-        MoveList GetLegalCaptures() const;
+        MoveList GetLegalQuietMoves(Bitboard pins, bool is_in_check) const;
+        MoveList GetLegalCaptures(Bitboard pins, bool is_in_check) const;
 
         void PlayMove(Move move); // Plays the move. Does not alter the turn.
         void PlayNullMove();
@@ -109,10 +109,10 @@ namespace ChessEngine {
         PieceInfo GetPieceInfoAt(BoardTile tile) const;
         PieceType GetPieceTypeAt(uint8_t file, uint8_t rank) const;
 
+        Bitboard GetPins() const;
         bool IsInCheck() const;
     private:
 
-        Bitboard GetPins() const;
         bool IsLegalMove(const Move& move, const Bitboard& pins, bool is_in_check) const;
         bool IsUnderAttack(BoardTile tile) const;
         bool InsufficientMaterial() const;

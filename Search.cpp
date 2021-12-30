@@ -98,7 +98,9 @@ namespace ChessEngine {
         if(best_score > a)
             a = best_score;
 
-        MoveList moves = board.GetLegalCaptures();
+        Bitboard pins = board.GetPins();
+        bool is_in_check = board.IsInCheck();
+        MoveList moves = board.GetLegalCaptures(pins, is_in_check);
         SortMoves(board, moves);
 
         for (const auto& move : moves) {
@@ -119,17 +121,23 @@ namespace ChessEngine {
         return best_score;
     }
 
-    int PVSearch(const Board& board, int depth, int starting_depth, int a, int b, Move& best_move) {
+    int PVSearch(const Board& board, int depth, int ply, int a, int b, Move& best_move) {
         search_nodes++;
 
         if (depth <= 0) {
             return QSearch(board, a, b);
         }
 
-        MoveList moves = board.GetLegalCaptures();
+        Bitboard pins = board.GetPins();
+        bool is_in_check = board.IsInCheck();
+
+        // Move ordering.
+        MoveList moves = board.GetLegalCaptures(pins, is_in_check);
         SortMoves(board, moves);
-        MoveList quiet_moves = board.GetLegalQuietMoves();
+        MoveList quiet_moves = board.GetLegalQuietMoves(pins, is_in_check);
         moves.insert(moves.end(), quiet_moves.begin(), quiet_moves.end());
+
+        // Draw / Checkmate detection.
         GameResult game_result = board.Result(moves);
         switch(game_result){
             // Terminal node.
@@ -146,9 +154,9 @@ namespace ChessEngine {
         }
 
         uint64_t zobrist_key = board.GetZobristKey();
-        uint8_t tree_level = starting_depth - depth;
-        bool is_root = tree_level == 0;
+        bool is_root = ply == 0;
 
+        // TT probing.
         TTEntry entry_result;
         bool entry_found = transposition_table.GetEntry(zobrist_key, entry_result);
         if(entry_found && !is_root && entry_result.depth >= depth){
@@ -161,7 +169,7 @@ namespace ChessEngine {
             }
         }
 
-        // Put TT move first.
+        // Order TT move first.
         if(entry_found) {
             // TT's move can be invalid if it was never set. This case isnt troublesome since
             // it will not be found in the legal moves list.
@@ -172,6 +180,7 @@ namespace ChessEngine {
             }
         }
 
+        // Main PVS loop.
         NodeType node_type = NodeType::Alpha;
         Move current_best_move;
         bool pv_search = true;
@@ -183,11 +192,11 @@ namespace ChessEngine {
 
             int score;
             if (pv_search) {
-                score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, best_move);
+                score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move);
             } else {
-                score = -PVSearch(new_board, depth - 1, starting_depth, -a - 1, -a, best_move);
+                score = -PVSearch(new_board, depth - 1, ply + 1, -a - 1, -a, best_move);
                 if (score > a && score < b) {
-                    score = -PVSearch(new_board, depth - 1, starting_depth, -b, -a, best_move);
+                    score = -PVSearch(new_board, depth - 1, ply + 1, -b, -a, best_move);
                 }
             }
 
@@ -209,6 +218,7 @@ namespace ChessEngine {
             }
         }
 
+        // Add entry to TT.
         transposition_table.AddEntry(zobrist_key, TTEntry(depth, best_score, node_type, current_best_move));
         return best_score;
     }
@@ -222,7 +232,7 @@ namespace ChessEngine {
         Move best_move;
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
             // Using 16 bits because 32 overflows.
-            int eval = PVSearch(board, current_depth, current_depth, a, b, best_move);
+            int eval = PVSearch(board, current_depth, 0, a, b, best_move);
             //if(current_depth == depth)
             //  std::cout << "evaluation : " << eval << std::endl;
 
@@ -248,8 +258,10 @@ namespace ChessEngine {
         if (depth == 0)
             return 1ULL;
 
-        MoveList moves = board.GetLegalCaptures();
-        MoveList quiet_moves = board.GetLegalQuietMoves();
+        Bitboard pins = board.GetPins();
+        bool is_in_check = board.IsInCheck();
+        MoveList moves = board.GetLegalCaptures(pins, is_in_check);
+        MoveList quiet_moves = board.GetLegalQuietMoves(pins, is_in_check);
         moves.insert( moves.end(), quiet_moves.begin(), quiet_moves.end());
         for (const Move& move : moves) {
             Board temp = board;

@@ -473,27 +473,23 @@ namespace ChessEngine {
         return true; // Not pinned , no check. Can freely move.
     }
 
-    MoveList Board::GetLegalQuietMoves() const {
+    MoveList Board::GetLegalQuietMoves(Bitboard pins, bool is_in_check) const {
         MoveList moves;
         moves.reserve(60);
         PseudoMoves::GetQuietMoves(representation_, castling_rights_, moves);
 
-        Bitboard pins = GetPins();
-        bool is_in_check = IsInCheck();
         auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins, is_in_check); };
         moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
         return moves;
     }
 
-    MoveList Board::GetLegalCaptures() const { // TODO : check for possible refactors.
+    MoveList Board::GetLegalCaptures(Bitboard pins, bool is_in_check) const { // TODO : check for possible refactors.
         // Pre allocate vector size (Requires a Move default constructor).
         MoveList moves;
         moves.reserve(20);
         PseudoMoves::GetCaptures(representation_, moves);
 
-        Bitboard pins = GetPins();
-        bool is_in_check = IsInCheck();
         auto is_illegal = [=](const Move &move) { return !IsLegalMove(move, pins, is_in_check); };
         moves.erase(std::remove_if(moves.begin(), moves.end(), is_illegal), moves.end());
 
