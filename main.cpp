@@ -7,6 +7,8 @@
 #include "ZobristKey.h"
 #include "UCI.h"
 
+#include "MCTS.h"
+
 int main() {
     {
         PROFILE_SCOPE("Program");
@@ -34,8 +36,13 @@ int main() {
         IF_ERROR(!ChessEngine::ParseFenString(fen, info), "Invalid fen string.")
         ChessEngine::Board board(info);
 
+        //ChessEngine::Move mv = ChessEngine::MCTS::Search(board, 1000);
+        //std::string notation = mv.AlgebraicNotation(board.IsFlipped());
+        //std::cout << notation << std::endl;
+
         if(false) {
-            auto best_move = GetBestMove(board, 8);
+            int eval;
+            auto best_move = GetBestMove(board, 8, eval);
             std::string notation = best_move.AlgebraicNotation(board.IsFlipped());
             std::cout << notation << std::endl;
         }
@@ -63,7 +70,14 @@ int main() {
                 break;
             }
 
-            ChessEngine::Move best_move = ChessEngine::GetBestMove(board, board.IsFlipped() ? 8 : 8);
+            ChessEngine::Move best_move;
+            if(!board.IsFlipped()){
+                best_move = ChessEngine::MCTS::Search(board, 1000, true);
+            }else{
+                int eval;
+                best_move = ChessEngine::GetBestMove(board, 7, eval);
+            }
+
             std::string notation = best_move.AlgebraicNotation(board.IsFlipped());
             std::cout << i << ". " << notation << std::endl;
 

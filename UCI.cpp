@@ -74,7 +74,8 @@ namespace ChessEngine::UCI{
                 depth = atoi(words[index + 1].c_str());
             }
 
-            Move best_move = GetBestMove(board, depth);
+            int eval;
+            Move best_move = GetBestMove(board, depth, eval);
             std::cout << "bestmove " << best_move.AlgebraicNotation(board.IsFlipped()) << std::endl;
         }
     }

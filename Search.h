@@ -5,7 +5,7 @@
 
 namespace ChessEngine {
 
-    Move GetBestMove(const Board& board, int depth);
+    Move GetBestMove(const Board& board, int depth, int& eval_result);
     int Perft(const Board& board, int depth);
 
 }

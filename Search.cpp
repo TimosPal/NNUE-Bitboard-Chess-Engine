@@ -281,7 +281,7 @@ namespace ChessEngine {
         return best_score;
     }
 
-    Move GetBestMove(const Board& board, int depth){
+    Move GetBestMove(const Board& board, int depth, int& eval_result){
         search_nodes = 0;
 
         // Iterative deepening.
@@ -291,6 +291,7 @@ namespace ChessEngine {
         for (int current_depth = 1; current_depth <= depth; current_depth++) {
             // Using 16 bits because 32 overflows.
             int eval = PVSearch(board, current_depth, 0, a, b, best_move, true);
+            eval_result = eval;
             //if(current_depth == depth)
             //  std::cout << "evaluation : " << eval << std::endl;
 
