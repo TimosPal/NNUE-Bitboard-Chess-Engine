@@ -163,14 +163,14 @@ namespace ChessEngine {
         bool is_pv_node = b - a != 1;
 
         // TT probing.
-        TTEntry entry_result;
+        TranspositionTable::TTEntry entry_result;
         bool entry_found = transposition_table.GetEntry(zobrist_key, entry_result);
         if(entry_found && !is_root && entry_result.depth >= depth){
-            if(entry_result.type == NodeType::Exact){
+            if(entry_result.type == TranspositionTable::NodeType::Exact){
                 return entry_result.evaluation;
-            }else if(entry_result.type == NodeType::Alpha && entry_result.evaluation <= a){
+            }else if(entry_result.type == TranspositionTable::NodeType::Alpha && entry_result.evaluation <= a){
                 return a;
-            }else if(entry_result.type == NodeType::Beta && entry_result.evaluation >= b){
+            }else if(entry_result.type == TranspositionTable::NodeType::Beta && entry_result.evaluation >= b){
                 return b;
             }
         }
@@ -219,7 +219,7 @@ namespace ChessEngine {
         }
 
         // Main PVS loop.
-        NodeType node_type = NodeType::Alpha;
+        TranspositionTable::NodeType node_type = TranspositionTable::NodeType::Alpha;
         Move current_best_move;
         bool pv_search = true;
         int moves_played = 0;
@@ -263,11 +263,11 @@ namespace ChessEngine {
                 current_best_move = move;
             }
             if(score >= b) {
-                node_type = NodeType::Beta;
+                node_type = TranspositionTable::NodeType::Beta;
                 break;
             }
             if(score > a) {
-                node_type = NodeType::Exact;
+                node_type = TranspositionTable::NodeType::Exact;
                 pv_search = false;
                 a = score;
 
@@ -277,7 +277,8 @@ namespace ChessEngine {
         }
 
         // Add entry to TT.
-        transposition_table.AddEntry(zobrist_key, TTEntry(depth, best_score, node_type, current_best_move));
+        auto entry = TranspositionTable::TTEntry(depth, best_score, node_type, current_best_move);
+        transposition_table.AddEntry(zobrist_key, entry);
         return best_score;
     }
 

@@ -3,7 +3,7 @@
 
 namespace ChessEngine{
 
-    TTEntry::TTEntry(uint8_t depth, int evaluation, NodeType type, Move best_move){
+    TranspositionTable::TTEntry::TTEntry(uint8_t depth, int evaluation, NodeType type, Move best_move){
         this->evaluation = evaluation;
         this->depth = depth;
         this->type = type;

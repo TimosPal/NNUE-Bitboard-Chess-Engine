@@ -7,22 +7,22 @@
 
 namespace ChessEngine{
 
-    enum class NodeType{
-        Alpha, Beta, Exact
-    };
-
-    struct TTEntry{
-        NodeType type; // Determines if we check a,b or just return.
-        int evaluation; // Position evaluation.
-        uint8_t depth; // depth of search's iteration.
-        Move best_move; // Picked move on said search's node.
-
-        TTEntry(uint8_t depth, int evaluation, NodeType, Move best_move = Move());
-        TTEntry() = default;
-    };
-
     class TranspositionTable{
     public:
+        enum class NodeType{
+            Alpha, Beta, Exact
+        };
+
+        struct TTEntry{
+            NodeType type; // Determines if we check a,b or just return.
+            int evaluation; // Position evaluation.
+            uint8_t depth; // depth of search's iteration.
+            Move best_move; // Picked move on said search's node.
+
+            TTEntry(uint8_t depth, int evaluation, NodeType, Move best_move = Move());
+            TTEntry() = default;
+        };
+
         void Clear() { table_.clear(); }
         void Reserve(int size) { table_.reserve(size); }
         void AddEntry(uint64_t zobrist_key, const TTEntry& entry);
