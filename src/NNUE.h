@@ -6,7 +6,7 @@
 
 #include "Utilities.h"
 #include "Board.h"
-#include "nnue-probe/nnue.h"
+#include "../nnue-probe/nnue.h"
 
 namespace ChessEngine {
     class NNUE{

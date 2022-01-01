@@ -13,40 +13,41 @@ set (CMAKE_CXX_FLAGS "-msse4.1 -msse3 -msse2 -msse")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 add_executable(Tim_ChessEngine
-        main.cpp
-        Bitboard.h
-        Bitboard.cpp
-        Board.cpp
-        Board.h
-        Move.h
-        FenParser.h
-        FenParser.cpp
-        Utilities.cpp
-        Utilities.h
-        AttackTables.cpp
-        AttackTables.h
-        MagicNumbers.h
-        PseudoMoves.cpp
-        PseudoMoves.h
-        BoardTile.h
-        Timer.cpp
-        Timer.h
+        src/main.cpp
+        src/Bitboard.h
+        src/Bitboard.cpp
+        src/Board.cpp
+        src/Board.h
+        src/Move.h
+        src/FenParser.h
+        src/FenParser.cpp
+        src/Utilities.cpp
+        src/Utilities.h
+        src/AttackTables.cpp
+        src/AttackTables.h
+        src/MagicNumbers.h
+        src/PseudoMoves.cpp
+        src/PseudoMoves.h
+        src/BoardTile.h
+        src/Timer.cpp
+        src/Timer.h
         nnue-probe/misc.cpp
         nnue-probe/misc.h
         nnue-probe/nnue.cpp
         nnue-probe/nnue.h
-        NNUE.h
-        NNUE.cpp Search.h
-        Search.cpp
-        ZobristKey.h
-        ZobristKey.cpp
-        TranspositionTable.h
-        TranspositionTable.cpp
-        UCI.h
-        Move.cpp
-        UCI.cpp
-        History.h
-        MCTS.h MCTS.cpp)
+        src/NNUE.h
+        src/NNUE.cpp src/Search.h
+        src/Search.cpp
+        src/ZobristKey.h
+        src/ZobristKey.cpp
+        src/TranspositionTable.h
+        src/TranspositionTable.cpp
+        src/UCI.h
+        src/Move.cpp
+        src/UCI.cpp
+        src/History.h
+        src/MCTS.h
+        src/MCTS.cpp)
 
 target_compile_definitions(Tim_ChessEngine PRIVATE PROFILER)
 target_compile_definitions(Tim_ChessEngine PRIVATE NDEBUG)
