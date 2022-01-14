@@ -76,6 +76,7 @@ namespace ChessEngine::UCI{
 
             int eval;
             Move best_move = GetBestMove(board, depth, eval);
+            std::cout << "info depth " << depth << " score cp " << eval << std::endl;
             std::cout << "bestmove " << best_move.AlgebraicNotation(board.IsFlipped()) << std::endl;
         }
     }

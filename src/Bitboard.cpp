@@ -62,7 +62,7 @@ namespace ChessEngine {
         // index_new - index_curr =  8*y_off + x_off.
         Bitboard temp = *this;
         auto[x_offset, y_offset] = direction;
-        int8_t offset = 8*y_offset + x_offset;
+        int8_t offset = 8 * y_offset + x_offset;
         if(offset > 0)
             temp.data_ <<= offset;
         else
