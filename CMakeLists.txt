@@ -3,6 +3,9 @@ project(ChessEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
+include_directories(./src
+        ./dependencies)
+
 # Ensure a build type is set.
 if(NOT CMAKE_BUILD_TYPE)
     message("Build type automatically set to [Release].")
@@ -70,10 +73,6 @@ add_executable(${EXE_NAME}
         src/representation/BoardTile.h
         src/miscellaneous/Timer.cpp
         src/miscellaneous/Timer.h
-        nnue-probe/misc.cpp
-        nnue-probe/misc.h
-        nnue-probe/nnue.cpp
-        nnue-probe/nnue.h
         src/search/NNUE.h
         src/search/NNUE.cpp src/search/Search.h
         src/search/Search.cpp
@@ -86,7 +85,11 @@ add_executable(${EXE_NAME}
         src/miscellaneous/UCI.cpp
         src/representation/History.h
         src/search/MCTS.h
-        src/search/MCTS.cpp)
+        src/search/MCTS.cpp
+        dependencies/nnue-probe/src/misc.cpp
+        dependencies/nnue-probe/src/misc.h
+        dependencies/nnue-probe/src/nnue.cpp
+        dependencies/nnue-probe/src/nnue.h)
 
 message("-----------------------------------")
 message("Profiler enabled.")

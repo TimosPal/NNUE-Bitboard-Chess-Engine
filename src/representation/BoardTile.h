@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <tuple>
 
-#include "Bitboard.h"
+#include <representation/Bitboard.h>
 
 namespace ChessEngine {
 

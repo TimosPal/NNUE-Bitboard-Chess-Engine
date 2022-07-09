@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../representation/Board.h"
+#include <representation/Board.h>
 
 namespace ChessEngine {
     /* Various helper functions are implemented within the .cpp file */

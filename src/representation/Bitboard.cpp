@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "BoardTile.h"
+#include <representation/BoardTile.h>
 
 namespace ChessEngine {
 

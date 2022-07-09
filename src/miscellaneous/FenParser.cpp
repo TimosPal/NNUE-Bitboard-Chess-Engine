@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-#include "Utilities.h"
 
 namespace ChessEngine {
 

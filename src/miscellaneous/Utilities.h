@@ -7,9 +7,9 @@
 #include <tuple>
 #include <vector>
 
-#include "../representation/Bitboard.h"
-#include "../representation/BoardTile.h"
-#include "Timer.h"
+#include <representation/Bitboard.h>
+#include <representation/BoardTile.h>
+#include <miscellaneous/Timer.h>
 
 #define ERROR 1
 #define IF_ERROR(cond, msg) {if(cond) { std::cout << "[ERROR] " << msg << std::endl; return ERROR;}}

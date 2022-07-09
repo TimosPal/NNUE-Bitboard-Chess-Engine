@@ -1,7 +1,6 @@
 #include "ZobristKey.h"
 
 #include <random>
-#include <cmath>
 
 namespace ChessEngine::Zobrist {
     static uint64_t piece_square_key[16][64];

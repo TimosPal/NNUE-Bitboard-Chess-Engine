@@ -4,10 +4,10 @@
 #include <string>
 #include <tuple>
 
-#include "Bitboard.h"
-#include "BoardTile.h"
-#include "../miscellaneous/Utilities.h"
-#include "../moves/Move.h"
+#include <representation/Bitboard.h>
+#include <representation/BoardTile.h>
+#include <miscellaneous/Utilities.h>
+#include <moves/Move.h>
 
 namespace ChessEngine {
 

@@ -1,7 +1,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "../representation/Board.h"
+#include <representation/Board.h>
 
 namespace ChessEngine {
 

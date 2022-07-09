@@ -1,10 +1,9 @@
 #include "Search.h"
 
 #include <algorithm>
-#include <random>
 
-#include "NNUE.h"
-#include "TranspositionTable.h"
+#include <search/NNUE.h>
+#include <search/TranspositionTable.h>
 
 namespace ChessEngine {
 

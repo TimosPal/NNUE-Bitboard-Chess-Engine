@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-#include "../moves/Move.h"
+#include <moves/Move.h>
 
 namespace ChessEngine{
 

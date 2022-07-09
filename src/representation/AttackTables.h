@@ -1,7 +1,7 @@
 #ifndef ATTACKTABLES_H
 #define ATTACKTABLES_H
 
-#include "Bitboard.h"
+#include <representation/Bitboard.h>
 
 namespace ChessEngine::AttackTables{
     void InitMoveTables();

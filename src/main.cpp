@@ -1,8 +1,8 @@
-#include "representation/AttackTables.h"
-#include "miscellaneous/FenParser.h"
-#include "search/NNUE.h"
-#include "search/ZobristKey.h"
-#include "miscellaneous/UCI.h"
+#include <representation/AttackTables.h>
+#include <miscellaneous/FenParser.h>
+#include <search/NNUE.h>
+#include <search/ZobristKey.h>
+#include <miscellaneous/UCI.h>
 
 int main() {
     {

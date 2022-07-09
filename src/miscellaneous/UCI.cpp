@@ -1,7 +1,7 @@
 #include "UCI.h"
 
-#include "FenParser.h"
-#include "../search/Search.h"
+#include <miscellaneous/FenParser.h>
+#include <search/Search.h>
 
 namespace ChessEngine::UCI{
 

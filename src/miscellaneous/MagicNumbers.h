@@ -1,7 +1,7 @@
 #ifndef MAGICNUMBERS_H
 #define MAGICNUMBERS_H
 
-#include "../representation/Bitboard.h"
+#include <representation/Bitboard.h>
 
 namespace ChessEngine::MagicNumbers {
 

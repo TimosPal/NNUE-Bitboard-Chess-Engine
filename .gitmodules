@@ -1,0 +1,3 @@
+[submodule "dependencies/nnue-probe"]
+	path = dependencies/nnue-probe
+	url = https://github.com/dshawul/nnue-probe

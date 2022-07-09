@@ -3,11 +3,11 @@
 #include <cassert>
 #include <algorithm>
 
-#include "../moves/PseudoMoves.h"
-#include "AttackTables.h"
-#include "../search/NNUE.h"
-#include "../search/ZobristKey.h"
-#include "History.h"
+#include <moves/PseudoMoves.h>
+#include <representation/AttackTables.h>
+#include <representation/History.h>
+#include <search/NNUE.h>
+#include <search/ZobristKey.h>
 
 namespace ChessEngine {
 
