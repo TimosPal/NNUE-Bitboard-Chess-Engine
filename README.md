@@ -1,5 +1,6 @@
 # NNUE-Bitboard-Chess-Engine
-This is a bitboard chess engine that uses an NNUE model for node evaluation inside a PVS search.
+This is a bitboard chess engine that uses an NNUE model for node evaluation inside a PVS search. 
+For more information on this current project and other techniques concerning chess engines see my [bsc dissertation](./dissertation.pdf) (written in greek).
 
 # Build info
 Compiled with: cmake CMakeLists -> make
