@@ -10,23 +10,6 @@ should be disabled within the CMakeLists file.
 
 Possible options: USE_SSE41 USE_SSE3 USE_SSE2 USE_SSE USE_AVX2. The more instructions supported the better the speed (search nps)
 
-# UCI
-The engine supports the basic UCI commands so it can be used inside GUI apps.
-
-- ucinewgame // Starts a new game (required by the protocol) 
-- position fen [fen string] // Sets a [fen] position
-- position default // Sets the default position
-- go depth [n] // Searches for the best move with depth [n].
-- quit // Quits the program
-
-More info on the UCI protocol can be read here http://wbec-ridderkerk.nl/html/UCIProtocol.html
-
-# Fen strings
-
- Fen strings describe a board state, whose turn it is, if en passant is available, castling rights, piece positions and half/full move counters. 
- 
- Default fen string: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-
 # Bitboards
 Bitboards (bitmaps) are used to represent various states and piece positions within the chess board. 
 They utilise the fact that a uint_64 has excactly as many bits as we need to represent an 8x8 chess board. 
@@ -51,7 +34,10 @@ For slider pieces pre-calculated magic numbers are used (magic bitboards techniq
 Eg: In the following example we create a custom mask for the bishop rays at the position e5. We then filter the relevant
 tiles from the occupancy board from said position to find the blocker pieces. By multiplying by a magic number
 we can flatten the diagonal to be used as a key to a precalculated move table.
-![magic bitboards example](./images/magic_bitboards_example.png)
+
+<p align="center">
+  <img src="./images/magic_bitboards_example.png" alt="Sublime's custom image"/>
+</p>
 
 Exception: pawn pushes are calculated on the spot due to their simplicity and strong correlation to the occupancy bitboards when calculating double pushes on the 2nd or 7th ranks.
 A pseudo move is considered legal if, after being applied, it leaves no checks. This assume we apply the move to a temporary copy of the current state which is later discarded.
@@ -66,6 +52,23 @@ To find the optimal move a PVS implementation is used. The following optimizatio
 - late move pruning
 - static null move pruning
 - check extension
+
+# UCI
+The engine supports the basic UCI commands so it can be used inside GUI apps.
+
+- ucinewgame // Starts a new game (required by the protocol) 
+- position fen [fen string] // Sets a [fen] position
+- position default // Sets the default position
+- go depth [n] // Searches for the best move with depth [n].
+- quit // Quits the program
+
+More info on the UCI protocol can be read here http://wbec-ridderkerk.nl/html/UCIProtocol.html
+
+# Fen strings
+
+ Fen strings describe a board state, whose turn it is, if en passant is available, castling rights, piece positions and half/full move counters. 
+ 
+ Default fen string: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 # Dependencies
 This engine uses the NNUE-probe library as a submodule. Furthermore the model file is required. 
