@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "Utilities.h"
+#include "../miscellaneous/Utilities.h"
 
 namespace ChessEngine {
 

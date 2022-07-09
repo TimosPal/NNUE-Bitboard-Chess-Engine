@@ -1,7 +1,7 @@
 #include "AttackTables.h"
 
-#include "Utilities.h"
-#include "MagicNumbers.h"
+#include "../miscellaneous/Utilities.h"
+#include "../miscellaneous/MagicNumbers.h"
 
 // TODO: _pex_u64 (not supported by my computer).
 

@@ -6,8 +6,8 @@
 
 #include "Bitboard.h"
 #include "BoardTile.h"
-#include "Utilities.h"
-#include "Move.h"
+#include "../miscellaneous/Utilities.h"
+#include "../moves/Move.h"
 
 namespace ChessEngine {
 

@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include "AttackTables.h"
+#include "../representation/AttackTables.h"
 
 namespace ChessEngine::PseudoMoves {
 

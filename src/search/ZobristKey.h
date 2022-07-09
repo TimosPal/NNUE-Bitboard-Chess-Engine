@@ -1,8 +1,8 @@
 #ifndef ZOBRISTKEY_H
 #define ZOBRISTKEY_H
 
-#include "Board.h"
-#include "Utilities.h"
+#include "../representation/Board.h"
+#include "../miscellaneous/Utilities.h"
 
 namespace ChessEngine::Zobrist {
     uint64_t GetPieceSquareKey(PieceType type, bool is_white, uint8_t tile_index);

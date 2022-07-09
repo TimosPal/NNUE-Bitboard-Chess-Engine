@@ -53,40 +53,40 @@ set(CMAKE_CXX_FLAGS ${INTRINSICS})
 
 add_executable(${EXE_NAME}
         src/main.cpp
-        src/Bitboard.h
-        src/Bitboard.cpp
-        src/Board.cpp
-        src/Board.h
-        src/Move.h
-        src/FenParser.h
-        src/FenParser.cpp
-        src/Utilities.cpp
-        src/Utilities.h
-        src/AttackTables.cpp
-        src/AttackTables.h
-        src/MagicNumbers.h
-        src/PseudoMoves.cpp
-        src/PseudoMoves.h
-        src/BoardTile.h
-        src/Timer.cpp
-        src/Timer.h
+        src/representation/Bitboard.h
+        src/representation/Bitboard.cpp
+        src/representation/Board.cpp
+        src/representation/Board.h
+        src/moves/Move.h
+        src/miscellaneous/FenParser.h
+        src/miscellaneous/FenParser.cpp
+        src/miscellaneous/Utilities.cpp
+        src/miscellaneous/Utilities.h
+        src/representation/AttackTables.cpp
+        src/representation/AttackTables.h
+        src/miscellaneous/MagicNumbers.h
+        src/moves/PseudoMoves.cpp
+        src/moves/PseudoMoves.h
+        src/representation/BoardTile.h
+        src/miscellaneous/Timer.cpp
+        src/miscellaneous/Timer.h
         nnue-probe/misc.cpp
         nnue-probe/misc.h
         nnue-probe/nnue.cpp
         nnue-probe/nnue.h
-        src/NNUE.h
-        src/NNUE.cpp src/Search.h
-        src/Search.cpp
-        src/ZobristKey.h
-        src/ZobristKey.cpp
-        src/TranspositionTable.h
-        src/TranspositionTable.cpp
-        src/UCI.h
-        src/Move.cpp
-        src/UCI.cpp
-        src/History.h
-        src/MCTS.h
-        src/MCTS.cpp)
+        src/search/NNUE.h
+        src/search/NNUE.cpp src/search/Search.h
+        src/search/Search.cpp
+        src/search/ZobristKey.h
+        src/search/ZobristKey.cpp
+        src/search/TranspositionTable.h
+        src/search/TranspositionTable.cpp
+        src/miscellaneous/UCI.h
+        src/moves/Move.cpp
+        src/miscellaneous/UCI.cpp
+        src/representation/History.h
+        src/search/MCTS.h
+        src/search/MCTS.cpp)
 
 message("-----------------------------------")
 message("Profiler enabled.")

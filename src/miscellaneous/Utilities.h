@@ -7,8 +7,8 @@
 #include <tuple>
 #include <vector>
 
-#include "Bitboard.h"
-#include "BoardTile.h"
+#include "../representation/Bitboard.h"
+#include "../representation/BoardTile.h"
 #include "Timer.h"
 
 #define ERROR 1

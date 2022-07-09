@@ -2,7 +2,7 @@
 #define PSEUDOMOVES_H
 
 #include "Move.h"
-#include "Board.h"
+#include "../representation/Board.h"
 
 namespace ChessEngine::PseudoMoves {
     // Gets pseudo single / double pushes , captures and promotions. Does not include en passant.

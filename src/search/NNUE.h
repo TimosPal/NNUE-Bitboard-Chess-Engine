@@ -4,9 +4,9 @@
 #define REMOVED_SQUARE 64 // TODO: better way?
 #define MAX_HSTACK 1024 // Max size of NNUE alligned memory.
 
-#include "Utilities.h"
-#include "Board.h"
-#include "../nnue-probe/nnue.h"
+#include "../miscellaneous/Utilities.h"
+#include "../representation/Board.h"
+#include "../../nnue-probe/nnue.h"
 
 namespace ChessEngine {
     class NNUE{

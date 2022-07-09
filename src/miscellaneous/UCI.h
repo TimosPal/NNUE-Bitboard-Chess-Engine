@@ -2,7 +2,7 @@
 #define UCI_H
 
 #include <string>
-#include "Board.h"
+#include "../representation/Board.h"
 
 namespace ChessEngine::UCI{
     // Rest of the functions are helpers for the main loop and are kept
