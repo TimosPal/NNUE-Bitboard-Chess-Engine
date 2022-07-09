@@ -33,8 +33,7 @@ They utilise the fact that a uint_64 has excactly as many bits as we need to rep
 This method offers great computational speed when run in 64 bit architectures where 64 bit registers can be used.
 When we want to add remove ot check anything within our set all we have to do is use binary operators.
 
-Eg: a | (1L << b), a & (1L << b)
-
+eg: We can enable the i-th position of board A by doing A |= (1L << i). 
 These basic operations are abstracted within a bitboard class.
 
 # Move generation
@@ -48,6 +47,11 @@ We differentiate between two piece categories. Leaper pieces and sliding pieces.
 
 Attack / move tables are pre-generated at startup. This way we can get all the possible pseudo moves for a given position without needing to calculate them on the fly.
 For slider pieces pre-calculated magic numbers are used (magic bitboards technique)
+
+Eg: In the following example we create a custom mask for the bishop rays at the position e5. We then filter the relevant
+tiles from the occupancy board from said position to find the blocker pieces. By multiplying by a magic number
+we can flatten the diagonal to be used as a key to a precalculated move table.
+![magic bitboards example](./images/magic_bitboards_example.png)
 
 Exception: pawn pushes are calculated on the spot due to their simplicity and strong correlation to the occupancy bitboards when calculating double pushes on the 2nd or 7th ranks.
 A pseudo move is considered legal if, after being applied, it leaves no checks. This assume we apply the move to a temporary copy of the current state which is later discarded.
