@@ -102,6 +102,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif ()
 
 target_compile_definitions(${EXE_NAME} PRIVATE ${INTRINSICS_DEFINES})
+target_compile_definitions(${EXE_NAME} PRIVATE "DLL_EXPORT")
 
 message("Linking : ${CMAKE_CXX_FLAGS}")
 message("Release flags : ${CMAKE_CXX_FLAGS_RELEASE}")
